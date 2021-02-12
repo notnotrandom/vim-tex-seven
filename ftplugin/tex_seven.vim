@@ -75,7 +75,7 @@ setlocal fo=tcq
 setlocal omnifunc=tex_seven#OmniCompletion
 " setlocal completefunc=tex_seven#MathCompletion
 " *****************************************************************
-call tex_seven#omni#SetMainFile()
+call tex_seven#omni#AddBuffer()
 
 """ Mappings
 
@@ -86,20 +86,23 @@ endif
 let g:maplocalleader = b:tex_seven_config.leader 
 
 " Viewing
-noremap <buffer><silent> <LocalLeader>V :call tex_seven#ViewDocument()<CR>
+nnoremap <buffer><silent> <LocalLeader>V :call tex_seven#ViewDocument()<CR>
 
 " Misc
 noremap <buffer><silent> <LocalLeader>U :call tex_seven#Reconfigure(b:tex_seven_config)<CR>
 noremap <buffer><silent> <LocalLeader>Q :copen<CR>
 
+nnoremap <buffer><silent> gm :execute "edit " . tex_seven#omni#GetMainFile()<CR>
+
 " Go from \ref to \label, or from \cite bib entry preview.
-noremap <buffer><silent> gd :call tex_seven#QueryMap()<CR>
+nnoremap <buffer><silent> gp :call tex_seven#QueryMap()<CR>
+
 
 " Insert mode mappings
 inoremap <buffer> <LocalLeader><LocalLeader> <LocalLeader>
 inoremap <buffer> <LocalLeader>M \
 inoremap <buffer> <LocalLeader>" ``''<Left><Left>
-inoremap <buffer><expr> <LocalLeader>C tex_seven#SmartInsert('\cite{', '\[cC]ite')
+inoremap <buffer><expr> <LocalLeader>C tex_seven#SmartInsert('\cite{')
 inoremap <buffer><expr> <LocalLeader>E tex_seven#SmartInsert('\eqref{')
 inoremap <buffer><expr> <LocalLeader>R tex_seven#SmartInsert('\ref{')
 inoremap <buffer><expr> <LocalLeader>Z tex_seven#SmartInsert('\includeonly{')

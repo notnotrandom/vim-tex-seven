@@ -1,7 +1,7 @@
 " LaTeX filetype plugin
 " Languages:    Vimscript
-" Maintainer:   Óscar Pereira
-" Version:      0.2
+" Author:       Óscar Pereira
+" Version:      1.0
 " License:      GPL
 
 "************************************************************************
@@ -62,11 +62,90 @@ function tex_seven#OmniCompletion(findstart, base)
   endif
 endfunction
 
+function tex_seven#QueryMap()
+  let l:cursorColumn = col('.') - 1 " Array idx starts at 0, unlike columns.
+  echom l:cursorColumn
+  let l:keyword = ""
+  let l:startBackslashIdx = ""
+  let l:fullline = getline('.')
+  let l:line = l:fullline[:l:cursorColumn] " Unlike Python, this includes the last index!
+  let l:line = l:fullline
+  let l:start = l:cursorColumn
+  if l:line[l:start] == '\'
+    let l:start += 1
+  endif
+  while l:start > 0
+    if l:line[l:start - 1] == '\'
+      " echom  "foudass" . l:line[l:start:]
+      let l:keyword = matchstr(l:line[l:start:l:cursorColumn], '\m\zs\a\+\ze\(\[.\+\]\)\?{')
+      if l:keyword != ""
+        let l:startBackslashIdx = l:start - 1
+        break
+      endif
+    endif
+    let l:start -= 1
+  endwhile
+  echom "keyword: " . l:keyword
+
+  " let cmd=getreg()
+  if l:keyword =~? '\\.*ref{'
+    normal! f}vi}y
+    let refkey = getreg()
+    echom refkey
+    call tex_seven#RefQuery(refkey)
+  else
+    " l:start is the c in \cite
+    let l:aux = matchstrpos(l:fullline,
+          \ '\m\\' . l:keyword . '\(\[.\+\]\)\?\zs{\ze', l:startBackslashIdx)
+    let l:startOpenBraceIdx = l:startBackslashIdx + l:aux[1]
+    " echom "full line: " . l:fullline
+    echom "aux 1: " . l:aux[1]
+    echom "start backslash idx: " . l:startBackslashIdx
+    echom "start open brace idx: " . l:startOpenBraceIdx
+    " if l:cursorColumn <= l:start " Return first entry key.
+      " nothing to do, l:start at the right place
+    if l:cursorColumn <= l:startOpenBraceIdx " Return first entry key.
+      let l:start = l:startOpenBraceIdx + 1
+    else
+      let l:start = l:cursorColumn
+      while l:start > 0
+        if l:fullline[l:start - 1] == '{' || l:fullline[l:start - 1] == ','
+              \ || l:fullline[l:start - 1] == ' '
+          break
+        endif
+        let l:start -= 1
+      endwhile
+    endif
+
+    if l:cursorColumn <= l:startOpenBraceIdx " Return first entry key.
+      let l:stop = l:startOpenBraceIdx + 1
+    else
+      let l:stop = l:cursorColumn
+      if l:fullline[l:stop] == '}'
+        let l:stop -= 1
+      endif
+    endif
+
+    while l:stop < len(l:fullline)
+      if l:fullline[l:stop + 1] == '}' || l:fullline[l:stop + 1] == ','
+              \ || l:fullline[l:stop + 1] == ' '
+        break
+      endif
+      let l:stop += 1
+    endwhile
+    call tex_seven#omni#BibQuery(l:fullline[l:start:l:stop])
+  endif
+endfunction
+
 " Inserts a LaTeX statement and starts omni completion. If the
 " line already contains the statement and the statement is still
 " incomplete, i.e. missing the closing delimiter, only omni
 " completion is started.
-function tex_seven#SmartInsert(keyword, ...)
+function tex_seven#SmartInsert(keyword)
+  if a:keyword == '\includeonly{' && expand('%:p') != tex_seven#omni#GetMainFile()
+    echohl WarningMsg |
+          \ call input("\\includeonly can only be used in main file! (Hit <Enter to continue>)")
+  endif
   return a:keyword."}\<Esc>i"
 endfunction
 

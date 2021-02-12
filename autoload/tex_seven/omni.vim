@@ -38,7 +38,7 @@ let s:bibtexSourcesFilePattern = '\m^\\\(bibliography\|addbibresources\){\zs\S\+
 
 let s:bibEntryList = []
 let s:emptyOrCommentLinesPattern = '\m^\s*\(%\|$\)'
-let s:epochMainFileLastRead = ""
+let s:epochMainFileLastReadForIncludes = ""
 let s:epochSourceFileLastRead = ""
 
 let s:includedFilePattern = '\m^\\include{\zs\S\+\ze}'
@@ -51,6 +51,16 @@ let s:mainFile = ""
 let s:modelinePattern = '\m^\s*%\s*mainfile:\s*\zs\S\+\ze'
 
 let s:sourcesFile = ""
+
+function tex_seven#omni#BibQuery(citekey)
+  if s:sourcesFile == ""
+    call tex_seven#omni#SetSourcesFile()
+  endif
+
+  execute 'pedit +/' . a:citekey . ' ' . s:sourcesFile
+  windo if &previewwindow | execute 'normal zR zz' | endif
+  redraw
+endfunction
 
 " Brief:
 function tex_seven#omni#GetBibEntries()
@@ -102,25 +112,23 @@ function tex_seven#omni#GetIncludedFiles()
 
   let l:needToReadMainFile = "false"
 
-  if s:epochMainFileLastRead == "" || s:includedFilesList == []
-    " We have not previously read s:mainFile, or we did read it, but not to
-    " extract the \include'd files. (E.g. could have been read to find
-    " bibliography source file.) So set the variable to read s:mainFile.
+  if s:epochMainFileLastReadForIncludes == ""
+    " We have not previously read s:mainFile. So set the l:needToReadMainFile
+    " variable to read s:mainFile.
     let l:needToReadMainFile = "true"
-
   else
-    " We have previously read s:mainFile, and extracted the list of \include'd
-    " files, so we just need to check if it must be (re-)read.
+    " We have previously read s:mainFile for \include'd files extraction, so
+    " we just need to check if it must be (re-)read (i.e. if that \include'd
+    " file list needs to be updated).
     let l:epochMainFileLastModified = str2nr(system("stat --format %Y " . s:mainFile))
 
-    if l:epochMainFileLastModified > s:epochMainFileLastRead
+    if l:epochMainFileLastModified > s:epochMainFileLastReadForIncludes
       let l:needToReadMainFile = "true"
     endif
   endif
 
   if l:needToReadMainFile == "true"
     let s:includedFilesList = []
-    let s:epochMainFileLastRead = str2nr(system("date +%s"))
 
     for line in readfile(s:mainFile)
       let included_file = matchstr(line, s:includedFilePattern)
@@ -128,26 +136,49 @@ function tex_seven#omni#GetIncludedFiles()
         call add(s:includedFilesList, included_file)
       endif
     endfor
+    let s:epochMainFileLastReadForIncludes = str2nr(system("date +%s"))
   endif
   return s:includedFilesList
+endfunction
+
+function tex_seven#omni#GetMainFile()
+  if s:mainFile == ""
+    throw "Main file is not set!"
+  endif
+  return s:mainFile
 endfunction
 
 " For completion of say, \cite{}, the cursor is on '}'. Also remember that
 " col() starts at 1, but lists (arrays) start at zero!
 function tex_seven#omni#OmniCompletions()
-  let l:line = getline('.')
+  let l:cursorColumn = col('.') - 1
+  let l:keyword = ""
+  let l:line = getline('.')[: l:cursorColumn - 1] " Unlike Python, this includes the last index!
   let l:start = col('.') - 1
-  while l:start > 0 && l:line[l:start - 1] != '\'
+  while l:start > 0
+    if l:line[l:start - 1] == '\'
+      echom l:line[l:start:] . '|'
+      let l:keyword = matchstr(l:line[l:start:],
+            \ '\m\zs\a\+\ze\(\[.\+\]\)\?{\(.\+,\s*\)*$')
+      if l:keyword != ""
+        break
+      endif
+    endif
     let l:start -= 1
   endwhile
 
-  let l:keyword = l:line[l:start:col('.') - 3]
   if l:keyword == 'cite'
     return tex_seven#omni#GetBibEntries()
   elseif l:keyword == 'includeonly'
     return tex_seven#omni#GetIncludedFiles()
   else
     return []
+  endif
+endfunction
+
+function tex_seven#omni#AddBuffer()
+  if s:mainFile == ""
+    call tex_seven#omni#SetMainFile()
   endif
 endfunction
 
@@ -180,7 +211,6 @@ function tex_seven#omni#SetMainFile()
 
     if line =~ '\m^\\documentclass'
       let s:mainFile = expand('%:p')
-      let s:epochMainFileLastRead = str2nr(system("stat --format %Y " . s:mainFile))
       continue
     endif
 
@@ -193,6 +223,9 @@ function tex_seven#omni#SetMainFile()
       continue
     endif
 
+    " Similarly to the comment above, since we already iterating over the main
+    " file's lines, we also search for \include'd files, if any. Note that as
+    " we are setting the main file, s:includedFilesList should be empty.
     let l:aux = matchstr(line, s:includedFilePattern)
     if l:aux != ""
       call add(s:includedFilesList, l:aux)
@@ -201,8 +234,12 @@ function tex_seven#omni#SetMainFile()
   endfor
 
   " If the current buffer indeed turned out to be the main one, then there is
-  " nothing else to do.
-  if s:mainFile != "" | return | endif
+  " nothing else to do (other than updating the time it was last read, which
+  " is just now).
+  if s:mainFile != ""
+    let s:epochMainFileLastReadForIncludes = str2nr(system("date +%s"))
+    return
+  endif
 
   " If the current buffer is not the main file, then go look for a modeline.
   " We start looking at the top of the file, and continue downwards (stopping
@@ -243,11 +280,24 @@ function tex_seven#omni#SetSourcesFile()
     throw "Main is not set!"
   endif
 
-  let s:epochMainFileLastRead = str2nr(system("date +%s"))
+  " Since we are reading the main file, we also update the \include'd file
+  " list.
+  let s:includedFilesList = []
+
   for line in readfile(s:mainFile)
     let l:aux = matchstr(line, s:bibtexSourcesFilePattern)
     if l:aux != ""
       let s:sourcesFile = fnamemodify(s:mainFile, ':p:h') . '/' . l:aux . ".bib"
+      continue
+    endif
+
+    " As mentioned above, since we are reading the main file anyway, we also
+    " check the \include'd files list.
+    let l:aux = matchstr(line, s:includedFilePattern)
+    if l:aux != ""
+      call add(s:includedFilesList, l:aux)
+      continue
     endif
   endfor
+  let s:epochMainFileLastReadForIncludes = str2nr(system("date +%s"))
 endfunction
