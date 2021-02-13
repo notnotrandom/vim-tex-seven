@@ -52,6 +52,12 @@ let s:modelinePattern = '\m^\s*%\s*mainfile:\s*\zs\S\+\ze'
 
 let s:sourcesFile = ""
 
+function tex_seven#omni#AddBuffer()
+  if s:mainFile == ""
+    call tex_seven#omni#SetMainFile()
+  endif
+endfunction
+
 function tex_seven#omni#BibQuery(citekey, preview)
   if s:sourcesFile == ""
     call tex_seven#omni#SetSourcesFile()
@@ -145,6 +151,28 @@ function tex_seven#omni#GetIncludedFiles()
   return s:includedFilesList
 endfunction
 
+function tex_seven#omni#GetLabels()
+  if s:mainFile == ""
+    throw "Main file is not set!"
+  endif
+
+  let l:labelsFound = []
+
+  " Since we need to read s:mainFile anayway, also check the \include's.
+  let s:includedFilesList = []
+
+  for line in readfile(s:mainFile)
+    let included_file = matchstr(line, s:includedFilePattern)
+    if included_file != ""
+      call add(s:includedFilesList, included_file)
+      continue " I don't expect for there to be \label's anywhere near \include's...
+    endif
+    let l:labelsInTheCurrentLine = matchlist(line, '\m\\label{\zs\S\+\ze}')
+    " TODO continue this...
+  endfor
+  let s:epochMainFileLastReadForIncludes = str2nr(system("date +%s"))
+endfunction
+
 function tex_seven#omni#GetMainFile()
   if s:mainFile == ""
     throw "Main file is not set!"
@@ -171,19 +199,20 @@ function tex_seven#omni#OmniCompletions()
     let l:start -= 1
   endwhile
 
+  echom "keyword: " . l:keyword
   if l:keyword == 'cite'
     return tex_seven#omni#GetBibEntries()
   elseif l:keyword == 'includeonly'
     return tex_seven#omni#GetIncludedFiles()
+  elseif l:keyword =~ '.*ref'
+    return tex_seven#omni#GetLabels()
   else
     return []
   endif
 endfunction
 
-function tex_seven#omni#AddBuffer()
-  if s:mainFile == ""
-    call tex_seven#omni#SetMainFile()
-  endif
+function tex_seven#omni#RefQuery(refkey, preview)
+  return ["foo", "bar" ]
 endfunction
 
 " Brief: Set s:mainFile, the file which contains a line beginning with:

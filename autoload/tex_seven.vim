@@ -102,11 +102,12 @@ function tex_seven#QueryMap(preview)
   echom "first char: " . l:firstCharIdx
 
   " let cmd=getreg()
-  if l:keyword =~? '\\.*ref{'
+  if l:keyword =~ '\\.*ref{'
+    echom "keyword: " . l:keyword
     normal! f}vi}y
     let refkey = getreg()
     echom refkey
-    call tex_seven#RefQuery(refkey)
+    call tex_seven#omni#BibQuery("foobar", a:preview)
   else
     let l:nextStart = l:firstCharIdx
     while 1

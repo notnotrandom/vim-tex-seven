@@ -99,7 +99,6 @@ nnoremap <buffer><silent> gm :execute "edit " . tex_seven#omni#GetMainFile()<CR>
 nnoremap <buffer><silent> gp :call tex_seven#QueryMap("true")<CR>
 nnoremap <buffer><silent> gd :call tex_seven#QueryMap("false")<CR>
 
-
 " Insert mode mappings
 inoremap <buffer> <LocalLeader><LocalLeader> <LocalLeader>
 inoremap <buffer> <LocalLeader>M \
