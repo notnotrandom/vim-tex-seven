@@ -64,28 +64,42 @@ endfunction
 
 function tex_seven#QueryMap()
   let l:cursorColumn = col('.') - 1 " Array idx starts at 0, unlike columns.
+  let l:startBackslashIdx = ""
   echom l:cursorColumn
   let l:keyword = ""
-  let l:startBackslashIdx = ""
-  let l:fullline = getline('.')
-  let l:line = l:fullline[:l:cursorColumn] " Unlike Python, this includes the last index!
-  let l:line = l:fullline
-  let l:start = l:cursorColumn
-  if l:line[l:start] == '\'
-    let l:start += 1
-  endif
-  while l:start > 0
-    if l:line[l:start - 1] == '\'
-      " echom  "foudass" . l:line[l:start:]
-      let l:keyword = matchstr(l:line[l:start:l:cursorColumn], '\m\zs\a\+\ze\(\[.\+\]\)\?{')
-      if l:keyword != ""
-        let l:startBackslashIdx = l:start - 1
+  let l:firstCharIdx = ""
+  let l:line = getline('.')
+  let l:entryKeyToBeSearched = ""
+  let l:res = ""
+
+  " echom "l:line[col('.') - 1 : ]:" . l:line[col('.') - 1 : ]
+  while 1
+    if l:line[col('.') - 1] == '\'
+      let l:startBackslashIdx = col('.') - 1
+      let l:res = matchstr(l:line[ l:startBackslashIdx : ], '\m^\\\zs\a\+\ze\(\[.\+\]\)\?{')
+      if res == ""
+        normal F\
+        continue
+      elseif l:res !~ '\m\(eq\)\?ref' &&
+            \ l:res !~ '\m\(no\)\?cite.\?'
+        echom "res: " . l:res
+        echoerr "Pattern not found"
+        return
+      else
+        let l:keyword = l:res
         break
       endif
+    else
+      normal F\
+      continue
     endif
-    let l:start -= 1
   endwhile
+
   echom "keyword: " . l:keyword
+  let l:res = matchstrpos(l:line[ l:startBackslashIdx : ],
+        \ '\m\\' . l:keyword . '\(\[.\+\]\)\?\zs{\ze')
+  let l:firstCharIdx = l:startBackslashIdx + l:res[2]
+  echom "first char: " . l:firstCharIdx
 
   " let cmd=getreg()
   if l:keyword =~? '\\.*ref{'
@@ -94,46 +108,31 @@ function tex_seven#QueryMap()
     echom refkey
     call tex_seven#RefQuery(refkey)
   else
-    " l:start is the c in \cite
-    let l:aux = matchstrpos(l:fullline,
-          \ '\m\\' . l:keyword . '\(\[.\+\]\)\?\zs{\ze', l:startBackslashIdx)
-    let l:startOpenBraceIdx = l:startBackslashIdx + l:aux[1]
-    " echom "full line: " . l:fullline
-    echom "aux 1: " . l:aux[1]
-    echom "start backslash idx: " . l:startBackslashIdx
-    echom "start open brace idx: " . l:startOpenBraceIdx
-    " if l:cursorColumn <= l:start " Return first entry key.
-      " nothing to do, l:start at the right place
-    if l:cursorColumn <= l:startOpenBraceIdx " Return first entry key.
-      let l:start = l:startOpenBraceIdx + 1
-    else
-      let l:start = l:cursorColumn
-      while l:start > 0
-        if l:fullline[l:start - 1] == '{' || l:fullline[l:start - 1] == ','
-              \ || l:fullline[l:start - 1] == ' '
-          break
-        endif
-        let l:start -= 1
+    let l:nextStart = l:firstCharIdx
+    while 1
+      " echom "foo"
+      let l:start = l:nextStart
+      let l:stop  = l:nextStart
+      while l:line[l:stop] != ',' && l:line[l:stop] != '}' && l:line[l:stop] != ' '
+        let l:stop += 1
       endwhile
-    endif
+      let l:stop -= 1
+      let l:entryKeyToBeSearched = l:line[l:start:l:stop]
 
-    if l:cursorColumn <= l:startOpenBraceIdx " Return first entry key.
-      let l:stop = l:startOpenBraceIdx + 1
-    else
-      let l:stop = l:cursorColumn
-      if l:fullline[l:stop] == '}'
-        let l:stop -= 1
-      endif
-    endif
+      " Discover start of next entry, if there is one.
+      let l:nextStart = l:stop + 1
+      while l:line[l:nextStart] == ',' || l:line[l:nextStart] == ' '
+          let l:nextStart += 1
+      endwhile
+      if l:line[l:nextStart] == '}' | break | endif
 
-    while l:stop < len(l:fullline)
-      if l:fullline[l:stop + 1] == '}' || l:fullline[l:stop + 1] == ','
-              \ || l:fullline[l:stop + 1] == ' '
+      if l:cursorColumn < l:nextStart
         break
       endif
-      let l:stop += 1
     endwhile
-    call tex_seven#omni#BibQuery(l:fullline[l:start:l:stop])
+
+    echom "l:entryKeyToBeSearched: " . l:entryKeyToBeSearched
+    call tex_seven#omni#BibQuery(l:entryKeyToBeSearched)
   endif
 endfunction
 
