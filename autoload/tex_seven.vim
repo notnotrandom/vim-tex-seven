@@ -62,7 +62,7 @@ function tex_seven#OmniCompletion(findstart, base)
   endif
 endfunction
 
-function tex_seven#QueryMap()
+function tex_seven#QueryMap(preview)
   let l:cursorColumn = col('.') - 1 " Array idx starts at 0, unlike columns.
   let l:startBackslashIdx = ""
   echom l:cursorColumn
@@ -132,7 +132,7 @@ function tex_seven#QueryMap()
     endwhile
 
     echom "l:entryKeyToBeSearched: " . l:entryKeyToBeSearched
-    call tex_seven#omni#BibQuery(l:entryKeyToBeSearched)
+    call tex_seven#omni#BibQuery(l:entryKeyToBeSearched, a:preview)
   endif
 endfunction
 

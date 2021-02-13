@@ -94,8 +94,10 @@ noremap <buffer><silent> <LocalLeader>Q :copen<CR>
 
 nnoremap <buffer><silent> gm :execute "edit " . tex_seven#omni#GetMainFile()<CR>
 
-" Go from \ref to \label, or from \cite bib entry preview.
-nnoremap <buffer><silent> gp :call tex_seven#QueryMap()<CR>
+" Go from \ref to \label, or from \cite bib entry. If argument is "true", use
+" preview window; if "false", use normal window (i.e. :edit).
+nnoremap <buffer><silent> gp :call tex_seven#QueryMap("true")<CR>
+nnoremap <buffer><silent> gd :call tex_seven#QueryMap("false")<CR>
 
 
 " Insert mode mappings

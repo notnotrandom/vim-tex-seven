@@ -52,12 +52,16 @@ let s:modelinePattern = '\m^\s*%\s*mainfile:\s*\zs\S\+\ze'
 
 let s:sourcesFile = ""
 
-function tex_seven#omni#BibQuery(citekey)
+function tex_seven#omni#BibQuery(citekey, preview)
   if s:sourcesFile == ""
     call tex_seven#omni#SetSourcesFile()
   endif
 
-  execute 'pedit +/' . a:citekey . ' ' . s:sourcesFile
+  " To preview, or not to preview.
+  let l:to_p_or_nor_to_p = 'p'
+  if a:preview == "false" | let l:to_p_or_nor_to_p = '' | endif
+
+  execute l:to_p_or_nor_to_p . 'edit +/' . a:citekey . ' ' . s:sourcesFile
   windo if &previewwindow | execute 'normal zR zz' | endif
   redraw
 endfunction
