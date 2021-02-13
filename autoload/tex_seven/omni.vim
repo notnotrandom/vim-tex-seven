@@ -141,6 +141,9 @@ function tex_seven#omni#GetIncludedFiles()
     let s:includedFilesList = []
 
     for line in readfile(s:mainFile)
+      if line =~ s:emptyOrCommentLinesPattern
+        continue " Skip comments or empty lines.
+      endif
       let included_file = matchstr(line, s:includedFilePattern)
       if included_file != ""
         call add(s:includedFilesList, included_file)
@@ -162,15 +165,28 @@ function tex_seven#omni#GetLabels()
   let s:includedFilesList = []
 
   for line in readfile(s:mainFile)
+    if line =~ s:emptyOrCommentLinesPattern
+      continue " Skip comments or empty lines.
+    endif
+
     let included_file = matchstr(line, s:includedFilePattern)
     if included_file != ""
       call add(s:includedFilesList, included_file)
       continue " I don't expect for there to be \label's anywhere near \include's...
     endif
-    let l:labelsInTheCurrentLine = matchlist(line, '\m\\label{\zs\S\+\ze}')
-    " TODO continue this...
+    call substitute(line,
+          \ '\m\\label{\zs\S\+\ze}', '\=add(l:labelsFound, submatch(0))', 'g')
+  endfor
+
+  let l:path = fnamemodify(s:mainFile, ':p:h') . '/'
+  for fname in s:includedFilesList
+    for line in readfile(l:path . fname . '.tex')
+      call substitute(line,
+            \ '\m\\label{\zs\S\+\ze}', '\=add(l:labelsFound, submatch(0))', 'g')
+    endfor
   endfor
   let s:epochMainFileLastReadForIncludes = str2nr(system("date +%s"))
+  return l:labelsFound
 endfunction
 
 function tex_seven#omni#GetMainFile()
