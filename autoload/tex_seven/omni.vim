@@ -183,23 +183,6 @@ function tex_seven#omni#GetLabels()
     endif
   endfor
 
-  for fname in s:includedFilesList
-    let fcontents = readfile(s:path . fname . '.tex')
-    for line in fcontents
-
-      " This matches once per line; see similar remark above.
-      let column = match(line,  '\m\\label{' . a:refkey . '}')
-      if column != ""
-        " To preview, or not to preview.
-        let l:to_p_or_nor_to_p = 'p'
-        if a:preview == "false" | let l:to_p_or_nor_to_p = '' | endif
-
-        execute l:to_p_or_nor_to_p . 'edit +/' . a:citekey . ' ' . s:path . fname . '.tex'
-        call setpos('.', [0, index(fcontents, line), column, 0])
-        windo if &previewwindow | execute 'normal zR zz' | endif
-      endif
-    endfor
-  endfor
   let s:epochMainFileLastReadForIncludes = str2nr(system("date +%s"))
   return l:labelsFound
 endfunction
@@ -254,15 +237,27 @@ function tex_seven#omni#RefQuery(refkey, preview)
     let l:currentFileIsMain = 1 " True.
   endif
 
+  let l:linenum = 0
   for line in getline(1, line('$'))
+    let l:linenum += 1
     let column = match(line,  '\m\\label{' . a:refkey . '}')
     if column != -1 " -1 means no match.
-      XXX call setpos(l:labelsFound, newlabel)
+      " To preview, or not to preview.
+      let l:to_p_or_nor_to_p = 'p'
+      if a:preview == "false" | let l:to_p_or_nor_to_p = '' | endif
+
+      " echom a:refkey . ' expand ' . expand('%:p')
+      " echom 'edit +/\\label{' . a:refkey . '} ' . expand('%:p')
+      " execute 'edit +/\\label{' . a:refkey . '} ' . expand('%:p')
+      execute l:to_p_or_nor_to_p . 'edit +/\\label{' . a:refkey . '} ' . expand('%:p')
+      call setpos('.', [0, l:linenum, column, 0])
+      windo if &previewwindow | execute 'normal zR zz' | endif
       return
     elseif l:currentFileIsMain == 1 " Current file is s:mainFile.
       let included_file = matchstr(line, s:includedFilePattern)
-    if included_file != ""
-      call add(l:includedFilesList, included_file)
+      if included_file != ""
+        call add(l:includedFilesList, included_file)
+      endif
     endif
   endfor
 
@@ -291,15 +286,29 @@ function tex_seven#omni#RefQuery(refkey, preview)
   if len(l:includedFilesList) > 0
     " Search over \include'd files. But first, update s:includedFilesList, and
     " s:epochMainFileLastReadForIncludes.
+    let s:epochMainFileLastReadForIncludes = str2nr(system("date +%s"))
+    let s:includedFilesList = l:includedFilesList
 
     for fname in l:includedFilesList
-      for line in readfile(s:path . fname . '.tex')
-        let newlabel = matchstr(line,  '\m\\label{' . a:refkey . '}')
-        if newlabel != ""
-          call add(l:labelsFound, newlabel)
+      let fcontents = readfile(s:path . fname . '.tex')
+      for line in fcontents
+
+        " This matches once per line; see similar remark above.
+        let column = match(line,  '\m\\label{' . a:refkey . '}')
+        if column != -1
+          " To preview, or not to preview.
+          let l:to_p_or_nor_to_p = 'p'
+          if a:preview == "false" | let l:to_p_or_nor_to_p = '' | endif
+
+          execute l:to_p_or_nor_to_p . 'edit +/' . a:citekey . ' ' . s:path . fname . '.tex'
+          call setpos('.', [0, index(fcontents, line), column, 0])
+          windo if &previewwindow | execute 'normal zR zz' | endif
+          return
         endif
       endfor
     endfor
+  else
+    echoerr "Pattern not found"
   endif
 endfunction
 

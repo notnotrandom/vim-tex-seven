@@ -102,12 +102,12 @@ function tex_seven#QueryMap(preview)
   echom "first char: " . l:firstCharIdx
 
   " let cmd=getreg()
-  if l:keyword =~ '\\.*ref{'
+  if l:keyword =~ '.*ref'
     echom "keyword: " . l:keyword
     normal! f}vi}y
-    let refkey = matchstr() " XXX also need to deal with cursor (col) position here, because, there might be more than one \ref in the same line...
+    let refkey = getreg() " XXX also need to deal with cursor (col) position here, because, there might be more than one \ref in the same line...
     echom refkey
-    call tex_seven#omni#RefQuery("foobar", a:preview)
+    call tex_seven#omni#RefQuery(refkey, a:preview)
   else
     let l:nextStart = l:firstCharIdx
     while 1
