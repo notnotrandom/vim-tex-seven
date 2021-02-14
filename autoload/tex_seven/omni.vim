@@ -184,12 +184,19 @@ function tex_seven#omni#GetLabels()
   endfor
 
   for fname in s:includedFilesList
-    for line in readfile(s:path . fname . '.tex')
+    let fcontents = readfile(s:path . fname . '.tex')
+    for line in fcontents
 
       " This matches once per line; see similar remark above.
-      let newlabel = matchstr(line,  '\m\\label{\zs\S\+\ze}')
-      if newlabel != ""
-        call add(l:labelsFound, newlabel)
+      let column = match(line,  '\m\\label{' . a:refkey . '}')
+      if column != ""
+        " To preview, or not to preview.
+        let l:to_p_or_nor_to_p = 'p'
+        if a:preview == "false" | let l:to_p_or_nor_to_p = '' | endif
+
+        execute l:to_p_or_nor_to_p . 'edit +/' . a:citekey . ' ' . s:path . fname . '.tex'
+        call setpos('.', [0, index(fcontents, line), column, 0])
+        windo if &previewwindow | execute 'normal zR zz' | endif
       endif
     endfor
   endfor
@@ -248,7 +255,7 @@ function tex_seven#omni#RefQuery(refkey, preview)
   endif
 
   for line in getline(1, line('$'))
-    let column = match(line,  '\m\\label{' . refkey . '}')
+    let column = match(line,  '\m\\label{' . a:refkey . '}')
     if column != -1 " -1 means no match.
       XXX call setpos(l:labelsFound, newlabel)
       return
@@ -259,12 +266,41 @@ function tex_seven#omni#RefQuery(refkey, preview)
     endif
   endfor
 
-  " If the \label we search for is not in the current file, then search the
-  " other ones, begining with m
-  if len(l:includedFilesList) > 0 
-    " If the loop found \include'd files, that means the above for loop
-    " searched for \label's over s:mainFile. Hence, now we just need to look
-    " over the \include'd files, if any.
+  " So we didn't find the \label we were looking for in the current file. Now,
+  " if the loop above did not find \include'd files (len(l:includedFilesList)
+  " == 0), that means it either searched for \label's over some file OTHER
+  " than s:mainFile, or that it searched s:mainFile, but found no \include
+  " statement. In the latter case there is nothing more to do, but in former
+  " (i.e., current file is not s:mainFile), we must search over s:mainFile for
+  " \include's, and then search these files to see if any of them contain the
+  " \label we're after. In the following if statement, we search s:mainFile,
+  " if the current file is not it.
+  if len(l:includedFilesList) == 0 && l:currentFileIsMain == 0
+    for line in readfile(s:mainFile)
+      if line =~ s:emptyOrCommentLinesPattern
+        continue " Skip comments or empty lines.
+      endif
+
+      let included_file = matchstr(line, s:includedFilePattern)
+      if included_file != ""
+        call add(l:includedFilesList, included_file)
+      endif
+    endfor
+  endif
+
+  if len(l:includedFilesList) > 0
+    " Search over \include'd files. But first, update s:includedFilesList, and
+    " s:epochMainFileLastReadForIncludes.
+
+    for fname in l:includedFilesList
+      for line in readfile(s:path . fname . '.tex')
+        let newlabel = matchstr(line,  '\m\\label{' . a:refkey . '}')
+        if newlabel != ""
+          call add(l:labelsFound, newlabel)
+        endif
+      endfor
+    endfor
+  endif
 endfunction
 
 " Brief: Set s:mainFile, the file which contains a line beginning with:
