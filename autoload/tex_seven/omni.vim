@@ -28,7 +28,8 @@
 
 " Matches lines like:
 " @book{Shoup:2009,
-" in BiBTeX source files.
+" in BiBTeX source files. When used with matchstr(), it returns "Shoup:2009",
+" sans quotes.
 let s:bibtexEntryKeyPattern = '\m^@\a\+{\zs\S\+\ze,'
 
 " Matches lines like:
@@ -49,6 +50,9 @@ let s:mainFile = ""
 " Matches a modeline like:
 " % mainfile: ../main.tex
 let s:modelinePattern = '\m^\s*%\s*mainfile:\s*\zs\S\+\ze'
+
+" This variable is set when s:mainFile is set.
+let s:path = ""
 
 let s:sourcesFile = ""
 
@@ -155,10 +159,6 @@ function tex_seven#omni#GetIncludedFiles()
 endfunction
 
 function tex_seven#omni#GetLabels()
-  if s:mainFile == ""
-    throw "Main file is not set!"
-  endif
-
   let l:labelsFound = []
 
   " Since we need to read s:mainFile anayway, also check the \include's.
@@ -174,15 +174,23 @@ function tex_seven#omni#GetLabels()
       call add(s:includedFilesList, included_file)
       continue " I don't expect for there to be \label's anywhere near \include's...
     endif
-    call substitute(line,
-          \ '\m\\label{\zs\S\+\ze}', '\=add(l:labelsFound, submatch(0))', 'g')
+
+    " This matches once per line; but here is no point in having two \label's
+    " in the same line...
+    let newlabel = matchstr(line,  '\m\\label{\zs\S\+\ze}')
+    if newlabel != ""
+      call add(l:labelsFound, newlabel)
+    endif
   endfor
 
-  let l:path = fnamemodify(s:mainFile, ':p:h') . '/'
   for fname in s:includedFilesList
-    for line in readfile(l:path . fname . '.tex')
-      call substitute(line,
-            \ '\m\\label{\zs\S\+\ze}', '\=add(l:labelsFound, submatch(0))', 'g')
+    for line in readfile(s:path . fname . '.tex')
+
+      " This matches once per line; see similar remark above.
+      let newlabel = matchstr(line,  '\m\\label{\zs\S\+\ze}')
+      if newlabel != ""
+        call add(l:labelsFound, newlabel)
+      endif
     endfor
   endfor
   let s:epochMainFileLastReadForIncludes = str2nr(system("date +%s"))
@@ -228,7 +236,35 @@ function tex_seven#omni#OmniCompletions()
 endfunction
 
 function tex_seven#omni#RefQuery(refkey, preview)
-  return ["foo", "bar" ]
+  if s:mainFile == ""
+    throw "Main file is not set!"
+  endif
+
+  let l:includedFilesList = []
+
+  let l:currentFileIsMain = 0 " False.
+  if s:mainFile == expand('%:p')
+    let l:currentFileIsMain = 1 " True.
+  endif
+
+  for line in getline(1, line('$'))
+    let column = match(line,  '\m\\label{' . refkey . '}')
+    if column != -1 " -1 means no match.
+      XXX call setpos(l:labelsFound, newlabel)
+      return
+    elseif l:currentFileIsMain == 1 " Current file is s:mainFile.
+      let included_file = matchstr(line, s:includedFilePattern)
+    if included_file != ""
+      call add(l:includedFilesList, included_file)
+    endif
+  endfor
+
+  " If the \label we search for is not in the current file, then search the
+  " other ones, begining with m
+  if len(l:includedFilesList) > 0 
+    " If the loop found \include'd files, that means the above for loop
+    " searched for \label's over s:mainFile. Hence, now we just need to look
+    " over the \include'd files, if any.
 endfunction
 
 " Brief: Set s:mainFile, the file which contains a line beginning with:
@@ -260,6 +296,7 @@ function tex_seven#omni#SetMainFile()
 
     if line =~ '\m^\\documentclass'
       let s:mainFile = expand('%:p')
+      let s:path = fnamemodify(s:mainFile, ':p:h') . '/'
       continue
     endif
 
