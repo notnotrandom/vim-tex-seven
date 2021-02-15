@@ -71,7 +71,7 @@ function tex_seven#omni#QueryBibKey(citekey, preview)
   let l:to_p_or_nor_to_p = 'p'
   if a:preview == "false" | let l:to_p_or_nor_to_p = '' | endif
 
-  execute l:to_p_or_nor_to_p . 'edit +/' . a:citekey . '/;normal\ zz ' . s:sourcesFile
+  execute l:to_p_or_nor_to_p . 'edit +/' . a:citekey . '/;normal\ zt ' . s:sourcesFile
   redraw
 endfunction
 

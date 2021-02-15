@@ -26,12 +26,18 @@
 "
 "************************************************************************
 
-" Used for completion of sub and super scripts.
+" Matches \somecmd{foo} or \somecmd[bar]{foo}. When used with matchstr(),
+" returns "somecmd", sans quotes.
+let s:matchCommand = '\m^\\\zs\a\+\ze\(\[.\+\]\)\?{'
+
+" Used for completion of sub and super scripts. See ftplugin/tex_seven.vim.
 function tex_seven#IsLeft(lchar)
   let left = getline('.')[col('.')-2]
   return left == a:lchar ? 1 : 0
 endfunction
 
+" Used in visual mode, to change the selected text to bold, italic, etc. See
+" ftplugin/tex_seven.vim.
 function tex_seven#ChangeFontStyle(style)
   let str = 'di'
   let is_math = tex_seven#environments#Is_latex_math_environment()
@@ -40,7 +46,8 @@ function tex_seven#ChangeFontStyle(style)
   return str
 endfunction
 
-" For visual selection operators of inner or outer (current) environment.
+" For visual selection operators of inner or outer (current) environment. See
+" ftplugin/tex_seven.vim.
 function tex_seven#EnvironmentOperator(mode)
   let pos = tex_seven#environments#Get_latex_environment()[1:]
   if !pos[0] && !pos[1]
@@ -62,20 +69,45 @@ function tex_seven#OmniCompletion(findstart, base)
   endif
 endfunction
 
+" Brief: This function is called on expressions like:
+" - \cite{key} or \nocite{key} or \cite[foo]{key}.
+" - \ref{key} or \eqref{key}.
+" - \include{filename}.
+"
+" For each case, it invokes functions that do, respectively:
+" - open the bib source file, in the entry corresponding to key, e.g.
+"   "@book{key,".
+" - open the .tex file containing \label{key}
+" - open filename.tex
+" Param: preview. Boolean ("true" or "false"). If true, shows the target file
+" in a preview (:pedit) window. Otherwise, uses :edit.
+" Return: none.
 function tex_seven#QueryKey(preview)
-  let l:cursorColumn = col('.') - 1 " Array idx starts at 0, unlike columns.
+  " Array indexes starts at 0, but output of col() starts at 1.
+  let l:cursorColumn = col('.') - 1
   let l:startBackslashIdx = ""
-  let l:keyword = ""
   let l:firstCharIdx = ""
-  let l:line = getline('.')
+
+  let l:keyword = ""
   let l:entryKeyToBeSearched = ""
   let l:res = ""
 
-  " echom "l:line[col('.') - 1 : ]:" . l:line[col('.') - 1 : ]
+  " In this while loop, we start at the cursor's position, go backwards until
+  " we find a backslash. Once we do (or the current cursor position is at a
+  " backslash), then we test to see it matches the start of a command like:
+  " \command[foo]{bar} (see this function's documentation above, as well as
+  " the documentation for s:matchCommand at the beginning of the file).
+  " If there was no match, then we again go backwards, to the previous
+  " backslash. If there was a match, we test to see if "command" is one of
+  " the commands mentioned above in this function's documentation. If not,
+  " return an error. If there was a match, then we set l:keyword to "command",
+  " and break the while loop, and proceed to extract the keyword that
+  " command's argument.
+  let l:line = getline('.')
   while 1
     if l:line[col('.') - 1] == '\'
       let l:startBackslashIdx = col('.') - 1
-      let l:res = matchstr(l:line[ l:startBackslashIdx : ], '\m^\\\zs\a\+\ze\(\[.\+\]\)\?{')
+      let l:res = matchstr(l:line[ l:startBackslashIdx : ], s:matchCommand)
       if res == ""
         normal F\
         continue
@@ -85,6 +117,7 @@ function tex_seven#QueryKey(preview)
         echoerr "Pattern not found"
         return
       else
+        " l:keyword will be ref, or eqref, or cite, or nocite, or include.
         let l:keyword = l:res
         break
       endif
@@ -135,10 +168,7 @@ function tex_seven#QueryKey(preview)
   endif
 endfunction
 
-" Inserts a LaTeX statement and starts omni completion. If the
-" line already contains the statement and the statement is still
-" incomplete, i.e. missing the closing delimiter, only omni
-" completion is started.
+" TODO rethink this function...
 function tex_seven#SmartInsert(keyword)
   if a:keyword == '\includeonly{' && expand('%:p') != tex_seven#omni#GetMainFile()
     echohl WarningMsg |
@@ -146,4 +176,3 @@ function tex_seven#SmartInsert(keyword)
   endif
   return a:keyword."}\<Esc>i"
 endfunction
-
