@@ -62,10 +62,9 @@ function tex_seven#OmniCompletion(findstart, base)
   endif
 endfunction
 
-function tex_seven#QueryMap(preview)
+function tex_seven#QueryKey(preview)
   let l:cursorColumn = col('.') - 1 " Array idx starts at 0, unlike columns.
   let l:startBackslashIdx = ""
-  echom l:cursorColumn
   let l:keyword = ""
   let l:firstCharIdx = ""
   let l:line = getline('.')
@@ -81,8 +80,8 @@ function tex_seven#QueryMap(preview)
         normal F\
         continue
       elseif l:res !~ '\m\(eq\)\?ref' &&
-            \ l:res !~ '\m\(no\)\?cite.\?'
-        echom "res: " . l:res
+            \ l:res !~ '\m\(no\)\?cite.\?' &&
+            \ l:res !~ '\minclude'
         echoerr "Pattern not found"
         return
       else
@@ -95,19 +94,19 @@ function tex_seven#QueryMap(preview)
     endif
   endwhile
 
-  echom "keyword: " . l:keyword
   let l:res = matchstrpos(l:line[ l:startBackslashIdx : ],
         \ '\m\\' . l:keyword . '\(\[.\+\]\)\?\zs{\ze')
   let l:firstCharIdx = l:startBackslashIdx + l:res[2]
-  echom "first char: " . l:firstCharIdx
 
   " let cmd=getreg()
-  if l:keyword =~ '.*ref'
-    echom "keyword: " . l:keyword
+  if l:keyword == 'include'
     normal! f}vi}y
-    let refkey = getreg() " XXX also need to deal with cursor (col) position here, because, there might be more than one \ref in the same line...
-    echom refkey
-    call tex_seven#omni#RefQuery(refkey, a:preview)
+    let inckey = getreg()
+    call tex_seven#omni#QueryIncKey(inckey, a:preview)
+  elseif l:keyword =~ '.*ref'
+    normal! f}vi}y
+    let refkey = getreg()
+    call tex_seven#omni#QueryRefKey(refkey, a:preview)
   else
     let l:nextStart = l:firstCharIdx
     while 1
@@ -132,8 +131,7 @@ function tex_seven#QueryMap(preview)
       endif
     endwhile
 
-    echom "l:entryKeyToBeSearched: " . l:entryKeyToBeSearched
-    call tex_seven#omni#BibQuery(l:entryKeyToBeSearched, a:preview)
+    call tex_seven#omni#QueryBibKey(l:entryKeyToBeSearched, a:preview)
   endif
 endfunction
 

@@ -62,7 +62,7 @@ function tex_seven#omni#AddBuffer()
   endif
 endfunction
 
-function tex_seven#omni#BibQuery(citekey, preview)
+function tex_seven#omni#QueryBibKey(citekey, preview)
   if s:sourcesFile == ""
     call tex_seven#omni#SetSourcesFile()
   endif
@@ -71,8 +71,7 @@ function tex_seven#omni#BibQuery(citekey, preview)
   let l:to_p_or_nor_to_p = 'p'
   if a:preview == "false" | let l:to_p_or_nor_to_p = '' | endif
 
-  execute l:to_p_or_nor_to_p . 'edit +/' . a:citekey . ' ' . s:sourcesFile
-  windo if &previewwindow | execute 'normal zR zz' | endif
+  execute l:to_p_or_nor_to_p . 'edit +/' . a:citekey . '/;normal\ zz ' . s:sourcesFile
   redraw
 endfunction
 
@@ -175,7 +174,7 @@ function tex_seven#omni#GetLabels()
       continue " I don't expect for there to be \label's anywhere near \include's...
     endif
 
-    " This matches once per line; but here is no point in having two \label's
+    " This matches once per line; but there is no point in having two \label's
     " in the same line...
     let newlabel = matchstr(line,  '\m\\label{\zs\S\+\ze}')
     if newlabel != ""
@@ -192,6 +191,15 @@ function tex_seven#omni#GetMainFile()
     throw "Main file is not set!"
   endif
   return s:mainFile
+endfunction
+
+function tex_seven#omni#QueryIncKey(inckey, preview)
+  " To preview, or not to preview.
+  let l:to_p_or_nor_to_p = 'p'
+  if a:preview == "false" | let l:to_p_or_nor_to_p = '' | endif
+
+  " echom "l c : " . l:linenum . ' ' . l:column
+  execute l:to_p_or_nor_to_p . 'edit ' . a:inckey . '.tex'
 endfunction
 
 " For completion of say, \cite{}, the cursor is on '}'. Also remember that
@@ -225,7 +233,7 @@ function tex_seven#omni#OmniCompletions()
   endif
 endfunction
 
-function tex_seven#omni#RefQuery(refkey, preview)
+function tex_seven#omni#QueryRefKey(refkey, preview)
   if s:mainFile == ""
     throw "Main file is not set!"
   endif
@@ -238,20 +246,22 @@ function tex_seven#omni#RefQuery(refkey, preview)
   endif
 
   let l:linenum = 0
-  for line in getline(1, line('$'))
+  for l:line in getline(1, line('$'))
     let l:linenum += 1
-    let column = match(line,  '\m\\label{' . a:refkey . '}')
-    if column != -1 " -1 means no match.
+    if l:line =~ s:emptyOrCommentLinesPattern
+      continue " Skip comments or empty lines.
+    endif
+
+    let l:column = match(l:line,  '\m\\label{' . a:refkey . '}')
+    if l:column != -1 " -1 means no match.
       " To preview, or not to preview.
       let l:to_p_or_nor_to_p = 'p'
       if a:preview == "false" | let l:to_p_or_nor_to_p = '' | endif
 
-      " echom a:refkey . ' expand ' . expand('%:p')
-      " echom 'edit +/\\label{' . a:refkey . '} ' . expand('%:p')
-      " execute 'edit +/\\label{' . a:refkey . '} ' . expand('%:p')
-      execute l:to_p_or_nor_to_p . 'edit +/\\label{' . a:refkey . '} ' . expand('%:p')
-      call setpos('.', [0, l:linenum, column, 0])
-      windo if &previewwindow | execute 'normal zR zz' | endif
+      " echom "l c : " . l:linenum . ' ' . l:column
+      execute l:to_p_or_nor_to_p . 'edit +call\ setpos(".",\ [0,\ '
+            \ . l:linenum . ',\ ' . l:column . ',\ 0]) ' . expand('%:p')
+      execute 'normal zz'
       return
     elseif l:currentFileIsMain == 1 " Current file is s:mainFile.
       let included_file = matchstr(line, s:includedFilePattern)
@@ -261,48 +271,53 @@ function tex_seven#omni#RefQuery(refkey, preview)
     endif
   endfor
 
-  " So we didn't find the \label we were looking for in the current file. Now,
-  " if the loop above did not find \include'd files (len(l:includedFilesList)
-  " == 0), that means it either searched for \label's over some file OTHER
-  " than s:mainFile, or that it searched s:mainFile, but found no \include
-  " statement. In the latter case there is nothing more to do, but in former
-  " (i.e., current file is not s:mainFile), we must search over s:mainFile for
-  " \include's, and then search these files to see if any of them contain the
-  " \label we're after. In the following if statement, we search s:mainFile,
-  " if the current file is not it.
+  " If reach here if we didn't find the \label we were looking for in the
+  " current file. Now, if the loop above did not find \include'd files
+  " (len(l:includedFilesList) == 0), that means it either searched for
+  " \label's over some file OTHER than s:mainFile, or that it searched
+  " s:mainFile, but found no \include statement. In the latter case there is
+  " nothing more to do, but in former (i.e., current file is not s:mainFile),
+  " we must search over s:mainFile for \include's, and then search these files
+  " to see if any of them contain the \label we're after. In the following if
+  " statement, we search s:mainFile, if the current file is not it.
   if len(l:includedFilesList) == 0 && l:currentFileIsMain == 0
     for line in readfile(s:mainFile)
-      if line =~ s:emptyOrCommentLinesPattern
+      if l:line =~ s:emptyOrCommentLinesPattern
         continue " Skip comments or empty lines.
       endif
 
-      let included_file = matchstr(line, s:includedFilePattern)
-      if included_file != ""
-        call add(l:includedFilesList, included_file)
+      let l:included_file = matchstr(l:line, s:includedFilePattern)
+      if l:included_file != ""
+        call add(l:includedFilesList, l:included_file)
       endif
     endfor
+    let s:epochMainFileLastReadForIncludes = str2nr(system("date +%s"))
   endif
 
   if len(l:includedFilesList) > 0
-    " Search over \include'd files. But first, update s:includedFilesList, and
-    " s:epochMainFileLastReadForIncludes.
-    let s:epochMainFileLastReadForIncludes = str2nr(system("date +%s"))
+    " Search over \include'd files. But first, update s:includedFilesList.
     let s:includedFilesList = l:includedFilesList
 
-    for fname in l:includedFilesList
-      let fcontents = readfile(s:path . fname . '.tex')
-      for line in fcontents
+    for l:fname in l:includedFilesList
+      let l:fcontents = readfile(s:path . l:fname . '.tex')
+      let l:linenum = 0
+      for l:line in l:fcontents
+        let l:linenum += 1
+        if l:line =~ s:emptyOrCommentLinesPattern
+          continue " Skip comments or empty lines.
+        endif
 
-        " This matches once per line; see similar remark above.
-        let column = match(line,  '\m\\label{' . a:refkey . '}')
-        if column != -1
+        " This matches once per line; but there is no point in having two
+        " \label's in the same line...
+        let l:column = match(l:line,  '\m\\label{' . a:refkey . '}')
+        if l:column != -1
           " To preview, or not to preview.
           let l:to_p_or_nor_to_p = 'p'
           if a:preview == "false" | let l:to_p_or_nor_to_p = '' | endif
 
-          execute l:to_p_or_nor_to_p . 'edit +/' . a:citekey . ' ' . s:path . fname . '.tex'
-          call setpos('.', [0, index(fcontents, line), column, 0])
-          windo if &previewwindow | execute 'normal zR zz' | endif
+          execute l:to_p_or_nor_to_p . 'edit +call\ setpos(".",\ [0,\ '
+                \ . l:linenum . ',\ ' . l:column . ',\ 0]) ' . s:path . l:fname . '.tex'
+          execute 'normal zz'
           return
         endif
       endfor
