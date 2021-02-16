@@ -1,0 +1,388 @@
+*tex_seven.txt* 
+
+                                      TeX-7                                  
+
+                          A semi-automatic, minimalistic
+                                  LaTeX ftplugin                               
+                          that does not get in your way!
+
+
+    Author: Óscar Pereira
+    Email: See https://randomwalk.eu
+    License: GPL
+    Version: 1.0
+
+    TeX-7 is a ftplugin that aims to enhance the writing experience of high
+    quality documents with LaTeX and Vim. The goal of TeX-7 is to be simple
+    and Vimish, meaning that focus is on carefully thought-out key mappings
+    and features that are already present in a typical Vim installation. If
+    you need to write a thesis or research articles and insist on having
+    only one editor for all editing tasks, then TeX-7 is for you!
+
+     The main features of TeX-7 are
+        * Powerful text-object for LaTeX environments 
+        * Omni-completion of BibTeX database entries and label references
+        * Omni-completion of mathematical symbols
+        * Filetype specific indentation (courtesy of Johannes Tanzler)
+        * No-hassle settings, relatively few mappings
+
+    Shoutouts & thanks
+        * Elias Toivanen, the original author of the original TeX-9 plugin.
+
+==============================================================================
+
+*TeX-7* *tex_seven*
+
+    1.  Installation                                 |tex_seven-installation||
+    2.  Basics                                       |tex_seven-basics|
+    3.  Advanced                                     |tex_seven-advanced|
+    4.  Snippets                                     |tex_seven-snippets|
+    5.  BibTeX                                       |tex_seven-bibtex|
+    6.  Mappings                                     |tex_seven-mappings|
+    7.  Tips and trick                               |tex_seven-tips|
+
+==============================================================================
+
+1.  Installation                                    *tex_seven-installation*
+
+    TeX-7 is distributed as a gzipped tarball. Unzip it to your local
+    runtime path, usually `~/.vim/'.
+
+    Next, open up |vimrc| and ensure it contains the following line:
+    >
+        filetype plugin indent on
+<
+    For basic usage you don't need to configure anything else. However,
+    you may tweak some features of TeX-7 by defining a |Dictionary| called
+    `g:tex_seven_config' in your vimrc. The following keys are recognized:
+
+    leader: String
+        *   Most TeX-7 mappings begin with this prefix
+        *   Optional
+        *   Default: The values of |mapleader|  and |maplocalleader| are
+            honored. Otherwise set to colon ':'.
+
+    viewer: Dictionary
+        *   Application used for viewing documents.
+        *   Vim dictionary with keys 'app' and 'target'.
+        *   Optional
+        *   Default: {'app': 'xdg-open', 'target': 'pdf'}
+    
+    disable: Boolean
+        * TeX-7 is disabled temporarily.
+        * Default: 0 (TeX-7 is loaded)
+
+    diamond_tex: Boolean
+        * TeX-9's originally mapped <LocalLeader>< to \leq, and <LocalLeader>> to \geq. However, I find these LaTeX commands actually easy to type, to I prefer to map <LocalLeader>< to nothing, and <LocalLeader>> to <> (sometimes called diamond). Among other things, this is useful when writing Beamer templates.
+        * Default: 0 (map <LocalLeader>> to <>)
+
+    Examples: >
+
+    " Old school LaTeX user    
+    let g:tex_seven_config = {
+        \'compiler': 'latex',
+        \'viewer': {'app':'xdvi', 'target':'dvi'},
+    \}
+
+    " A MacVim user
+    let g:tex_seven_config = {
+            \'compiler': 'pdflatex',
+            \'viewer': {'app':'open', 'target':'pdf'},
+    \}
+
+    " Xelatex user who wants SyncTeX support
+    let g:tex_seven_config = {
+        \'compiler': 'xelatex',
+        \'synctex': 1
+    \}
+
+    " Makefile users
+    let g:tex_seven_config = {
+        \'compiler': 'make',
+        \'verbose': 1
+    \}
+<
+
+==============================================================================
+
+2.  Basics                                          *tex_seven-basics*
+
+    TeX-7 defines various mappings that speed up typesetting LaTeX code. Most
+    of the mappings are prefixed with a leader referred below with the symbol
+    <LocalLeader>. If you have set `g:tex_seven_config.leader',
+    |maplocalleader| or |mapleader|, the corresponding character is used.
+    Otherwise, the leader defaults to colon (:).
+
+    TeX-7 uses relative paths in several places; hence, especially for
+    multi-file projects, it is recommended to lauch `(g)vim' from the same
+    folder where the main `.tex' file is located.
+
+    Below is a short tutorial that should get you going in no time. Users who
+    want to use SyncTeX, split their LaTeX manuscripts in several files and/or
+    use different kinds of LaTeX compilers at the same time should also read
+    the |tex_seven-advanced| section.
+
+2.1. Insert mode
+
+    Type <LocalLeader>M to get a popup list of different maths symbols. In
+    addition, the most frequently used maths symbols have their own
+    shortcuts.  Typing <LocalLeader>a expands to \alpha for example. Refer
+    to |tex_seven-mappings| for a complete listing.
+
+    Type <LocalLeader>C to insert a citation, i.e. `\cite{citekey}'. You're
+    prompted with a popup list of completions if the \bibliography{} statement
+    contains a valid BibTeX file (see |tex_seven-bibtex| for details). Inserting
+    references, `\ref{ref}', works in a similar way. The corresponding mapping is
+    <LocalLeader>R.
+
+    To insert an environment, press <LocalLeader>B. You're prompted for an
+    environment name and if a corresponding LaTeX code snippet was defined,
+    it is inserted into the file (see |tex_seven-snippets|).
+
+2.2. Normal mode
+
+    Typing <LocalLeader>V should open the document in your desktop's default
+    PDF viewer, if you didn't set `g:tex_seven_config.viewer' to something
+    else.
+
+==============================================================================
+
+3.  Advanced                                        *tex_seven-advanced*
+
+3.1. Multi-file projects
+
+    The traditional way to handle multi-file projects is to set up a Makefile
+    and compile with `make'. TeX-7 supports this behavior via the
+    `g:tex_seven_config.compiler' option which can be set to `make'.
+
+    You can save yourself the trouble of writing a Makefile by indicating the
+    relative location of the main file in the \include-ed files with a modeline
+    of the form
+>
+    % mainfile: MAIN_FILE
+<
+    The string MAIN_FILE could be for example `../main.tex' if the included
+    file is in a subdirectory of the actual compilation folder. The modeline
+    must appear in the first block of commented lines at the start of the
+    document. Note that this assumes that line number 1 is commented. This way
+    all the TeX-7 mappings continue to work as expected wherever you are in
+    your project.
+
+    NB! Make sure the filename MAIN_FILE does not contain any whitespace!  
+
+==============================================================================
+
+4.  Snippets                                        *tex_seven-snippets*
+
+    TODO my own fork of sanders' snipmate.
+
+==============================================================================
+
+5.  BibTeX                                          *tex_seven-bibtex*
+
+    In addition to citekey completion (see insert mode above), TeX-7 provides
+    a preview feature
+    that makes it easier to work with BibTeX and LaTeX files in the same
+    Vim session. You may take a quick peek at a particular BibTeX entry
+    by pressing `gb' over its citekey, i.e. \cite{citekey}. This command
+    is in line with ||gd|| and  |gf| with the exception that the BibTeX
+    entry is shown in a  |preview-window||.
+
+
+==============================================================================
+
+6.  Mappings                                        *tex_seven-mappings*
+
+    The symbol <LocalLeader> refers to the value of
+    `g:tex_seven_config.leader', |maplocalleader|. If none of
+    these are set, the default value is colon ':'.
+
+6.1 Insert mode >
+
+        <LocalLeader><LocalLeader>          <LocalLeader>
+        <LocalLeader>M                      Maths completion 
+        <LocalLeader>"                      LaTeX's inverted commas ``''
+        <LocalLeader>B                      Insert an environment
+        <LocalLeader>C                      Insert a citation
+        <LocalLeader>E                      Insert an equation reference
+        <LocalLeader>R                      Insert a reference
+        <LocalLeader>Z                      Insert an \includeonly reference
+<
+        Greek
+        >
+        <LocalLeader>a                      \alpha
+        <LocalLeader>b                      \beta
+        <LocalLeader>c                      \chi
+        <LocalLeader>d                      \delta
+        <LocalLeader>e                      \varepsilon
+        <LocalLeader>/e                     \epsilon
+        <LocalLeader>f                      \varphi
+        <LocalLeader>/f                      \phi
+        <LocalLeader>g                      \gamma
+        <LocalLeader>h                      \eta
+        <LocalLeader>k                      \kappa
+        <LocalLeader>l                      \lambda
+        <LocalLeader>m                      \mu
+        <LocalLeader>n                      \nu
+        <LocalLeader>o                      \omega
+        <LocalLeader>p                      \pi
+        <LocalLeader>q                      \theta
+        <LocalLeader>r                      \varrho
+        <LocalLeader>s                      \sigma
+        <LocalLeader>t                      \tau
+        <LocalLeader>u                      \upsilon
+        <LocalLeader>w                      \varpi
+        <LocalLeader>x                      \xi
+        <LocalLeader>y                      \psi
+        <LocalLeader>z                      \zeta
+        <LocalLeader>D                      \Delta
+        <LocalLeader>F                      \Phi
+        <LocalLeader>G                      \Gamma
+        <LocalLeader>L                      \Lambda
+        <LocalLeader>O                      \Omega
+        <LocalLeader>P                      \Pi
+        <LocalLeader>Q                      \Theta
+        <LocalLeader>U                      \Upsilon
+        <LocalLeader>X                      \Xi
+        <LocalLeader>Y                      \Psi
+<
+        Maths
+        >
+        <LocalLeader>\                      \setminus
+        <LocalLeader>½                      \sqrt{}
+        <LocalLeader>N                      \nabla
+        <LocalLeader>S                      \sum_{}^{}
+        <LocalLeader>/S                     \prod_{}^{}
+        <LocalLeader>V                      \vec{}
+        <LocalLeader>I                      \int\limits_{}^{}
+        <LocalLeader>0                      \varnothing
+        <LocalLeader>/0                      \emptyset
+        <LocalLeader>6                      \partial
+        <LocalLeader>i                      \infty
+        <LocalLeader>/                      \frac{}{}
+        <LocalLeader>v                      \vee
+        <LocalLeader>&                      \wedge
+        <LocalLeader>/v                     \bigvee
+        <LocalLeader>/&                     \bigwedge
+        <LocalLeader>@                      \circ
+        <LocalLeader>*                      \not
+        <LocalLeader>!                      \neq
+        <LocalLeader>~                      \neg
+        <LocalLeader>=                      \equiv
+        <LocalLeader>-                      \cap
+        <LocalLeader>+                      \cup
+        <LocalLeader>/-                     \bigcap
+        <LocalLeader>/+                     \bigcup
+        <LocalLeader><                      \leq
+        <LocalLeader>>                      \geq
+        <LocalLeader>~                      \widetilde{}
+        <LocalLeader>^                      \widehat{}
+        <LocalLeader>_                      \overline{}
+        <LocalLeader>.                      \cdot
+        <LocalLeader><CR>                   \nonumber\\<CR>
+        <LocalLeader>(                      \left(\right)
+        <LocalLeader>[                      \left[\right]
+        <LocalLeader>{                      \left{\right}
+        <LocalLeader>«                      \langle
+        <LocalLeader>»                      \rangle
+
+        The choice for some mappings, that start with a forward slash
+        '/', might seem odd. The reason is for when are multiple choices,
+        e.g. for the letters phi and epsilon. In those cases, I put the
+        version I prefer best (e.g. \varphi) with the most natural
+        mapping (<LocalLeader>f), and the other one (\phi) with the
+        "slashed" mapping (<LocalLeader>/f). Of course, this means Vim
+        will introduce a slight delay before expanding <LocalLeader>/
+        (to see if it is actually any of the other mappings that also
+        start with a '/'). But as I do not use <LocalLeader>/ much (this
+        is a case I prefer to deal with a snippet from snipMate), this
+        doesn't bother me much.
+
+6.2 Normal Mode >
+
+        gd              Go from \ref to the corresponding \label declaration, or from \cite to the corresponding entry in bibliography file.
+        gp              Same as gp, but open a preview window.
+        <LocalLeader>V  View the document
+
+6.3 Visual Mode
+
+        You can change the font style using these mappings:
+
+        vmap <buffer><expr> <Leader>bf tex_seven#ChangeFontStyle('bf')
+        vmap <buffer><expr> <Leader>it tex_seven#ChangeFontStyle('it')
+        vmap <buffer><expr> <Leader>rm tex_seven#ChangeFontStyle('rm')
+        vmap <buffer><expr> <Leader>sf tex_seven#ChangeFontStyle('sf')
+        vmap <buffer><expr> <Leader>tt tex_seven#ChangeFontStyle('tt')
+        vmap <buffer>       <Leader>up di\text{}<Left><C-R>"
+
+        For example, to convert the word under the cursor to boldface, type
+        >
+            viw<Leader>bf
+
+6.4 Extras
+
+    TeX-7 comes with a custom `environment operator' (see ||text-objects||).
+    Press 'vie' or 'vae' in normal normal to highlight the current inner
+    environment (without the \begin and \end statements) or the outer
+    environment respectively. Replace 'v' with another operator to achieve
+    yanking, changing or deleting etc. For example, typing 'dae' makes it
+    trivial to move figures and tables around in the document. Delete the
+    environment, find a new location and paste it back to the buffer!
+    
+    There are also some macros that work by tapping a character on your
+    keyboard (super convenient for subscripts and superscripts!).     
+
+    >
+        ^^ -> ^{}
+        __ -> _{}
+        ~~ -> \approx
+        == -> &=
+<
+    Finally, try omni-completion () inside curly braces when you're
+    including a picture with `\includegraphics{}' or when you're setting your
+    font with the `fontspec' package, e.g. `\setmainfont{}'. You'll get a
+    listing of pictures in the compilation folder in the first case and a list
+    of installed font on your system in the latter. Supported picture formats
+    are EPS, PDF, JPG and PNG. 
+
+==============================================================================
+
+7.  Tips and trick                                  *tex_seven-tips*
+
+7.1.    Preferred way to override, extend and hack TeX-7
+
+        Create a custom tex.vim file in the after directory, i.e.
+        ~/.vim/after/ftplugin/tex.vim. Here you can redefine mappings and
+        extend TeX-7's functionality with your own ideas. If you come up with
+        something sweet, drop me a line (email address available on Vim.org
+        and in the README).
+
+7.2     Spell checking
+
+        If you've enabled 'modeline', you may conveniently activate spell
+        checking in your LaTeX documents by editing the modeline in the
+        skeleton file.
+
+        Example for anglophones: >
+
+                % vim:tw=66 sw=2 ft=tex spell spelllang=en
+<
+        Notice that newer versions of Vim provide an option >
+
+                let g:tex_comment_nospell= 1
+
+<       for disabling spell checking of comments that otherwise get messed up
+       pretty badly.
+
+7.3     Folding
+
+        With newer versions of Vim it's easy as >
+
+                let g:tex_fold_enabled = 1
+
+==============================================================================
+
+
+ vim:tw=72:ts=8:ft=help:norl:autoindent
+
+
