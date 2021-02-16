@@ -172,37 +172,44 @@ function tex_seven#QueryKey(preview)
     " OK, so now the variable l:firstCharIdx contains the byte index of 'b'
     " (the character right of '{') in the whole line that contains
     " "\cite[foo\ bar]{baz, xpto}".
-    " The algorithm is has follows: discover the borders of the first key (in
-    " this case b and z), and then discover the start of the next of one (in
-    " this case, x). If there is no next one (i.e. we find '}'), or if the
-    " cursor position is before that start, return the first key. Otherwise,
-    " find the borders of that next key, and start of the one after that, if
-    " it exists, and check that start against the cursor position. If the
-    " cursor is before that next start, return the second key. And so on...
+    " The algorithm is has follows: discover the (indexes of the) borders of
+    " the first key (in this case b and z), and then discover the start of the
+    " next of one (in this case, x). If there is no next one (i.e. we find
+    " '}'), or if the cursor position is before the start of the first key,
+    " return that first key. Otherwise, find the borders of that next key, and
+    " the start of the one after that, if it exists, and check that start
+    " against the cursor position. If the cursor is before that next start,
+    " return the second key. And so on...
     let l:entryKeyToBeSearched = ""
     let l:nextStart = l:firstCharIdx
     while 1
-      " echom "foo"
       let l:start = l:nextStart
       let l:stop  = l:nextStart
+
+      " Discover the stop of the current entry.
       while l:line[l:stop] != ',' && l:line[l:stop] != '}' && l:line[l:stop] != ' '
         let l:stop += 1
       endwhile
       let l:stop -= 1
       let l:entryKeyToBeSearched = l:line[l:start:l:stop]
 
-      " Discover start of next entry, if there is one.
+      " Discover start of next entry...
       let l:nextStart = l:stop + 1
       while l:line[l:nextStart] == ',' || l:line[l:nextStart] == ' '
           let l:nextStart += 1
       endwhile
+
+      " ... unless there isn't a next entry, in which case we are done.
       if l:line[l:nextStart] == '}' | break | endif
 
+      " We are also done when the next key start's past (i.e. to the right) of
+      " the current cursor position.
       if l:cursorColumn < l:nextStart
         break
       endif
     endwhile
 
+    " Now that we have the correct bibkey, give it to the correct function.
     call tex_seven#omni#QueryBibKey(l:entryKeyToBeSearched, a:preview)
   endif
 endfunction
