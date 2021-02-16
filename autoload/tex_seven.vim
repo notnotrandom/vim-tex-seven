@@ -69,40 +69,44 @@ function tex_seven#OmniCompletion(findstart, base)
   endif
 endfunction
 
-" Brief: This function is called on expressions like:
-" - \cite{key} or \nocite{key} or \cite[foo]{key}.
+" Brief: This function is called when the cursor is on expressions like:
+" - \cite{key} or \nocite{key} or \cite[foo]{key} or \cite[foo]{key1, key2}.
 " - \ref{key} or \eqref{key}.
 " - \include{filename}.
 "
-" For each case, it invokes functions that do, respectively:
-" - open the bib source file, in the entry corresponding to key, e.g.
-"   "@book{key,".
-" - open the .tex file containing \label{key}
-" - open filename.tex
-" Param: preview. Boolean ("true" or "false"). If true, shows the target file
-" in a preview (:pedit) window. Otherwise, uses :edit.
+" For each case, it invokes functions that do, respectively, the following:
+" - open the bib source file, at the line corresponding to key, e.g.
+"   "@book{key,". The case when there is more than key is dealt with like
+"   follows: use the first one, unless the cursor is placed on top of any of
+"   the other bibliographic keys. If the cursor is on top a comma or a space
+"   (e.g. \cite:{a, b}), use the key immediately before. comments below.
+" - open the .tex file containing \label{key}.
+" - open filename.tex.
+" Param: preview. Boolean (0 or 1). If true, shows the target file in a
+" preview (:pedit) window. Otherwise, uses :edit.
 " Return: none.
 function tex_seven#QueryKey(preview)
   " Array indexes starts at 0, but output of col() starts at 1.
   let l:cursorColumn = col('.') - 1
   let l:startBackslashIdx = ""
-  let l:firstCharIdx = ""
 
   let l:keyword = ""
-  let l:entryKeyToBeSearched = ""
   let l:res = ""
 
-  " In this while loop, we start at the cursor's position, go backwards until
-  " we find a backslash. Once we do (or the current cursor position is at a
-  " backslash), then we test to see it matches the start of a command like:
-  " \command[foo]{bar} (see this function's documentation above, as well as
-  " the documentation for s:matchCommand at the beginning of the file).
-  " If there was no match, then we again go backwards, to the previous
-  " backslash. If there was a match, we test to see if "command" is one of
-  " the commands mentioned above in this function's documentation. If not,
-  " return an error. If there was a match, then we set l:keyword to "command",
-  " and break the while loop, and proceed to extract the keyword that
-  " command's argument.
+  " In the next while loop below, we start at the cursor's position, go
+  " backwards until we find a backslash. Once we do (or the current cursor
+  " position is at a backslash), then we test to see it matches the start of a
+  " command like: \command[foo]{bar} (see this function's documentation above,
+  " as well as the documentation for s:matchCommand at the beginning of the
+  " file). If there was no match, then we again go backwards, to the previous
+  " backslash. If there was a match, we test to see if "command" is one of the
+  " commands mentioned above in this function's documentation. If not, return
+  " an error. If there was a match, then we set l:keyword to "command", and
+  " break the while loop, and proceed to extract the keyword that command's
+  " argument.
+
+  " First, obtain the entire line where the expression like \ref{key} or
+  " whatever shows up.
   let l:line = getline('.')
   while 1
     if l:line[col('.') - 1] == '\'
@@ -127,11 +131,11 @@ function tex_seven#QueryKey(preview)
     endif
   endwhile
 
-  let l:res = matchstrpos(l:line[ l:startBackslashIdx : ],
-        \ '\m\\' . l:keyword . '\(\[.\+\]\)\?\zs{\ze')
-  let l:firstCharIdx = l:startBackslashIdx + l:res[2]
-
-  " let cmd=getreg()
+  " Ok, so we now have the "command" part in \command[whatever]{else} in the
+  " variable l:keyword. The \ref \eqref and \include cases are easy: just
+  " select the "else" part, and call the relevant function (see
+  " autoload/tex_seven/omni.vim). The \cite and \nocite are the tricky ones.
+  " (The getreg() function returns the text that was last yanked.)
   if l:keyword == 'include'
     normal! f}vi}y
     let inckey = getreg()
@@ -141,6 +145,41 @@ function tex_seven#QueryKey(preview)
     let refkey = getreg()
     call tex_seven#omni#QueryRefKey(refkey, a:preview)
   else
+    " This is the thorny case of \cite or \nocite. Suppose that this function
+    " was called with the cursor somewhere on the expression "\cite[foo\
+    " bar]{baz, xpto}". The code above (before the current if-then-else chain)
+    " puts the byte index of the leftmost backslash in the variable
+    " l:startBackslashIdx (recall that the start of the line is index 0). What
+    " the next three lines below do, is to recover the byte index of first
+    " curly brace, '{', in '{baz, xpto}'.
+    "   For this, we use the function matchstrpos(), which returns a list as
+    " follows:
+    "   [ "string matched", startidx, endidx ]
+    " where startidx and endidx are the byte indexes of the first character of
+    " "string matched", and of the character TO THE RIGHT OF the last
+    " character of "string matched".
+    "   However, there is a catch: there might be more than \cite command in
+    " the same line! (The same holds for \ref, etc.) Hence, to ensure we
+    " process the right command the match must not start at the beginning of
+    " the line, but at the index of the backslash that starts the current
+    " command, viz. l:startBackslashIdx. Hence, after the match, this value
+    " must be added to endidx -- to obtain the index of the same character in
+    " the entire line.
+    let l:res = matchstrpos(l:line[ l:startBackslashIdx : ],
+          \ '\m\\' . l:keyword . '\(\[.\+\]\)\?\zs{\ze')
+    let l:firstCharIdx = l:startBackslashIdx + l:res[2]
+
+    " OK, so now the variable l:firstCharIdx contains the byte index of 'b'
+    " (the character right of '{') in the whole line that contains
+    " "\cite[foo\ bar]{baz, xpto}".
+    " The algorithm is has follows: discover the borders of the first key (in
+    " this case b and z), and then discover the start of the next of one (in
+    " this case, x). If there is no next one (i.e. we find '}'), or if the
+    " cursor position is before that start, return the first key. Otherwise,
+    " find the borders of that next key, and start of the one after that, if
+    " it exists, and check that start against the cursor position. If the
+    " cursor is before that next start, return the second key. And so on...
+    let l:entryKeyToBeSearched = ""
     let l:nextStart = l:firstCharIdx
     while 1
       " echom "foo"

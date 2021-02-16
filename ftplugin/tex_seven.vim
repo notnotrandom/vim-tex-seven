@@ -94,10 +94,10 @@ noremap <buffer><silent> <LocalLeader>Q :copen<CR>
 
 nnoremap <buffer><silent> gm :execute "edit " . tex_seven#omni#GetMainFile()<CR>
 
-" Go from \ref to \label, or from \cite bib entry. If argument is "true", use
-" preview window; if "false", use normal window (i.e. :edit).
-nnoremap <buffer><silent> gp :call tex_seven#QueryKey("true")<CR>
-nnoremap <buffer><silent> gd :call tex_seven#QueryKey("false")<CR>
+" Go from \ref to \label, or from \cite bib entry. If argument is true (1),
+" use preview window; if false (0), use normal window (i.e. :edit).
+nnoremap <buffer><silent> gp :call tex_seven#QueryKey(1)<CR>
+nnoremap <buffer><silent> gd :call tex_seven#QueryKey(0)<CR>
 
 " Insert mode mappings
 inoremap <buffer> <LocalLeader><LocalLeader> <LocalLeader>

@@ -69,7 +69,7 @@ function tex_seven#omni#QueryBibKey(citekey, preview)
 
   " To preview, or not to preview.
   let l:to_p_or_nor_to_p = 'p'
-  if a:preview == "false" | let l:to_p_or_nor_to_p = '' | endif
+  if a:preview == 0 | let l:to_p_or_nor_to_p = '' | endif
 
   execute l:to_p_or_nor_to_p . 'edit +/' . a:citekey . '/;normal\ zt ' . s:sourcesFile
   redraw
@@ -196,7 +196,7 @@ endfunction
 function tex_seven#omni#QueryIncKey(inckey, preview)
   " To preview, or not to preview.
   let l:to_p_or_nor_to_p = 'p'
-  if a:preview == "false" | let l:to_p_or_nor_to_p = '' | endif
+  if a:preview == 0 | let l:to_p_or_nor_to_p = '' | endif
 
   " echom "l c : " . l:linenum . ' ' . l:column
   execute l:to_p_or_nor_to_p . 'edit ' . a:inckey . '.tex'
@@ -256,7 +256,7 @@ function tex_seven#omni#QueryRefKey(refkey, preview)
     if l:column != -1 " -1 means no match.
       " To preview, or not to preview.
       let l:to_p_or_nor_to_p = 'p'
-      if a:preview == "false" | let l:to_p_or_nor_to_p = '' | endif
+      if a:preview == 0 | let l:to_p_or_nor_to_p = '' | endif
 
       " echom "l c : " . l:linenum . ' ' . l:column
       execute l:to_p_or_nor_to_p . 'edit +call\ setpos(".",\ [0,\ '
@@ -313,7 +313,7 @@ function tex_seven#omni#QueryRefKey(refkey, preview)
         if l:column != -1
           " To preview, or not to preview.
           let l:to_p_or_nor_to_p = 'p'
-          if a:preview == "false" | let l:to_p_or_nor_to_p = '' | endif
+          if a:preview == 0 | let l:to_p_or_nor_to_p = '' | endif
 
           execute l:to_p_or_nor_to_p . 'edit +call\ setpos(".",\ [0,\ '
                 \ . l:linenum . ',\ ' . l:column . ',\ 0]) ' . s:path . l:fname . '.tex'
