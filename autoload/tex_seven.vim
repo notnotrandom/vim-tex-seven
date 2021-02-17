@@ -112,12 +112,12 @@ function tex_seven#QueryKey(preview)
   " an error. If there was a match, then we set l:keyword to "command", and
   " break the while loop, and proceed to extract the keyword that command's
   " argument.
-
-  " First, obtain the entire line where the expression like \ref{key} or
-  " whatever shows up.
+  "
+  " We start by obtaining the entire line where the expression like \ref{key}
+  " or whatever shows up.
   let l:line = getline('.')
   while 1
-    if l:line[col('.') - 1] == '\'
+    if l:line[col('.') - 1] == '\' " Test if char in current cursor pos is '\'
       let l:startBackslashIdx = col('.') - 1
       let l:res = matchstr(l:line[ l:startBackslashIdx : ], s:matchCommand)
       if res == ""
@@ -138,6 +138,10 @@ function tex_seven#QueryKey(preview)
       continue
     endif
   endwhile
+
+  " The while loop above might use the command "normal F\", which changes the
+  " cursor position. Here we reset it to its original position.
+  call setpos(".", [0, line("."), l:cursorColumn + 1, 0])
 
   " Ok, so we now have the "command" part in \command[whatever]{else} in the
   " variable l:keyword. The \ref \eqref and \include cases are easy: just
