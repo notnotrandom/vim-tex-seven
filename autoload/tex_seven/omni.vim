@@ -42,6 +42,9 @@ let s:emptyOrCommentLinesPattern = '\m^\s*\(%\|$\)'
 let s:epochMainFileLastReadForIncludes = ""
 let s:epochSourceFileLastRead = ""
 
+" Matches lines like:
+" \include{chapter1}
+" in .tex files. When used with matchstr(), it returns chapter1.
 let s:includedFilePattern = '\m^\\include{\zs\S\+\ze}'
 let s:includedFilesList = []
 
@@ -157,7 +160,7 @@ function tex_seven#omni#GetIncludedFiles()
   return s:includedFilesList
 endfunction
 
-function tex_seven#omni#GetLabels()
+function tex_seven#omni#GetLabels(prefix = '')
   let l:labelsFound = []
 
   " Since we need to read s:mainFile anayway, also check the \include's.
@@ -178,7 +181,9 @@ function tex_seven#omni#GetLabels()
     " in the same line...
     let newlabel = matchstr(line,  '\m\\label{\zs\S\+\ze}')
     if newlabel != ""
-      call add(l:labelsFound, newlabel)
+      if a:prefix == '' || newlabel =~ '\m^' . a:prefix
+        call add(l:labelsFound, newlabel)
+      endif
     endif
   endfor
 
@@ -198,13 +203,12 @@ function tex_seven#omni#QueryIncKey(inckey, preview)
   let l:to_p_or_nor_to_p = 'p'
   if a:preview == 0 | let l:to_p_or_nor_to_p = '' | endif
 
-  " echom "l c : " . l:linenum . ' ' . l:column
   execute l:to_p_or_nor_to_p . 'edit ' . a:inckey . '.tex'
 endfunction
 
 " For completion of say, \cite{}, the cursor is on '}'. Also remember that
 " col() starts at 1, but lists (arrays) start at zero!
-function tex_seven#omni#OmniCompletions()
+function tex_seven#omni#OmniCompletions(base)
   let l:cursorColumn = col('.') - 1
   let l:keyword = ""
   let l:line = getline('.')[: l:cursorColumn - 1] " Unlike Python, this includes the last index!
@@ -221,13 +225,27 @@ function tex_seven#omni#OmniCompletions()
     let l:start -= 1
   endwhile
 
-  echom "keyword: " . l:keyword
+  " Now that we have the l:keyword, if a:base is empty, then just search and
+  " return the "proper thing" (bib entries, \labels, or \include'd) files. If
+  " there is a a:base for completion, then filter the results to match that.
+  " Note that both bib entries and included files are kept in internal list
+  " variables (cf. autoload/tex_seven/omni.vim), and hence must be filtered
+  " out here. \label's are searched when needed, and hence we pass a:base to
+  " to the function that does that, so that filtering can happen on-the-fly.
   if l:keyword == 'cite'
-    return tex_seven#omni#GetBibEntries()
+    if a:base == ""
+      return tex_seven#omni#GetBibEntries()
+    else
+      return filter(copy(tex_seven#omni#GetBibEntries()), 'v:val =~ "\\m^" . a:base')
+    endif
   elseif l:keyword == 'includeonly'
-    return tex_seven#omni#GetIncludedFiles()
+    if a:base == ""
+      return tex_seven#omni#GetIncludedFiles()
+    else
+      return filter(copy(tex_seven#omni#GetIncludedFiles()), 'v:val =~ "\\m^" . a:base')
+    endif
   elseif l:keyword =~ '.*ref'
-    return tex_seven#omni#GetLabels()
+    return tex_seven#omni#GetLabels(a:base)
   else
     return []
   endif

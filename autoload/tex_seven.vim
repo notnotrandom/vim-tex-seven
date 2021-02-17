@@ -63,9 +63,17 @@ endfunction
 " For completion of \ref's, \cite's, etc.
 function tex_seven#OmniCompletion(findstart, base)
   if a:findstart
-    return -1 " Completion starts at cursor's position.
+    let l:cursorCurrIdx = col('.') - 1
+    let l:line = getline('.')[: l:cursorCurrIdx ]
+    let l:start = l:cursorCurrIdx - 1
+    while l:line[l:start] != '{' &&
+          \ l:line[l:start] != ',' &&
+          \ l:line[l:start] != ' '
+      let l:start -= 1
+    endwhile
+    return l:start + 1
   else
-    return tex_seven#omni#OmniCompletions()
+    return tex_seven#omni#OmniCompletions(a:base)
   endif
 endfunction
 
