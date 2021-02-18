@@ -61,10 +61,14 @@ function tex_seven#EnvironmentOperator(mode)
 endfunction
 
 function tex_seven#GoToMainFileIfSet()
-  let l:mainFile = tex_seven#omni#GetMainFile()
-  if l:mainFile != ""
-    execute "edit " . l:mainFile
-  endif
+  try
+    let l:mainFile = tex_seven#omni#GetMainFile()
+    if l:mainFile != ""
+      execute "edit " . l:mainFile
+    endif
+  catch "MainFileIsNotSet"
+    echoerr "Cannot return to main file, as it is not set!"
+  endtry
 endfunction
 
 " For completion of \ref's, \cite's, etc.

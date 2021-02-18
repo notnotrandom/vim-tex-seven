@@ -59,6 +59,8 @@ let s:path = ""
 
 let s:sourcesFile = ""
 
+" Here, if we do NOT find a main file, we just continue, for it is possible
+" that the main file does not exist yet.
 function tex_seven#omni#AddBuffer()
   if s:mainFile == ""
     call tex_seven#omni#SetMainFile()
@@ -122,9 +124,7 @@ function tex_seven#omni#GetBibEntries()
 endfunction
 
 function tex_seven#omni#GetIncludedFiles()
-  if s:mainFile == ""
-    throw "Main file is not set!"
-  endif
+  call tex_seven#omni#SetMainFileOrThrowUp()
 
   let l:needToReadMainFile = "false"
 
@@ -161,6 +161,8 @@ function tex_seven#omni#GetIncludedFiles()
 endfunction
 
 function tex_seven#omni#GetLabels(prefix = '')
+  call tex_seven#omni#SetMainFileOrThrowUp()
+
   let l:labelsFound = []
 
   " Since we need to read s:mainFile anayway, also check the \include's.
@@ -205,9 +207,9 @@ function tex_seven#omni#GetLabels(prefix = '')
 endfunction
 
 function tex_seven#omni#GetMainFile()
-  if s:mainFile == ""
-    throw "Main file is not set!"
-  endif
+  call tex_seven#omni#SetMainFileOrThrowUp()
+
+  " If control is still here, s:mainFile is properly set -- so return it.
   return s:mainFile
 endfunction
 
@@ -265,9 +267,7 @@ function tex_seven#omni#OmniCompletions(base)
 endfunction
 
 function tex_seven#omni#QueryRefKey(refkey, preview)
-  if s:mainFile == ""
-    throw "Main file is not set!"
-  endif
+  call tex_seven#omni#SetMainFileOrThrowUp()
 
   let l:includedFilesList = []
 
@@ -374,7 +374,7 @@ function tex_seven#omni#SetMainFile()
   " If we already know the main file, no need to searching for it... (it is
   " very unlikely to change, after all).
   if s:mainFile != ""
-    return " There is nothing to do.
+    return
   endif
 
   " Otherwise, first, check if the current buffer is the main file (should
@@ -448,15 +448,22 @@ function tex_seven#omni#SetMainFile()
   " user has just begun writing his LaTeX document.
 endfunction
 
+function tex_seven#omni#SetMainFileOrThrowUp()
+  call tex_seven#omni#SetMainFile()
+  if s:mainFile == ""
+    throw "MainFileIsNotSet"
+  endif
+endfunction
+
 "Brief: If s:mainFile is set, then iterate through its lines, to discover
 "the bibliography file, if any.
 " Return: none.
 function tex_seven#omni#SetSourcesFile()
   if s:sourcesFile != ""
     return " There is nothing to do.
-  elseif s:mainFile == ""
-    throw "Main is not set!"
   endif
+
+  call tex_seven#omni#SetMainFileOrThrowUp()
 
   " Since we are reading the main file, we also update the \include'd file
   " list.
