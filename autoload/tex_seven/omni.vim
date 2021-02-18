@@ -192,7 +192,7 @@ function tex_seven#omni#GetLabels(prefix = '')
 endfunction
 
 function tex_seven#omni#GetMainFile()
-  if s:mainFile == ""
+  if expand('%:e') == 'tex' && s:mainFile == ""
     throw "Main file is not set!"
   endif
   return s:mainFile

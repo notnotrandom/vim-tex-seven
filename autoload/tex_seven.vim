@@ -60,6 +60,13 @@ function tex_seven#EnvironmentOperator(mode)
   return "\<Esc>:".pos[1]."\<Enter>m>:".pos[0]."\<Enter>V'>"
 endfunction
 
+function tex_seven#GoToMainFileIfSet()
+  let l:mainFile = tex_seven#omni#GetMainFile()
+  if l:mainFile != ""
+    execute "edit " . l:mainFile
+  endif
+endfunction
+
 " For completion of \ref's, \cite's, etc.
 function tex_seven#OmniCompletion(findstart, base)
   if a:findstart

@@ -28,4 +28,4 @@
 
 " This map is here to allow one to return from the .bib file to the main
 " (.tex) file.
-nnoremap <buffer><silent> gm :execute "edit " . tex_seven#omni#GetMainFile()<CR>
+nnoremap <buffer><silent> gm :call tex_seven#GoToMainFileIfSet()<CR>

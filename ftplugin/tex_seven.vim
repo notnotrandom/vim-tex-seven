@@ -1,7 +1,7 @@
 " LaTeX filetype plugin
 " Languages:    LaTeX
 " Maintainer:   Óscar Pereira
-" Version:      0.1
+" Version:      1.0
 " License:      GPL
 
 "************************************************************************
