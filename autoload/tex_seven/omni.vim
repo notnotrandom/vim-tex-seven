@@ -186,13 +186,26 @@ function tex_seven#omni#GetLabels(prefix = '')
       endif
     endif
   endfor
-
   let s:epochMainFileLastReadForIncludes = str2nr(system("date +%s"))
+
+  " Now search the included files.
+  for l:fname in s:includedFilesList
+    let l:fcontents = readfile(s:path . l:fname . '.tex')
+    for l:line in l:fcontents
+      let newlabel = matchstr(l:line,  '\m\\label{\zs\S\+\ze}')
+      if newlabel != ""
+        if a:prefix == '' || newlabel =~ '\m^' . a:prefix
+          call add(l:labelsFound, newlabel)
+        endif
+      endif
+    endfor
+  endfor
+
   return l:labelsFound
 endfunction
 
 function tex_seven#omni#GetMainFile()
-  if expand('%:e') == 'tex' && s:mainFile == ""
+  if s:mainFile == ""
     throw "Main file is not set!"
   endif
   return s:mainFile
@@ -431,7 +444,8 @@ function tex_seven#omni#SetMainFile()
       return
     endif
   endfor
-  throw "Main file not found!"
+  " We have not found the main .tex file. This might not be a mistake, if the
+  " user has just begun writing his LaTeX document.
 endfunction
 
 "Brief: If s:mainFile is set, then iterate through its lines, to discover
