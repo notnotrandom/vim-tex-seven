@@ -125,11 +125,12 @@ function tex_seven#QueryKey(preview)
         continue
       elseif l:res !~ '\m\(eq\)\?ref' &&
             \ l:res !~ '\m\(no\)\?cite.\?' &&
-            \ l:res !~ '\minclude'
+            \ l:res !~ '\minclude' && l:res !~ '\minput'
         echoerr "Pattern not found"
         return
       else
-        " l:keyword will be ref, or eqref, or cite, or nocite, or include.
+        " l:keyword will be ref, or eqref, or cite, or nocite, or include, or
+        " input.
         let l:keyword = l:res
         break
       endif
@@ -139,22 +140,28 @@ function tex_seven#QueryKey(preview)
     endif
   endwhile
 
-  " The while loop above might use the command "normal F\", which changes the
-  " cursor position. Here we reset it to its original position.
-  call setpos(".", [0, line("."), l:cursorColumn + 1, 0])
-
   " Ok, so we now have the "command" part in \command[whatever]{else} in the
   " variable l:keyword. The \ref \eqref and \include cases are easy: just
   " select the "else" part, and call the relevant function (see
   " autoload/tex_seven/omni.vim). The \cite and \nocite are the tricky ones.
   " (The getreg() function returns the text that was last yanked.)
-  if l:keyword == 'include'
+  if l:keyword == 'include' || l:keyword == 'input'
     normal! f}vi}y
     let inckey = getreg()
+
+    " Before opening a new window, set the cursor in the current window, to
+    " its original position.
+    call setpos(".", [0, line("."), l:cursorColumn + 1, 0])
+
     call tex_seven#omni#QueryIncKey(inckey, a:preview)
   elseif l:keyword =~ '.*ref'
     normal! f}vi}y
     let refkey = getreg()
+
+    " Before opening a new window, set the cursor in the current window, to
+    " its original position.
+    call setpos(".", [0, line("."), l:cursorColumn + 1, 0])
+
     call tex_seven#omni#QueryRefKey(refkey, a:preview)
   else
     " This is the thorny case of \cite or \nocite. Suppose that this function
@@ -220,6 +227,10 @@ function tex_seven#QueryKey(preview)
         break
       endif
     endwhile
+
+    " Before opening a new window, set the cursor in the current window, to
+    " its original position.
+    call setpos(".", [0, line("."), l:cursorColumn + 1, 0])
 
     " Now that we have the correct bibkey, give it to the correct function.
     call tex_seven#omni#QueryBibKey(l:entryKeyToBeSearched, a:preview)
