@@ -100,6 +100,8 @@ nnoremap <buffer><silent> gp :call tex_seven#QueryKey(1)<CR>
 nnoremap <buffer><silent> gd :call tex_seven#QueryKey(0)<CR>
 
 " Insert mode mappings
+inoremap <buffer><expr> <LocalLeader>B tex_seven#InsertEnv()
+
 inoremap <buffer> <LocalLeader><LocalLeader> <LocalLeader>
 inoremap <buffer> <LocalLeader>M \
 inoremap <buffer> <LocalLeader>" ``''<Left><Left>

@@ -75,6 +75,11 @@ function tex_seven#GoToMainFileIfSet()
   endtry
 endfunction
 
+function tex_seven#InsertEnv()
+  let l:res = "\\begin{equation}\n\n\\end{equation}"
+  return "" . l:res
+endfunction
+
 " For completion of \ref's, \cite's, etc.
 function tex_seven#OmniCompletion(findstart, base)
   if a:findstart
