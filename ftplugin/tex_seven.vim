@@ -75,7 +75,7 @@ setlocal fo=tcq
 setlocal omnifunc=tex_seven#OmniCompletion
 " setlocal completefunc=tex_seven#MathCompletion
 " *****************************************************************
-call tex_seven#omni#AddBuffer()
+call tex_seven#AddBuffer()
 
 """ Mappings
 
