@@ -60,6 +60,10 @@ function tex_seven#EnvironmentOperator(mode)
   return "\<Esc>:".pos[1]."\<Enter>m>:".pos[0]."\<Enter>V'>"
 endfunction
 
+" This function is called when, in a .bib file, the user presses 'gm' (sans
+" quotes, normal mode. Cf. ftplugin/bib_seven.vim). If s:mainFile is not set,
+" then do nothing (this may not be an error; for instance, the .bib file may
+" not be a part of a LaTeX project.)
 function tex_seven#GoToMainFileIfSet()
   try
     let l:mainFile = tex_seven#omni#GetMainFile()
@@ -151,11 +155,16 @@ function tex_seven#QueryKey(preview)
     endif
   endwhile
 
-  " Ok, so we now have the "command" part in \command[whatever]{else} in the
-  " variable l:keyword. The \ref \eqref and \include cases are easy: just
-  " select the "else" part, and call the relevant function (see
+  " Ok, so we now have the "command" part in \command[whatever]{else}, stored
+  " in the variable l:keyword. The \ref \eqref and \include cases are easy:
+  " just select the "else" part, and call the relevant function (see
   " autoload/tex_seven/omni.vim). The \cite and \nocite are the tricky ones.
-  " (The getreg() function returns the text that was last yanked.)
+  " (Note 1: The getreg() function returns the text that was last yanked.)
+  " (Note 2: We have to reset the cursor's position in the current buffer
+  " inside each case. It cannot be done before this if/else, because for
+  " keywords other than \cite or \nocite, we still need to move the cursor.
+  " And it cannot be done after this if/else block, because we will already
+  " have left the current buffer...)
   if l:keyword == 'include' || l:keyword == 'input'
     normal! f}vi}y
     let inckey = getreg()
