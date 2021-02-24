@@ -267,6 +267,23 @@ function tex_seven#InsertEnv()
   return "" . l:res
 endfunction
 
+" For completion of math symbols, arrows, etc.
+function tex_seven#MathCompletion(findstart, base)
+  if a:findstart
+    let line = getline('.')
+    let start = col('.') - 1
+    while start > 0 && line[start - 1] != '\'
+      if line[start] == ' ' | return -2 | endif
+      let start -= 1
+    endwhile
+    return start
+  else
+    let compl = copy(g:tex_seven#omniMath#symbols)
+    call filter(compl, 'v:val.word =~ "^'.a:base.'"')
+    return compl
+  endif
+endfunction
+
 " For completion of \ref's, \cite's, etc.
 function tex_seven#OmniCompletion(findstart, base)
   if a:findstart

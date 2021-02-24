@@ -73,7 +73,7 @@ endif
 setlocal completeopt=longest,menuone
 setlocal fo=tcq
 setlocal omnifunc=tex_seven#OmniCompletion
-" setlocal completefunc=tex_seven#MathCompletion
+setlocal completefunc=tex_seven#MathCompletion
 " *****************************************************************
 call tex_seven#AddBuffer()
 
@@ -105,6 +105,7 @@ inoremap <buffer><expr> <LocalLeader>B tex_seven#InsertEnv()
 inoremap <buffer> <LocalLeader><LocalLeader> <LocalLeader>
 inoremap <buffer> <LocalLeader>M \
 inoremap <buffer> <LocalLeader>" ``''<Left><Left>
+inoremap <buffer> <LocalLeader>' `'<Left><Left>
 inoremap <buffer><expr> <LocalLeader>C tex_seven#SmartInsert('\cite{')
 inoremap <buffer><expr> <LocalLeader>E tex_seven#SmartInsert('\eqref{')
 inoremap <buffer><expr> <LocalLeader>R tex_seven#SmartInsert('\ref{')
