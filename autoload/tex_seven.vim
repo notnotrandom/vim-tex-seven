@@ -521,5 +521,5 @@ endfunction
 function tex_seven#ViewDocument()
   call tex_seven#DiscoverMainFileOrThrowUp()
   echo "Viewing the document...\r"
-  call system("okular " . shellescape(s:mainFile[:-4] . "pdf"))
+  call system("okular " . shellescape(s:mainFile[:-4] . "pdf") . " &")
 endfunction
