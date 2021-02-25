@@ -516,3 +516,10 @@ function tex_seven#SmartInsert(keyword)
   endif
   return a:keyword."}\<Esc>i"
 endfunction
+
+" TODO for now invoking okular directly will do, but fix this...
+function tex_seven#ViewDocument()
+  call tex_seven#DiscoverMainFileOrThrowUp()
+  echo "Viewing the document...\r"
+  call system("okular " . shellescape(s:mainFile[:-4] . "pdf"))
+endfunction
