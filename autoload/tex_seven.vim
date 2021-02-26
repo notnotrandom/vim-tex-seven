@@ -40,6 +40,8 @@ let s:epochMainFileLastReadForIncludes = ""
 let g:tex_seven#includedFilePattern = '\m^\\include{\zs\S\+\ze}'
 let s:includedFilesList = []
 
+" The full path of the main .tex file (the one that contains a \documentclass
+" line).
 let s:mainFile = ""
 
 " Matches \somecmd{foo} or \somecmd[bar]{foo}. When used with matchstr(),
