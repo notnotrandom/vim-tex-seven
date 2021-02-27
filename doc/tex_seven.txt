@@ -8,7 +8,7 @@
 
 
     Author: Óscar Pereira
-    Email: See https://randomwalk.eu
+    Email: See https://randomwalk.eu/contacts
     License: GPL
     Version: 1.0
 
@@ -54,7 +54,8 @@
 <
     For basic usage you don't need to configure anything else. However,
     you may tweak some features of TeX-7 by defining a |Dictionary| called
-    `g:tex_seven_config' in your vimrc. The following keys are recognized:
+    `g:tex_seven_config' in your vimrc (or better yet, in
+    $VIMRUNTIME/ftplugin/tex.vim). The following keys are recognized:
 
     leader: String
         *   Most TeX-7 mappings begin with this prefix
@@ -62,11 +63,10 @@
         *   Default: The values of |mapleader|  and |maplocalleader| are
             honored. Otherwise set to colon ':'.
 
-    viewer: Dictionary
+    viewer: String
         *   Application used for viewing documents.
-        *   Vim dictionary with keys 'app' and 'target'.
         *   Optional
-        *   Default: {'app': 'xdg-open', 'target': 'pdf'}
+        *   Default: 'xdg-open'
     
     disable: Boolean
         * TeX-7 is disabled temporarily.
