@@ -52,7 +52,7 @@ let b:tex_seven_config = {
       \    'leader'       : '',
       \    'diamond_tex'  : '0',
       \    'verbose'      : 0,
-      \    'viewer'       : {'app': 'xdg-open', 'target': 'pdf'},
+      \    'viewer'       : 'xdg-open' ,
       \}
 
 " Override values with user preferences

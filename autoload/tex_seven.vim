@@ -517,7 +517,6 @@ function tex_seven#SmartInsert(keyword)
   return a:keyword."}\<Esc>i"
 endfunction
 
-" TODO for now invoking okular directly will do, but fix this...
 function tex_seven#ViewDocument()
   try
     call tex_seven#checkMainFileIsSet()
@@ -526,5 +525,5 @@ function tex_seven#ViewDocument()
     return
   endtry
   echo "Viewing the document...\r"
-  call system("okular " . shellescape(s:mainFile[:-4] . "pdf") . " &")
+  call system(g:tex_seven_config.viewer . " " . shellescape(s:mainFile[:-4] . "pdf") . " &")
 endfunction
