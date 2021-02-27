@@ -95,7 +95,7 @@ function tex_seven#omni#GetBibEntries()
 endfunction
 
 function tex_seven#omni#GetLabels(prefix = '')
-  let l:mainFile = tex_seven#DiscoverMainFileOrThrowUp()
+  let l:mainFile = tex_seven#GetMainFile()
 
   let l:labelsFound = []
 
@@ -195,7 +195,7 @@ function tex_seven#omni#OmniCompletions(base)
 endfunction
 
 function tex_seven#omni#QueryRefKey(refkey, preview)
-  let l:mainFile = tex_seven#DiscoverMainFileOrThrowUp()
+  let l:mainFile = tex_seven#GetMainFile()
 
   let l:includedFilesList = []
 

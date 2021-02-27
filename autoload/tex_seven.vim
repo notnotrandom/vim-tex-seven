@@ -65,6 +65,16 @@ function tex_seven#AddBuffer()
   endif
 endfunction
 
+" Used in visual mode, to change the selected text to bold, italic, etc. See
+" ftplugin/tex_seven.vim.
+function tex_seven#ChangeFontStyle(style)
+  let str = 'di'
+  let is_math = tex_seven#environments#Is_latex_math_environment()
+  let str .= is_math ? '\math'.a:style : '\text'.a:style
+  let str .= "{}\<Left>\<C-R>\""
+  return str
+endfunction
+
 " Brief: Set s:mainFile, the file which contains a line beginning with:
 " \documentclass.
 " Return: none.
@@ -155,28 +165,11 @@ function tex_seven#DiscoverMainFile()
   " user has just begun writing his LaTeX document.
 endfunction
 
-function tex_seven#DiscoverMainFileOrThrowUp()
+function tex_seven#checkMainFileIsSet()
   call tex_seven#DiscoverMainFile()
   if s:mainFile == ""
     throw "MainFileIsNotSet"
   endif
-  return s:mainFile
-endfunction
-
-" Used for completion of sub and super scripts. See ftplugin/tex_seven.vim.
-function tex_seven#IsLeft(lchar)
-  let left = getline('.')[col('.')-2]
-  return left == a:lchar ? 1 : 0
-endfunction
-
-" Used in visual mode, to change the selected text to bold, italic, etc. See
-" ftplugin/tex_seven.vim.
-function tex_seven#ChangeFontStyle(style)
-  let str = 'di'
-  let is_math = tex_seven#environments#Is_latex_math_environment()
-  let str .= is_math ? '\math'.a:style : '\text'.a:style
-  let str .= "{}\<Left>\<C-R>\""
-  return str
 endfunction
 
 " For visual selection operators of inner or outer (current) environment. See
@@ -194,7 +187,7 @@ function tex_seven#EnvironmentOperator(mode)
 endfunction
 
 function tex_seven#GetIncludedFilesList()
-  call tex_seven#DiscoverMainFileOrThrowUp()
+  call tex_seven#checkMainFileIsSet()
 
   let l:needToReadMainFile = "false"
 
@@ -235,7 +228,7 @@ function tex_seven#GetEpochMainFileLastReadForIncludes()
 endfunction
 
 function tex_seven#GetMainFile()
-  call tex_seven#DiscoverMainFileOrThrowUp()
+  call tex_seven#checkMainFileIsSet()
 
   " If control is still here, s:mainFile is properly set -- so return it.
   return s:mainFile
@@ -251,13 +244,12 @@ endfunction
 
 " This function is called when, in a .bib file, the user presses 'gm' (sans
 " quotes, normal mode. Cf. ftplugin/bib_seven.vim). If s:mainFile is not set,
-" then do nothing (this may not be an error; for instance, the .bib file may
-" not be a part of a LaTeX project.)
+" then warn the user that there the mainfile could not be found.
 function tex_seven#GoToMainFileIfSet()
   try
-    let l:mainFile = tex_seven#GetMainFile()
-    if l:mainFile != ""
-      execute "edit " . l:mainFile
+    call tex_seven#checkMainFileIsSet()
+    if s:mainFile != ""
+      execute "edit " . s:mainFile
     endif
   catch "MainFileIsNotSet"
     echoerr "Cannot return to main file, as it is not set!"
@@ -267,6 +259,12 @@ endfunction
 function tex_seven#InsertEnv()
   let l:res = "\\begin{equation}\n\n\\end{equation}"
   return "" . l:res
+endfunction
+
+" Used for completion of sub and super scripts. See ftplugin/tex_seven.vim.
+function tex_seven#IsLeft(lchar)
+  let left = getline('.')[col('.')-2]
+  return left == a:lchar ? 1 : 0
 endfunction
 
 " For completion of math symbols, arrows, etc.
@@ -485,7 +483,7 @@ function tex_seven#SetSourcesFile()
     return s:sourcesFile
   endif
 
-  call tex_seven#DiscoverMainFileOrThrowUp()
+  call tex_seven#checkMainFileIsSet()
 
   " Since we are reading the main file, we also update the \include'd file
   " list.
@@ -521,7 +519,12 @@ endfunction
 
 " TODO for now invoking okular directly will do, but fix this...
 function tex_seven#ViewDocument()
-  call tex_seven#DiscoverMainFileOrThrowUp()
+  try
+    call tex_seven#checkMainFileIsSet()
+  catch "MainFileIsNotSet"
+    echoerr "Cannot view document, as there is no mainfile set!"
+    return
+  endtry
   echo "Viewing the document...\r"
   call system("okular " . shellescape(s:mainFile[:-4] . "pdf") . " &")
 endfunction
