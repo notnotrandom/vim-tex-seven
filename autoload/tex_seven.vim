@@ -273,13 +273,17 @@ function tex_seven#MathCompletion(findstart, base)
     let line = getline('.')
     let start = col('.') - 1
     while start > 0 && line[start - 1] != '\'
-      if line[start] == ' ' | return -2 | endif
+          \ && line[start - 1] != ' '
+          \ && line[start - 1] != '$'
+          \ && line[start - 1] != '{'
+      if line[start] == '\' | return -2 | endif
       let start -= 1
     endwhile
+    if line[start - 1] == '\' | let start -= 1 | endif
     return start
   else
     let compl = copy(g:tex_seven#omniMath#symbols)
-    call filter(compl, 'v:val.word =~ "^'.a:base.'"')
+    call filter(compl, 'v:val.word =~ "\\m' . a:base . '"')
     return compl
   endif
 endfunction

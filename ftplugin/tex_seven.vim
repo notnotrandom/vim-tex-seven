@@ -102,14 +102,15 @@ nnoremap <buffer><silent> gg :pclose<CR>
 nnoremap <buffer><silent> gd :call tex_seven#QueryKey(0)<CR>
 
 " Insert mode mappings
-inoremap <buffer><expr> <LocalLeader>B tex_seven#InsertEnv()
-
 inoremap <buffer> <LocalLeader><LocalLeader> <LocalLeader>
-inoremap <buffer> <LocalLeader>M \
 inoremap <buffer> <LocalLeader>" ``''<Left><Left>
 inoremap <buffer> <LocalLeader>' `'<Left><Left>
+
+inoremap <buffer><expr> <LocalLeader>B tex_seven#InsertEnv()
 inoremap <buffer><expr> <LocalLeader>C tex_seven#SmartInsert('\cite{')
 inoremap <buffer><expr> <LocalLeader>E tex_seven#SmartInsert('\eqref{')
+inoremap <buffer> <LocalLeader>K 
+inoremap <buffer> <LocalLeader>M 
 inoremap <buffer><expr> <LocalLeader>R tex_seven#SmartInsert('\ref{')
 inoremap <buffer><expr> <LocalLeader>Z tex_seven#SmartInsert('\includeonly{')
 
