@@ -89,7 +89,6 @@ let g:maplocalleader = b:tex_seven_config.leader
 nnoremap <buffer><silent> <LocalLeader>V :call tex_seven#ViewDocument()<CR>
 
 " Misc
-noremap <buffer><silent> <LocalLeader>U :call tex_seven#Reconfigure(b:tex_seven_config)<CR>
 noremap <buffer><silent> <LocalLeader>Q :copen<CR>
 
 nnoremap <buffer><silent> gm :execute "edit " . tex_seven#omni#GetMainFile()<CR>
