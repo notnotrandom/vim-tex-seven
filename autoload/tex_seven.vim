@@ -31,13 +31,18 @@
 " in .tex files. When used with matchstr(), it returns bibfilename.
 let g:tex_seven#bibtexSourcesFilePattern = '\m^\\\(bibliography\|addbibresources\){\zs\S\+\ze}'
 
+" Self-explanatory.
 let g:tex_seven#emptyOrCommentLinesPattern = '\m^\s*\(%\|$\)'
+
+" Last timestamp (UNIX epoch) of when s:includedFilesList was updated.
 let s:epochMainFileLastReadForIncludes = ""
 
 " Matches lines like:
 " \include{chapter1}
 " in .tex files. When used with matchstr(), it returns chapter1.
 let g:tex_seven#includedFilePattern = '\m^\\include{\zs\S\+\ze}'
+
+" List of files \include'd in the main .tex file.
 let s:includedFilesList = []
 
 " The full path of the main .tex file (the one that contains a \documentclass
@@ -52,11 +57,17 @@ let g:tex_seven#matchCommand = '\m^\\\zs\a\+\ze\(\[.\+\]\)\?{'
 " % mainfile: ../main.tex
 let g:tex_seven#modelinePattern = '\m^\s*%\s*mainfile:\s*\zs\S\+\ze'
 
-" This variable is set when s:mainFile is set.
+" This variable is set when s:mainFile is set. Is is the full path of
+" s:mainFile.tex, without the name. I.e., if the full path of s:mainFile is
+" /path/to/LaTeX/project/mainfile.tex then s:path is /path/to/LaTeX/project/.
 let s:path = ""
 
+" Source (.bib) file for bibliographic entries.
 let s:sourcesFile = ""
 
+" Brief: Basically, whenever the user edits a .tex file, try do discover if
+" there exists a main .tex file.
+"
 " Here, if we do NOT find a main file, we just continue, for it is possible
 " that the main file does not exist yet.
 function tex_seven#AddBuffer()
@@ -65,8 +76,8 @@ function tex_seven#AddBuffer()
   endif
 endfunction
 
-" Used in visual mode, to change the selected text to bold, italic, etc. See
-" ftplugin/tex_seven.vim.
+" Brief: Used in visual mode, to change the selected text to bold, italic,
+" etc. See ftplugin/tex_seven.vim.
 function tex_seven#ChangeFontStyle(style)
   let str = 'di'
   let is_math = tex_seven#environments#Is_latex_math_environment()
@@ -165,13 +176,6 @@ function tex_seven#DiscoverMainFile()
   " user has just begun writing his LaTeX document.
 endfunction
 
-function tex_seven#checkMainFileIsSet()
-  call tex_seven#DiscoverMainFile()
-  if s:mainFile == ""
-    throw "MainFileIsNotSet"
-  endif
-endfunction
-
 " For visual selection operators of inner or outer (current) environment. See
 " ftplugin/tex_seven.vim.
 function tex_seven#EnvironmentOperator(mode)
@@ -187,7 +191,7 @@ function tex_seven#EnvironmentOperator(mode)
 endfunction
 
 function tex_seven#GetIncludedFilesList()
-  call tex_seven#checkMainFileIsSet()
+  call tex_seven#GetMainFile()
 
   let l:needToReadMainFile = "false"
 
@@ -223,21 +227,31 @@ function tex_seven#GetIncludedFilesList()
   return s:includedFilesList
 endfunction
 
+" Brief: Allow external scripts to retrieve that value of
+" s:epochMainFileLastReadForIncludes.
 function tex_seven#GetEpochMainFileLastReadForIncludes()
   return s:epochMainFileLastReadForIncludes
 endfunction
 
+" Brief: This function basically calls tex_seven#DiscoverMainFile(), but
+" throws an exception if the main .tex file is not set, and cannot be found.
+" One purpose is for this function to be called at places where control should
+" reach *only after* the main .tex file has been set. The other purpose is to
+" allow external scripts to retrieve that value of s:mainFile.
 function tex_seven#GetMainFile()
-  call tex_seven#checkMainFileIsSet()
-
-  " If control is still here, s:mainFile is properly set -- so return it.
+  call tex_seven#DiscoverMainFile()
+  if s:mainFile == ""
+    throw "MainFileIsNotSet"
+  endif
   return s:mainFile
 endfunction
 
+" Brief: Allow external scripts to retrieve that value of s:path.
 function tex_seven#GetPath()
   return s:path
 endfunction
 
+" Brief: Allow external scripts to retrieve that value of s:sourcesFile.
 function tex_seven#GetSourcesFile()
   return s:sourcesFile
 endfunction
@@ -247,7 +261,7 @@ endfunction
 " then warn the user that there the mainfile could not be found.
 function tex_seven#GoToMainFileIfSet()
   try
-    call tex_seven#checkMainFileIsSet()
+    call tex_seven#GetMainFile()
     if s:mainFile != ""
       execute "edit " . s:mainFile
     endif
@@ -490,7 +504,7 @@ function tex_seven#SetSourcesFile()
     return s:sourcesFile
   endif
 
-  call tex_seven#checkMainFileIsSet()
+  call tex_seven#GetMainFile()
 
   " Since we are reading the main file, we also update the \include'd file
   " list.
@@ -526,7 +540,7 @@ endfunction
 
 function tex_seven#ViewDocument()
   try
-    call tex_seven#checkMainFileIsSet()
+    call tex_seven#GetMainFile()
   catch "MainFileIsNotSet"
     echoerr "Cannot view document, as there is no mainfile set!"
     return

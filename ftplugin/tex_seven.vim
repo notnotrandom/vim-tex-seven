@@ -91,7 +91,7 @@ nnoremap <buffer><silent> <LocalLeader>V :call tex_seven#ViewDocument()<CR>
 " Misc
 noremap <buffer><silent> <LocalLeader>Q :copen<CR>
 
-nnoremap <buffer><silent> gm :execute "edit " . tex_seven#omni#GetMainFile()<CR>
+nnoremap <buffer><silent> gm :execute "edit " . tex_seven#GetMainFile()<CR>
 
 " Go from \ref to \label, or from \cite bib entry. If argument is true (1),
 " use preview window; if false (0), use normal window (i.e. :edit).
