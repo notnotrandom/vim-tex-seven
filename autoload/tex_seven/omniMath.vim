@@ -1,5 +1,4 @@
 let g:tex_seven#omniMath#symbols = [
-      \ {"word":  "\\|",                   "menu":  " ∥ "},
       \ {"word":  "\\aleph",               "menu":  " ℵ "},
       \ {"word":  "\\alpha",               "menu":  " α "},
       \ {"word":  "\\amalg",               "menu":  " ⨿ "},
@@ -345,7 +344,7 @@ let g:tex_seven#omniMath#symbols = [
       \ {"word":  "\\vdots",               "menu":  " ..."},
       \ {"word":  "\\vee",                 "menu":  " ∨"},
       \ {"word":  "\\veebar",              "menu":  " ⊻ "},
-      \ {"word":  "\\Vert",                "menu":  " ‖"},
+      \ {"word":  "\\Vert",                "menu":  " ∥"},
       \ {"word":  "\\vert",                "menu":  " |"},
       \ {"word":  "\\Vvdash",              "menu":  " ⊪ "},
       \ {"word":  "\\wedge",               "menu":  " ∧"},
