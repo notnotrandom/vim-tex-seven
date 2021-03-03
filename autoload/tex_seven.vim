@@ -281,11 +281,14 @@ function tex_seven#MathCompletion(findstart, base)
     endwhile
     if line[start - 1] == '\' | let start -= 1 | endif
     return start
-  else
+  elseif a:base != ""
+    if a:base == '\' | return g:tex_seven#omniMath#symbols | endif
+
     let compl = copy(g:tex_seven#omniMath#symbols)
     call filter(compl, 'v:val.word =~ "\\m' . a:base . '"')
     return compl
   endif
+  return []
 endfunction
 
 " For completion of \ref's, \cite's, etc.
