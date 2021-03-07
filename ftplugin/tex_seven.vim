@@ -85,11 +85,8 @@ if exists('g:maplocalleader')
 endif
 let g:maplocalleader = b:tex_seven_config.leader 
 
-" Viewing
+" Normal mode mappings.
 nnoremap <buffer><silent> <LocalLeader>V :call tex_seven#ViewDocument()<CR>
-
-" Misc
-noremap <buffer><silent> <LocalLeader>Q :copen<CR>
 
 nnoremap <buffer><silent> gm :execute "edit " . tex_seven#GetMainFile()<CR>
 
@@ -100,7 +97,26 @@ nnoremap <buffer><silent> gp :call tex_seven#QueryKey(1)<CR>
 nnoremap <buffer><silent> gb :pclose<CR>
 nnoremap <buffer><silent> gd :call tex_seven#QueryKey(0)<CR>
 
-" Insert mode mappings
+" Visual mode and operator mappings.
+
+" Robust inner/outer environment operators.
+vmap <buffer><expr> ae tex_seven#EnvironmentOperator('outer')
+omap <buffer><silent> ae :normal vae<CR>
+vmap <buffer><expr> ie tex_seven#EnvironmentOperator('inner')
+omap <buffer><silent> ie :normal vie<CR>
+
+" As these are visual mode mappings, they interfere with other usages of
+" visual mode, notoriously the snippets plugin. Using <Leader> hopefully
+" minimises the problem...
+vmap <buffer><expr> <Leader>bf tex_seven#ChangeFontStyle('bf')
+vmap <buffer><expr> <Leader>it tex_seven#ChangeFontStyle('it')
+vmap <buffer><expr> <Leader>rm tex_seven#ChangeFontStyle('rm')
+vmap <buffer><expr> <Leader>sf tex_seven#ChangeFontStyle('sf')
+vmap <buffer><expr> <Leader>tt tex_seven#ChangeFontStyle('tt')
+vmap <buffer>       <Leader>up di\text{}<Left><C-R>"
+
+" Insert mode mappings.
+
 inoremap <buffer> <LocalLeader><LocalLeader> <LocalLeader>
 inoremap <buffer> <LocalLeader>" ``''<Left><Left>
 inoremap <buffer> <LocalLeader>' `'<Left><Left>
@@ -109,21 +125,23 @@ inoremap <buffer><expr> <LocalLeader>B tex_seven#InsertEnv()
 inoremap <buffer><expr> <LocalLeader>C tex_seven#SmartInsert('\cite{')
 inoremap <buffer><expr> <LocalLeader>E tex_seven#SmartInsert('\eqref{')
 inoremap <buffer> <LocalLeader>K 
+
+" Start mathmode completion.
 inoremap <buffer> <LocalLeader>M 
+
 inoremap <buffer><expr> <LocalLeader>R tex_seven#SmartInsert('\ref{')
 inoremap <buffer><expr> <LocalLeader>Z tex_seven#SmartInsert('\includeonly{')
 
-" Greek
+" Greek.
 inoremap <buffer> <LocalLeader>a \alpha
 inoremap <buffer> <LocalLeader>b \beta
 inoremap <buffer> <LocalLeader>c \chi
 inoremap <buffer> <LocalLeader>d \delta
-inoremap <buffer> <LocalLeader>e \varepsilon
-inoremap <buffer> <LocalLeader>/e \epsilon
-inoremap <buffer> <LocalLeader>f \varphi
-inoremap <buffer> <LocalLeader>/f \phi
+inoremap <buffer> <LocalLeader>e \epsilon
+inoremap <buffer> <LocalLeader>f \phi
 inoremap <buffer> <LocalLeader>g \gamma
 inoremap <buffer> <LocalLeader>h \eta
+inoremap <buffer> <LocalLeader>i \iota
 inoremap <buffer> <LocalLeader>k \kappa
 inoremap <buffer> <LocalLeader>l \lambda
 inoremap <buffer> <LocalLeader>m \mu
@@ -149,26 +167,29 @@ inoremap <buffer> <LocalLeader>Q \Theta
 inoremap <buffer> <LocalLeader>U \Upsilon
 inoremap <buffer> <LocalLeader>X \Xi
 inoremap <buffer> <LocalLeader>Y \Psi
+inoremap <buffer> <LocalLeader>_e \varepsilon
+inoremap <buffer> <LocalLeader>_q \vartheta
+inoremap <buffer> <LocalLeader>_r \varrho
+inoremap <buffer> <LocalLeader>_s \varsigma
+inoremap <buffer> <LocalLeader>_f \varphi
 
-" Math
-
-" Start mathmode completion
+" Math.
 inoremap <buffer> <LocalLeader>\ \setminus
 inoremap <buffer> <LocalLeader>½ \sqrt{}<Left>
 inoremap <buffer> <LocalLeader>N \nabla
 inoremap <buffer> <LocalLeader>S \sum_{}^{}<Esc>2F{a
-inoremap <buffer> <LocalLeader>/S \prod_{}^{}<Esc>2F{a
+inoremap <buffer> <LocalLeader>_S \prod_{}^{}<Esc>2F{a
 inoremap <buffer> <LocalLeader>V \vec{}<Left>
 inoremap <buffer> <LocalLeader>I \int\limits_{}^{}<Esc>2F{a
-inoremap <buffer> <LocalLeader>0 \varnothing
-inoremap <buffer> <LocalLeader>/0 \emptyset
+inoremap <buffer> <LocalLeader>0 \emptyset
+inoremap <buffer> <LocalLeader>_0 \varnothing
 inoremap <buffer> <LocalLeader>6 \partial
-inoremap <buffer> <LocalLeader>i \infty
+inoremap <buffer> <LocalLeader>Q \infty
 inoremap <buffer> <LocalLeader>/ \frac{}{}<Esc>2F{a
-inoremap <buffer> <LocalLeader>v \vee
-inoremap <buffer> <LocalLeader>& \wedge
-inoremap <buffer> <LocalLeader>/v \bigvee
-inoremap <buffer> <LocalLeader>/& \bigwedge
+inoremap <buffer> <LocalLeader>\| \lor
+inoremap <buffer> <LocalLeader>& \land
+inoremap <buffer> <LocalLeader>\|\| \bigvee
+inoremap <buffer> <LocalLeader>&& \bigwedge
 inoremap <buffer> <LocalLeader>@ \circ
 inoremap <buffer> <LocalLeader>* \not
 inoremap <buffer> <LocalLeader>! \neq
@@ -176,8 +197,8 @@ inoremap <buffer> <LocalLeader>~ \neg
 inoremap <buffer> <LocalLeader>= \equiv
 inoremap <buffer> <LocalLeader>- \cap
 inoremap <buffer> <LocalLeader>+ \cup
-inoremap <buffer> <LocalLeader>/- \bigcap
-inoremap <buffer> <LocalLeader>/+ \bigcup
+inoremap <buffer> <LocalLeader>-- \bigcap
+inoremap <buffer> <LocalLeader>-+ \bigcup
 if exists('g:tex_seven_config')
       \ && has_key(g:tex_seven_config, 'diamond_tex')
       \ && g:tex_seven_config['diamond_tex'] == '1'
@@ -185,6 +206,7 @@ if exists('g:tex_seven_config')
   inoremap <buffer> <LocalLeader>> \geq
 else
   inoremap <buffer> <LocalLeader>> <><Left>
+  " <LocalLeader>< is mapped as an enlarged delimiter, below.
 endif
 inoremap <buffer> <LocalLeader>~ \widetilde{}<Left>
 inoremap <buffer> <LocalLeader>^ \widehat{}<Left>
@@ -192,36 +214,21 @@ inoremap <buffer> <LocalLeader>_ \overline{}<Left>
 inoremap <buffer> <LocalLeader>. \cdot<Space>
 inoremap <buffer> <LocalLeader><CR> \nonumber\\<CR>
 
-" Enlarged delimiters
-inoremap <buffer> <LocalLeader>( \left(\right)<Esc>F(a
-inoremap <buffer> <LocalLeader>[ \left[\right]<Esc>F[a
-inoremap <buffer> <LocalLeader>{ \left\{ \right\}<Esc>F a
+" For angle brackets.
+inoremap <buffer> <LocalLeader>« \langle
+inoremap <buffer> <LocalLeader>» \rangle
 
-" Neat insertion of various LaTeX constructs by tapping keys
+" Enlarged delimiters.
+inoremap <buffer> <LocalLeader>( \left(  \right)<Esc>F(la
+inoremap <buffer> <LocalLeader>[ \left[  \right]<Esc>F[la
+inoremap <buffer> <LocalLeader>{ \left\{  \right\}<Esc>F{la
+inoremap <buffer> <LocalLeader>< \langle  \rangle<Esc>F\hi
+
+" Neat insertion of various LaTeX constructs by tapping keys.
 inoremap <buffer><expr> _ tex_seven#IsLeft('_') ? '{}<Left>' : '_'
 inoremap <buffer><expr> ^ tex_seven#IsLeft('^') ? '{}<Left>' : '^'
 inoremap <buffer><expr> = tex_seven#IsLeft('=') ? '<BS>&=' : '='
 inoremap <buffer><expr> ~ tex_seven#IsLeft('~') ? '<BS>\approx' : '~'
-
-" For angle brackets
-inoremap <buffer> <LocalLeader>« \langle
-inoremap <buffer> <LocalLeader>» \rangle
-
-" Robust inner/outer environment operators
-vmap <buffer><expr> ae tex_seven#EnvironmentOperator('outer')
-omap <buffer><silent> ae :normal vae<CR>
-vmap <buffer><expr> ie tex_seven#EnvironmentOperator('inner')
-omap <buffer><silent> ie :normal vie<CR>
-
-" As these are visual mode mappings, they interfere with other usages of
-" visual mode, notoriously the snippets plugin. Using <Leader> hopefully
-" minimises the problem...
-vmap <buffer><expr> <Leader>bf tex_seven#ChangeFontStyle('bf')
-vmap <buffer><expr> <Leader>it tex_seven#ChangeFontStyle('it')
-vmap <buffer><expr> <Leader>rm tex_seven#ChangeFontStyle('rm')
-vmap <buffer><expr> <Leader>sf tex_seven#ChangeFontStyle('sf')
-vmap <buffer><expr> <Leader>tt tex_seven#ChangeFontStyle('tt')
-vmap <buffer>       <Leader>up di\text{}<Left><C-R>"
 
 if exists('s:maplocalleader_saved')
   let g:maplocalleader = s:maplocalleader_saved

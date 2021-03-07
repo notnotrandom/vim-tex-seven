@@ -295,13 +295,20 @@ function tex_seven#MathCompletion(findstart, base)
     endwhile
     if line[start - 1] == '\' | let start -= 1 | endif
     return start
-  elseif a:base != ""
-    if a:base == '\' | return g:tex_seven#omniMath#symbols | endif
+  else
+    if a:base != ""
+      if a:base == '\' | return g:tex_seven#omniMath#symbols | endif
 
-    let compl = copy(g:tex_seven#omniMath#symbols)
-    call filter(compl, 'v:val.word =~ "\\m' . a:base . '"')
-    return compl
+      let compl = copy(g:tex_seven#omniMath#symbols)
+      call filter(compl, 'v:val.word =~ "\\m' . a:base . '"')
+      return compl
+    else
+      return g:tex_seven#omniMath#symbols
+    endif
   endif
+  
+  " Control should never reach here, but anyway, if it does, return an empty
+  " list.
   return []
 endfunction
 
