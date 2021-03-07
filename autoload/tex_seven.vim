@@ -270,6 +270,10 @@ function tex_seven#GoToMainFileIfSet()
   endtry
 endfunction
 
+function tex_seven#InsertCommand()
+  return "\\cmd{}\<Esc>Fcviw"
+endfunction
+
 function tex_seven#InsertEnv()
   let l:res = "\\begin{equation}\n\n\\end{equation}"
   return "" . l:res

@@ -121,6 +121,7 @@ inoremap <buffer> <LocalLeader><LocalLeader> <LocalLeader>
 inoremap <buffer> <LocalLeader>" ``''<Left><Left>
 inoremap <buffer> <LocalLeader>' `'<Left><Left>
 
+inoremap <buffer><expr> <LocalLeader><Space> tex_seven#InsertCommand()
 inoremap <buffer><expr> <LocalLeader>B tex_seven#InsertEnv()
 inoremap <buffer><expr> <LocalLeader>C tex_seven#SmartInsert('\cite{')
 inoremap <buffer><expr> <LocalLeader>E tex_seven#SmartInsert('\eqref{')
