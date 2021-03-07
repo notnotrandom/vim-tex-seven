@@ -28,7 +28,7 @@
 
 " Let the user have the last word
 if exists('g:tex_seven_config') && has_key(g:tex_seven_config, 'disable') 
-  if g:tex_seven_config.disable 
+  if g:tex_seven_config.disable
     redraw
     echomsg("TeX-7: Disabled by user.")
     finish
@@ -46,7 +46,7 @@ let s:path = fnameescape(expand('<sfile>:h'))
 let &dictionary = fnameescape(s:path.'/tex_dictionary.txt')
 
 " Defaults
-let b:tex_seven_config = { 
+let b:tex_seven_config = {
       \    'debug'        : 0,
       \    'disable'      : 0,
       \    'leader'       : '',
@@ -83,7 +83,7 @@ call tex_seven#AddBuffer()
 if exists('g:maplocalleader')
   let s:maplocalleader_saved = g:maplocalleader
 endif
-let g:maplocalleader = b:tex_seven_config.leader 
+let g:maplocalleader = b:tex_seven_config.leader
 
 " Normal mode mappings.
 nnoremap <buffer><silent> <LocalLeader>V :call tex_seven#ViewDocument()<CR>
