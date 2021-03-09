@@ -274,15 +274,42 @@ function tex_seven#InsertCommand()
   return "\\cmd{}\<Esc>Fcviw"
 endfunction
 
-function tex_seven#InsertEnv()
-  let l:res = "\\begin{equation}\n\n\\end{equation}"
-  return "" . l:res
-endfunction
-
 " Used for completion of sub and super scripts. See ftplugin/tex_seven.vim.
 function tex_seven#IsLeft(lchar)
   let left = getline('.')[col('.')-2]
   return left == a:lchar ? 1 : 0
+endfunction
+
+function tex_seven#InsertBibEntry()
+  let s:env = input('Bib entry type: ', '', 'custom,ListBibTypesCompletions')
+  if s:env == "url"
+		let l:res = "@manual{bibkey,\n" .
+          \ "title  = \"XXX\",\n" .
+          \ "author = \"XXX\",\n" .
+          \ "note   = \"\url{XXX} (last accessed: XXX)\",\n" .
+          \ "year   = \"XXX\"\n" .
+          \ "}\<Esc>%lviw"
+  else
+		let l:res = "@generic{bibkey,\n" .
+          \ "title     = \"XXX\",\n" .
+          \ "author    = \"XXX\",\n" .
+          \ "address   = \"XXX\",\n" .
+          \ "edition   = \"XXX\",\n" .
+          \ "isbn      = \"XXX\",\n" .
+          \ "note      = \"\url{XXX} (last accessed: XXX)\",\n" .
+          \ "number    = \"XXX\",\n" .
+          \ "origdate  = \"XXX\",\n" .
+          \ "publisher = \"XXX\",\n" .
+          \ "volume    = \"XXX\",\n" .
+          \ "year      = \"XXX\"\n" .
+          \ "}\<Esc>%hviw"
+  endif
+  return l:res
+endfunction
+
+" See :h command-completion-custom.
+function! ListBibTypesCompletions(ArgLead, CmdLine, CursorPos)
+  return "generic\<nl>url"
 endfunction
 
 " For completion of math symbols, arrows, etc.

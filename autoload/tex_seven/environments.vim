@@ -28,6 +28,7 @@
 
 let s:beginpat = '\m^\s*\\begin{\zs\w\+\ze}'
 let s:endpat = '\m^\s*\\end{\zs\w\+\ze}'
+let s:joinedEnvironmentsList = ""
 let s:numLines = line('$')
 
 " Brief: starting with the given line number, search upwards for a \begin.
@@ -270,6 +271,11 @@ function tex_seven#environments#Get_latex_environment()
   return [ l:beginenv, l:beginenvline, l:endenvline ]
 endfunction
 
+function tex_seven#environments#InsertEnv()
+  let s:env = input('Environment: ', '', 'custom,ListEnvCompletions')
+  return "\\begin{" . s:env . "}\n\\end{" . s:env . "}\<Esc>O"
+endfunction
+
 " Brief: Returns 1 (true) if current line is inside a math environment, and 0
 " (false) otherwise.
 function tex_seven#environments#Is_latex_math_environment()
@@ -287,4 +293,18 @@ function tex_seven#environments#Is_latex_math_environment()
   " another, non-math, env, or can be inside of no environment at all... In
   " either case, we return false (0).
   return 0
+endfunction
+
+" See :h command-completion-custom.
+function! ListEnvCompletions(ArgLead, CmdLine, CursorPos)
+  if s:joinedEnvironmentsList != ""
+    return s:joinedEnvironmentsList
+  endif
+
+  if filereadable(g:env_dictionary)
+    let s:joinedEnvironmentsList = join(readfile(g:env_dictionary), "\<nl>")
+    return s:joinedEnvironmentsList
+  else
+    return ""
+  endif
 endfunction

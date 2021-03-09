@@ -42,31 +42,46 @@ endif
 let b:init_tex_seven = 1
 
 " ************************ Common Settings ************************
-let s:path = fnameescape(expand('<sfile>:h'))
-let &dictionary = fnameescape(s:path.'/tex_dictionary.txt')
-
 " Defaults
 let b:tex_seven_config = {
-      \    'debug'        : 0,
-      \    'disable'      : 0,
-      \    'leader'       : '',
-      \    'diamond_tex'  : '0',
-      \    'verbose'      : 0,
-      \    'viewer'       : 'xdg-open' ,
+      \    'debug'                  : 0,
+      \    'disable'                : 0,
+      \    'environment_dictionary' : '',
+      \    'leader'                 : '',
+      \    'diamond_tex'            : '0',
+      \    'verbose'                : 0,
+      \    'viewer'                 : 'xdg-open' ,
       \}
+
+" This will usually be g:maplocalleader. It is set below, and allows, e.g.,
+" ~/.vim/after/ scripts to remap maps that use <LocalLeader>.
+let b:tex_seven_leader = ''
 
 " Override values with user preferences
 if exists('g:tex_seven_config')
   call extend(b:tex_seven_config, g:tex_seven_config)
 endif
 
-" Configure the leader
-if b:tex_seven_config.leader == ''
-  if exists('g:maplocalleader')
-    let b:tex_seven_config.leader = g:maplocalleader
-  else
-    let b:tex_seven_config.leader = ':'
-  endif
+" Configure the leader. First, save the previous <LocalLeader>, if any.
+if exists('g:maplocalleader')
+  let s:maplocalleader_saved = g:maplocalleader
+endif
+" Then, if the user specified a <LocalLeader>, use that. If not, use ':' as
+" <LocalLeader>.
+if b:tex_seven_config.leader != ''
+  let g:maplocalleader = b:tex_seven_config.leader
+else
+  let g:maplocalleader = ':'
+endif
+
+" Save the <LocalLeader>. This is needed for .bib, and for the user to be able
+" to do customisations in the ~/.vim/after/ directory.
+let b:tex_seven_leader = g:maplocalleader
+
+if b:tex_seven_config.environment_dictionary == ''
+  let g:env_dictionary = fnameescape(expand('<sfile>:h') . '/environments.txt')
+else
+  let g:env_dictionary = fnameescape(expand(b:tex_seven_config.environment_dictionary))
 endif
 
 " Completion.
@@ -75,15 +90,10 @@ setlocal fo=tcq
 setlocal omnifunc=tex_seven#OmniCompletion
 setlocal completefunc=tex_seven#MathCompletion
 " *****************************************************************
+
 call tex_seven#AddBuffer()
 
 """ Mappings
-
-" Begin with saving the Leader. Save the old, and set the new leader.
-if exists('g:maplocalleader')
-  let s:maplocalleader_saved = g:maplocalleader
-endif
-let g:maplocalleader = b:tex_seven_config.leader
 
 " Normal mode mappings.
 nnoremap <buffer><silent> <LocalLeader>V :call tex_seven#ViewDocument()<CR>
@@ -122,7 +132,7 @@ inoremap <buffer> <LocalLeader>" ``''<Left><Left>
 inoremap <buffer> <LocalLeader>' `'<Left><Left>
 
 inoremap <buffer><expr> <LocalLeader><Space> tex_seven#InsertCommand()
-inoremap <buffer><expr> <LocalLeader>B tex_seven#InsertEnv()
+inoremap <buffer><expr> <LocalLeader>B tex_seven#environments#InsertEnv()
 inoremap <buffer><expr> <LocalLeader>C tex_seven#SmartInsert('\cite{')
 inoremap <buffer><expr> <LocalLeader>E tex_seven#SmartInsert('\eqref{')
 inoremap <buffer> <LocalLeader>K 

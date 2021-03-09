@@ -26,6 +26,26 @@
 "
 "************************************************************************
 
+if exists('g:maplocalleader')
+  let s:maplocalleader_saved = g:maplocalleader
+endif
+
+" The user might have opened a .bib file, before opening a .tex file, so TeX-7
+" might not have run yet.
+if exists('b:init_tex_seven')
+  let g:maplocalleader = b:tex_seven_leader
+else
+  let g:maplocalleader = ":"
+endif
+
 " This map is here to allow one to return from the .bib file to the main
 " (.tex) file -- if there is a main .tex file.
 nnoremap <buffer><silent> gm :call tex_seven#GoToMainFileIfSet()<CR>
+
+inoremap <buffer><expr> <LocalLeader>B tex_seven#InsertBibEntry()
+
+if exists('s:maplocalleader_saved')
+  let g:maplocalleader = s:maplocalleader_saved
+else
+  unlet g:maplocalleader
+endif
