@@ -53,14 +53,14 @@ let b:tex_seven_config = {
       \    'viewer'                 : 'xdg-open' ,
       \}
 
-" This will usually be g:maplocalleader. It is set below, and allows, e.g.,
-" ~/.vim/after/ scripts to remap maps that use <LocalLeader>.
-let b:tex_seven_leader = ''
-
 " Override values with user preferences
 if exists('g:tex_seven_config')
   call extend(b:tex_seven_config, g:tex_seven_config)
 endif
+
+" This will usually be g:maplocalleader. It is set below, and allows, e.g.,
+" ~/.vim/after/ scripts to remap maps that use <LocalLeader>.
+let b:tex_seven_leader = ''
 
 " Configure the leader. First, save the previous <LocalLeader>, if any.
 if exists('g:maplocalleader')
