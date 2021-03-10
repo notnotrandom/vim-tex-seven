@@ -102,10 +102,12 @@ function tex_seven#omni#GetGraphicsList(prefix = '')
   let l:path = tex_seven#GetPath()
 
   " Find files. The -printf is to use relative paths. It also removes the
-  " starting './' of the path of found files.
+  " starting './' of the path of found files. The -path -prune thingy skips
+  " files inside anydirectory which name contains the string "build".
   let l:graphicFiles = system("find " . fnameescape(l:path) . " -type f " .
-        \ "-iname \\*.jpg -printf \"%P\n\" -or " .
-        \ "-iname \\*.pdf -printf \"%P\n\" -or " .
+        \ "-path \\*build\\*/\\* -prune -o " .
+        \ "-iname \\*.jpg -printf \"%P\n\" -o " .
+        \ "-iname \\*.pdf -printf \"%P\n\" -o " .
         \ "-iname \\*.png -printf \"%P\n\" " )
 
   if a:prefix == ''

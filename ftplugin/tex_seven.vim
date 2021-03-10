@@ -129,6 +129,7 @@ inoremap <buffer> <LocalLeader>" ``''<Left><Left>
 inoremap <buffer> <LocalLeader>' `'<Left><Left>
 
 inoremap <buffer><expr> <LocalLeader><Space> tex_seven#InsertCommand()
+inoremap <buffer><expr> <LocalLeader>A tex_seven#SmartInsert('\includeonly{')
 inoremap <buffer><expr> <LocalLeader>B tex_seven#environments#InsertEnv()
 inoremap <buffer><expr> <LocalLeader>C tex_seven#SmartInsert('\cite{')
 inoremap <buffer><expr> <LocalLeader>E tex_seven#SmartInsert('\eqref{')
@@ -138,7 +139,7 @@ inoremap <buffer> <LocalLeader>K 
 inoremap <buffer> <LocalLeader>M 
 
 inoremap <buffer><expr> <LocalLeader>R tex_seven#SmartInsert('\ref{')
-inoremap <buffer><expr> <LocalLeader>Z tex_seven#SmartInsert('\includeonly{')
+inoremap <buffer><expr> <LocalLeader>Z tex_seven#SmartInsert('\includegraphics{')
 
 " Greek.
 inoremap <buffer> <LocalLeader>a \alpha

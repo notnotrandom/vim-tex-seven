@@ -27,7 +27,7 @@
         * No-hassle settings, relatively few mappings
 
     Shoutouts & thanks
-        * Elias Toivanen, the original author of the original TeX-9 plugin.
+        * Elias Toivanen, the original author of the TeX-9 plugin.
 
 ==============================================================================
 
