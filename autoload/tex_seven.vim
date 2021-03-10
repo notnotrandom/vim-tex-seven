@@ -87,7 +87,7 @@ function tex_seven#ChangeFontStyle(style)
 endfunction
 
 " Brief: Set s:mainFile, the file which contains a line beginning with:
-" \documentclass.
+" \documentclass. Also sets s:path.
 " Return: none.
 "
 " Synopsis: First, assume that the current file IS the main file. If so, set
@@ -169,11 +169,14 @@ function tex_seven#DiscoverMainFile()
     let l:mainfile = matchstr(line, g:tex_seven#modelinePattern)
     if l:mainfile != ""
       let s:mainFile = fnamemodify(expand('%:p:h') . '/' . l:mainfile, ':p')
+      let s:path = fnamemodify(s:mainFile, ':p:h') . '/'
       return
     endif
   endfor
-  " We have not found the main .tex file. This might not be a mistake, if the
-  " user has just begun writing his LaTeX document.
+
+  " If control reaches here, then we have not found the main .tex file. This
+  " might not be a mistake, if the user has just begun writing his LaTeX
+  " document.
 endfunction
 
 " For visual selection operators of inner or outer (current) environment. See
@@ -248,6 +251,7 @@ endfunction
 
 " Brief: Allow external scripts to retrieve that value of s:path.
 function tex_seven#GetPath()
+  call tex_seven#GetMainFile()
   return s:path
 endfunction
 

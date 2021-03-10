@@ -94,6 +94,27 @@ function tex_seven#omni#GetBibEntries()
   return s:bibEntryList
 endfunction
 
+" Brief: Omni-completion for \includegraphics{prefix}, where the prefix is
+" optional.
+" Returns: a list of .jpg, .pdf, or .png files, recursively searched under
+" s:path.
+function tex_seven#omni#GetGraphicsList(prefix = '')
+  let l:path = tex_seven#GetPath()
+
+  " Find files. The -printf is to use relative paths. It also removes the
+  " starting './' of the path of found files.
+  let l:graphicFiles = system("find " . fnameescape(l:path) . " -type f " .
+        \ "-iname \\*.jpg -printf \"%P\n\" -or " .
+        \ "-iname \\*.pdf -printf \"%P\n\" -or " .
+        \ "-iname \\*.png -printf \"%P\n\" " )
+
+  if a:prefix == ''
+    return split(l:graphicFiles, "\n")
+  else
+    return filter(split(l:graphicFiles, "\n"), 'v:val =~ "\\m^" . a:prefix')
+  endif
+endfunction
+
 function tex_seven#omni#GetLabels(prefix = '')
   let l:mainFile = tex_seven#GetMainFile()
 
@@ -158,7 +179,6 @@ function tex_seven#omni#OmniCompletions(base)
   let l:start = col('.') - 1
   while l:start > 0
     if l:line[l:start - 1] == '\'
-      echom l:line[l:start:] . '|'
       let l:keyword = matchstr(l:line[l:start:],
             \ '\m\zs\a\+\ze\(\[.\+\]\)\?{\(.\+,\s*\)*$')
       if l:keyword != ""
@@ -181,11 +201,13 @@ function tex_seven#omni#OmniCompletions(base)
     else
       return filter(copy(tex_seven#omni#GetBibEntries()), 'v:val =~ "\\m^" . a:base')
     endif
+  elseif l:keyword == 'includegraphics'
+    return tex_seven#omni#GetGraphicsList(a:base)
   elseif l:keyword == 'includeonly'
     if a:base == ""
       return tex_seven#GetIncludedFilesList()
     else
-      return filter(copy(tex_seven#omni#GetIncludedFiles()), 'v:val =~ "\\m^" . a:base')
+      return filter(copy(tex_seven#GetIncludedFilesList()), 'v:val =~ "\\m^" . a:base')
     endif
   elseif l:keyword =~ '.*ref'
     return tex_seven#omni#GetLabels(a:base)
