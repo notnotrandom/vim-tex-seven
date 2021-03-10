@@ -340,8 +340,8 @@
 <
     Finally, try omni-completion () inside curly braces when you're
     including a picture with `\includegraphics{}': you'll get a listing of
-    pictures in the compilation folder. Supported picture formats are EPS,
-    PDF, JPG and PNG.
+    pictures in the compilation folder. Supported picture formats are PDF, JPG
+    and PNG.
 
 ==============================================================================
 

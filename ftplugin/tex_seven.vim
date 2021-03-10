@@ -20,14 +20,14 @@
 "
 "    You should have received a copy of the GNU General Public License
 "    along with this program. If not, see <http://www.gnu.org/licenses/>.
-"                    
+"
 "    Copyright Elias Toivanen, 2011-2014
 "    Copyright Óscar Pereira, 2020-2021
 "
 "************************************************************************
 
 " Let the user have the last word
-if exists('g:tex_seven_config') && has_key(g:tex_seven_config, 'disable') 
+if exists('g:tex_seven_config') && has_key(g:tex_seven_config, 'disable')
   if g:tex_seven_config.disable
     redraw
     echomsg("TeX-7: Disabled by user.")

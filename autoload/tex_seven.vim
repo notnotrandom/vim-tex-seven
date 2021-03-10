@@ -20,7 +20,7 @@
 "
 "    You should have received a copy of the GNU General Public License
 "    along with this program. If not, see <http://www.gnu.org/licenses/>.
-"                    
+"
 "    Copyright Elias Toivanen, 2011-2014
 "    Copyright Óscar Pereira, 2020-2021
 "
@@ -84,6 +84,20 @@ function tex_seven#ChangeFontStyle(style)
   let str .= is_math ? '\math'.a:style : '\text'.a:style
   let str .= "{}\<Left>\<C-R>\""
   return str
+endfunction
+
+function tex_seven#CheckViewerImages()
+  if exists('g:tex_seven_config') && has_key(g:tex_seven_config, 'viewer_images')
+    return v:true
+  endif
+  return v:false
+endfunction
+
+function tex_seven#CheckViewerPDF()
+  if exists('g:tex_seven_config') && has_key(g:tex_seven_config, 'viewer')
+    return v:true
+  endif
+  return v:false
 endfunction
 
 " Brief: Set s:mainFile, the file which contains a line beginning with:
@@ -368,6 +382,8 @@ endfunction
 " - \cite{key} or \nocite{key} or \cite[foo]{key} or \cite[foo]{key1, key2}.
 " - \ref{key} or \eqref{key}.
 " - \include{filename}.
+" - \includeonly{filename}.
+" - \includegraphics{filename.(jpg|pdf|png)}.
 "
 " For each case, it invokes functions that do, respectively, the following:
 " - open the bib source file, at the line corresponding to key, e.g.
@@ -377,6 +393,8 @@ endfunction
 "   (e.g. \cite:{a, b}), use the key immediately before. comments below.
 " - open the .tex file containing \label{key}.
 " - open filename.tex.
+" - idem.
+" - open filename.(jpg|pdf|png).
 " Param: preview. Boolean (0 or 1). If true, shows the target file in a
 " preview (:pedit) window. Otherwise, uses :edit.
 " Return: none.
@@ -393,7 +411,7 @@ function tex_seven#QueryKey(preview)
   " position is at a backslash), then we test to see it matches the start of a
   " command like: \command[foo]{bar} (see this function's documentation above,
   " as well as the documentation for s:matchCommand at the beginning of the
-  " file). If there was no match, then we again go backwards, to the previous
+  " file). If there was no match, then we again go backwards, till the previous
   " backslash. If there was a match, we test to see if "command" is one of the
   " commands mentioned above in this function's documentation. If not, return
   " an error. If there was a match, then we set l:keyword to "command", and
@@ -412,12 +430,12 @@ function tex_seven#QueryKey(preview)
         continue
       elseif l:res !~ '\m\(eq\)\?ref' &&
             \ l:res !~ '\m\(no\)\?cite.\?' &&
-            \ l:res !~ '\minclude' && l:res !~ '\minput'
+            \ l:res !~ '\minclude\(graphics\|only\)\?' && l:res !~ '\minput'
         echoerr "Pattern not found"
         return
       else
         " l:keyword will be ref, or eqref, or cite, or nocite, or include, or
-        " input.
+        " includeonly, orinput, or includegraphics.
         let l:keyword = l:res
         break
       endif
@@ -428,16 +446,19 @@ function tex_seven#QueryKey(preview)
   endwhile
 
   " Ok, so we now have the "command" part in \command[whatever]{else}, stored
-  " in the variable l:keyword. The \ref \eqref and \include cases are easy:
-  " just select the "else" part, and call the relevant function (see
-  " autoload/tex_seven/omni.vim). The \cite and \nocite are the tricky ones.
-  " (Note 1: The getreg() function returns the text that was last yanked.)
+  " in the variable l:keyword. The \ref \eqref and \include(only)? cases are
+  " easy: just select the "else" part, and call the relevant function (see
+  " autoload/tex_seven/omni.vim). The \includegraphics is a bit more
+  " complicated, but not terribly so. The \cite and \nocite are the tricky
+  " ones.
+  " (Note 1: The getreg() function returns the text that was last
+  " yanked.)
   " (Note 2: We have to reset the cursor's position in the current buffer
   " inside each case. It cannot be done before this if/else, because for
   " keywords other than \cite or \nocite, we still need to move the cursor.
   " And it cannot be done after this if/else block, because we will already
   " have left the current buffer...)
-  if l:keyword == 'include' || l:keyword == 'input'
+  if l:keyword == 'input' || l:keyword == 'include' || l:keyword == 'includeonly'
     normal! f}vi}y
     let inckey = getreg()
 
@@ -446,6 +467,42 @@ function tex_seven#QueryKey(preview)
     call setpos(".", [0, line("."), l:cursorColumn + 1, 0])
 
     call tex_seven#omni#QueryIncKey(inckey, a:preview)
+  elseif l:keyword == 'includegraphics'
+    " Important: this only functions if in the .tex, the argument of
+    " \includegraphics includes the extension! E.g. \includegraphics{fname.ext}
+
+    normal! f}vi}y
+    let l:graphicFilename = getreg()
+
+    let l:viewer = ''
+    let l:extension = matchstr(l:graphicFilename, '\m\.\zs\S\S\S$')
+    if l:extension == ''
+      echoerr "No extension found for image file " . l:graphicFilename
+      return
+    elseif l:extension =~? 'pdf' " Match ignoring case.
+      if tex_seven#CheckViewerPDF() == v:true
+        let l:viewer = g:tex_seven_config.viewer
+      else
+        echoerr "Cannot view document, as there is no PDF viewer set!"
+        return
+      endif
+    elseif l:extension =~? '\(jpg\|png\)' " Match ignoring case.
+      if tex_seven#CheckViewerImages() == v:true
+        let l:viewer = g:tex_seven_config.viewer_images
+      else
+        echoerr "Cannot view image, as there is no JPG/PNG viewer set!"
+        return
+      endif
+    else
+      echoerr "Unknown extension: " . l:extension . "."
+      return
+    endif
+
+    " Reset cursor to its original position.
+    call setpos(".", [0, line("."), l:cursorColumn + 1, 0])
+
+    echo "Viewing the image file...\r"
+    call system(l:viewer . " " . shellescape(l:graphicFilename) . " &")
   elseif l:keyword =~ '.*ref'
     normal! f}vi}y
     let refkey = getreg()
@@ -587,6 +644,14 @@ function tex_seven#ViewDocument()
     echoerr "Cannot view document, as there is no mainfile set!"
     return
   endtry
+
+  if tex_seven#CheckViewerPDF() == v:true
+    let l:viewer = g:tex_seven_config.viewer
+  else
+    echoerr "Cannot view document, as there is no PDF viewer set!"
+    return
+  endif
+
   echo "Viewing the document...\r"
   call system(g:tex_seven_config.viewer . " " . shellescape(s:mainFile[:-4] . "pdf") . " &")
 endfunction
