@@ -339,11 +339,9 @@
         == -> &=
 <
     Finally, try omni-completion () inside curly braces when you're
-    including a picture with `\includegraphics{}' or when you're setting your
-    font with the `fontspec' package, e.g. `\setmainfont{}'. You'll get a
-    listing of pictures in the compilation folder in the first case and a list
-    of installed font on your system in the latter. Supported picture formats
-    are EPS, PDF, JPG and PNG. 
+    including a picture with `\includegraphics{}': you'll get a listing of
+    pictures in the compilation folder. Supported picture formats are EPS,
+    PDF, JPG and PNG.
 
 ==============================================================================
 
@@ -360,14 +358,15 @@
         Notice that to redefine mappings, you need need to set <LocalLeader>
         again. As an example, here is my ~/.vim/after/ftplugin/tex.vim:
 
-        " First, reset <LocalLeader>.
+        " First, reset <LocalLeader>. Note that this will run *after* TeX-7,
+        " and hence that variable b:tex_seven_leader will be set.
         if exists('g:maplocalleader')
           let s:maplocalleader_saved = g:maplocalleader
-        endif
-        let g:maplocalleader = b:tex_seven_config.leader
+            endif
+            let g:maplocalleader = b:tex_seven_leader
 
         " Now, implement user's customisations. In this case, override of
-        " selected " TeX-7 mappings.
+        " selected TeX-7 mappings.
         inoremap <buffer> <LocalLeader>e \varepsilon
         inoremap <buffer> <LocalLeader>_e \epsilon
 
