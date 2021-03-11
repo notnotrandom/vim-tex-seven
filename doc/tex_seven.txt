@@ -19,12 +19,19 @@
     you need to write a thesis or research articles and insist on having
     only one editor for all editing tasks, then TeX-7 is for you!
 
-     The main features of TeX-7 are
+    The main features of TeX-7 are
         * Powerful text-object for LaTeX environments 
         * Omni-completion of BibTeX database entries and label references
-        * Omni-completion of mathematical symbols
+        * Omni-completion of mathematical symbols, and included files
+        * Preview of BibTeX database entries and label references
+        * Preview images used \includegraphics (JPG, PNG, or PDF)
         * Filetype specific indentation (courtesy of Johannes Tanzler)
         * No-hassle settings, relatively few mappings
+
+    The main limitation of TeX-7 is that, unlike its predecessor (TeX-9), it
+    does *not* deal with *compilation* of LaTeX files, for two reasons:
+    compilation of LaTeX files is very tricky to get right in all
+    circumstances, and Vim is not an IDE.
 
     Shoutouts & thanks
         * Elias Toivanen, the original author of the TeX-9 plugin.
@@ -45,38 +52,52 @@
 
 1.  Installation                                    *tex_seven-installation*
 
-    TeX-7 is distributed as a gzipped tarball. Unzip it to your local
-    runtime path, usually `~/.vim/'.
+    To install TeX-7, I will assume you are a good citizen, and use something
+    like Tim Pope's |Pathogen| plugin, or something to that effect. In the
+    case of |Pathogen|, just clone this plugin into the bundle directory,
+    usually `~/.vim/bundle`, and run `:Helptags` afterwords.
 
     Next, open up |vimrc| and ensure it contains the following line:
     >
         filetype plugin indent on
 <
-    For basic usage you don't need to configure anything else. However,
-    you may tweak some features of TeX-7 by defining a |Dictionary| called
-    `g:tex_seven_config' in your vimrc (or better yet, in
-    $VIMRUNTIME/ftplugin/tex.vim). The following keys are recognized:
+    Strictly speaking, for basic usage you don't need to configure anything
+    else. However, you may the following settings very useful in making TeX-7
+    more convenient to use.
 
-    leader: String
-        *   Most TeX-7 mappings begin with this prefix
-        *   Optional
-        *   Default: The values of |mapleader|  and |maplocalleader| are
-            honored. Otherwise set to colon ':'.
-
-    viewer: String
-        *   Application used for viewing documents.
-        *   Optional
-        *   Default: 'xdg-open'
-    
     disable: Boolean
         * TeX-7 is disabled temporarily.
         * Default: 0 (TeX-7 is loaded)
 
     diamond_tex: Boolean
-        * TeX-9's originally mapped <LocalLeader>< to \leq, and <LocalLeader>> to \geq. However, I find these LaTeX commands actually easy to type, to I prefer to map <LocalLeader>< to nothing, and <LocalLeader>> to <> (sometimes called diamond). Among other things, this is useful when writing Beamer templates.
+        * TeX-9 originally mapped <LocalLeader>< to \leq, and <LocalLeader>>
+          to \geq. However, I find these LaTeX commands actually easy to type,
+          to I prefer to map <LocalLeader>< to \langle\rangle, and
+          <LocalLeader>> to <> (sometimes called diamond). Among other things,
+          the latter is useful when writing Beamer templates.
         * Default: 0 (map <LocalLeader>> to <>)
 
-    Examples: >
+    leader: String
+        *   Most TeX-7 mappings begin with this prefix
+        *   Optional
+        *   Default: The value of |maplocalleader|. Otherwise set to colon
+            ':'.
+
+    viewer: String
+        *   Application used for viewing PDF files.
+        *   Optional
+        *   Default: 'xdg-open'
+
+    viewer_images: String
+        *   Application used for viewing JPG/PNG files.
+        *   Optional
+        *   Default: 'xdg-open'
+
+    You set these, er, settings, by defining a |Dictionary| called
+    `g:tex_seven_config` in your vimrc (or better yet, in
+    $VIMRUNTIME/ftplugin/tex.vim).
+
+    Examples:
 
     " Old school LaTeX user    
     let g:tex_seven_config = {
