@@ -53,8 +53,8 @@
 1.  Installation                                    *tex_seven-installation*
 
     To install TeX-7, I will assume you are a good citizen, and use something
-    like Tim Pope's |Pathogen| plugin, or something to that effect. In the
-    case of |Pathogen|, just clone this plugin into the bundle directory,
+    like Tim Pope's Pathogen plugin, or something to that effect. In the
+    case of Pathogen, just clone this plugin into the bundle directory,
     usually `~/.vim/bundle`, and run `:Helptags` afterwords.
 
     Next, open up |vimrc| and ensure it contains the following line:
@@ -75,7 +75,11 @@
           to I prefer to map <LocalLeader>< to \langle\rangle, and
           <LocalLeader>> to <> (sometimes called diamond). Among other things,
           the latter is useful when writing Beamer templates.
-        * Default: 0 (map <LocalLeader>> to <>)
+        * Default: 1 (map <LocalLeader>> to <> and <LocalLeader>< to * \(lr)angle)
+
+    environment_list: String
+        * Path to a file containing a customised list of LaTeX environments.
+        * Default: empty (TeX-7 uses its own environment list)
 
     leader: String
         *   Most TeX-7 mappings begin with this prefix
@@ -94,35 +98,16 @@
         *   Default: 'xdg-open'
 
     You set these, er, settings, by defining a |Dictionary| called
-    `g:tex_seven_config` in your vimrc (or better yet, in
+    `g:tex_seven_config` in your |vimrc| (or better yet, in
     $VIMRUNTIME/ftplugin/tex.vim).
 
-    Examples:
+    Example:
 
     " Old school LaTeX user    
     let g:tex_seven_config = {
-        \'compiler': 'latex',
-        \'viewer': {'app':'xdvi', 'target':'dvi'},
-    \}
-
-    " A MacVim user
-    let g:tex_seven_config = {
-            \'compiler': 'pdflatex',
-            \'viewer': {'app':'open', 'target':'pdf'},
-    \}
-
-    " Xelatex user who wants SyncTeX support
-    let g:tex_seven_config = {
-        \'compiler': 'xelatex',
-        \'synctex': 1
-    \}
-
-    " Makefile users
-    let g:tex_seven_config = {
-        \'compiler': 'make',
-        \'verbose': 1
-    \}
-<
+      \ 'environment_list' : '~/.vim/ownsettings/latex_envs.txt' ,
+      \ 'viewer'           : 'okular' ,
+      \ 'viewer_images'    : 'gwenview' }
 
 ==============================================================================
 
@@ -130,13 +115,13 @@
 
     TeX-7 defines various mappings that speed up typesetting LaTeX code. Most
     of the mappings are prefixed with a leader referred below with the symbol
-    <LocalLeader>. If you have set `g:tex_seven_config.leader',
-    |maplocalleader| or |mapleader|, the corresponding character is used.
-    Otherwise, the leader defaults to colon (:).
+    <LocalLeader>. If you have set `g:tex_seven_config.leader', the
+    corresponding character is used. Otherwise, if it is set, |maplocalleader|
+    is used. As a last resort, the leader defaults to colon (:).
 
     TeX-7 uses relative paths in several places; hence, especially for
-    multi-file projects, it is recommended to lauch `(g)vim' from the same
-    folder where the main `.tex' file is located.
+    multi-file projects, it is recommended to lauch `(g)vim` from the same
+    folder where the main `.tex` file is located.
 
     Below is a short tutorial that should get you going in no time. Users who
     want to use SyncTeX, split their LaTeX manuscripts in several files and/or
@@ -144,6 +129,10 @@
     the |tex_seven-advanced| section.
 
 2.1. Insert mode
+
+    To insert an environment, press <LocalLeader>B. You're prompted for an
+    environment name and if a corresponding LaTeX code snippet was defined,
+    it is inserted into the file (see |tex_seven-snippets|).
 
     Type <LocalLeader>M to get a popup list of different maths symbols. In
     addition, the most frequently used maths symbols have their own
@@ -155,10 +144,6 @@
     contains a valid BibTeX file (see |tex_seven-bibtex| for details). Inserting
     references, `\ref{ref}', works in a similar way. The corresponding mapping is
     <LocalLeader>R.
-
-    To insert an environment, press <LocalLeader>B. You're prompted for an
-    environment name and if a corresponding LaTeX code snippet was defined,
-    it is inserted into the file (see |tex_seven-snippets|).
 
 2.2. Normal mode
 
