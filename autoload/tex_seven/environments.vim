@@ -20,7 +20,7 @@
 "
 "    You should have received a copy of the GNU General Public License
 "    along with this program. If not, see <http://www.gnu.org/licenses/>.
-"                    
+"
 "    Copyright Elias Toivanen, 2011-2014
 "    Copyright Óscar Pereira, 2020-2021
 "
@@ -301,8 +301,8 @@ function! ListEnvCompletions(ArgLead, CmdLine, CursorPos)
     return s:joinedEnvironmentsList
   endif
 
-  if filereadable(g:env_dictionary)
-    let s:joinedEnvironmentsList = join(readfile(g:env_dictionary), "\<nl>")
+  if filereadable(b:env_list)
+    let s:joinedEnvironmentsList = join(readfile(b:env_list), "\<nl>")
     return s:joinedEnvironmentsList
   else
     return ""

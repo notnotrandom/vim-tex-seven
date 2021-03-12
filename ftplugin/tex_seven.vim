@@ -44,14 +44,14 @@ let b:init_tex_seven = 1
 " ************************ Common Settings ************************
 " Defaults
 let b:tex_seven_config = {
-      \    'debug'                  : 0,
-      \    'diamond_tex'            : 1,
-      \    'disable'                : 0,
-      \    'environment_dictionary' : '',
-      \    'leader'                 : '',
-      \    'verbose'                : 0,
-      \    'viewer'                 : 'xdg-open' ,
-      \    'viewer_images'          : 'xdg-open' ,
+      \    'debug'            : 0,
+      \    'diamond_tex'      : 1,
+      \    'disable'          : 0,
+      \    'environment_list' : '',
+      \    'leader'           : '',
+      \    'verbose'          : 0,
+      \    'viewer'           : 'xdg-open' ,
+      \    'viewer_images'    : 'xdg-open' ,
       \}
 
 " Override values with user preferences.
@@ -76,10 +76,10 @@ endif
 " plugin's documention for further details.
 let b:tex_seven_leader = g:maplocalleader
 
-if b:tex_seven_config.environment_dictionary == ''
-  let g:env_dictionary = fnameescape(expand('<sfile>:h') . '/environments.txt')
+if b:tex_seven_config.environment_list == ''
+  let b:env_list = fnameescape(expand('<sfile>:h') . '/environments.txt')
 else
-  let g:env_dictionary = fnameescape(expand(b:tex_seven_config.environment_dictionary))
+  let b:env_list = fnameescape(expand(b:tex_seven_config.environment_list))
 endif
 
 " Completion.
