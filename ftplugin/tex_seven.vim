@@ -94,6 +94,8 @@ call tex_seven#AddBuffer()
 """ Mappings
 
 " Normal mode mappings.
+nnoremap <buffer><silent> <LocalLeader>B :call tex_seven#environments#GoToBeginAbove()<CR>
+nnoremap <buffer><silent> <LocalLeader>E :call tex_seven#environments#GoToEndBelow()<CR>
 nnoremap <buffer><silent> <LocalLeader>V :call tex_seven#ViewDocument()<CR>
 
 nnoremap <buffer><silent> gm :execute "edit " . tex_seven#GetMainFile()<CR>

@@ -36,7 +36,7 @@ let s:numLines = line('$')
 " Param: startlnum. The line number of where to start searching.
 " Return: a tuple [ env name, linenum ], consisting of the environment name
 " and the line number of where the \begin was found. If no such \begin was
-" found, then returns []. If an error occurred, it is throw'n.
+" found, then returns []. If an error occurred, it is thrown.
 "
 " Synopsis: for every new line, see if it is an \end. If so, check to see if
 " we had encountered a (still) unmatched \end before. In this case, throw
@@ -269,6 +269,47 @@ function tex_seven#environments#Get_latex_environment()
   endif
   " Otherwise, return [ env name, start line, end line ].
   return [ l:beginenv, l:beginenvline, l:endenvline ]
+endfunction
+
+" Return: empty.
+function tex_seven#environments#GoToBeginAbove()
+  " We start the search at line the cursor is in.
+  let l:linenum = line(".")
+
+  while 1
+    if l:linenum == 1
+      return
+    endif
+
+    let l:prevLineNum = l:linenum - 1
+    if match(getline(l:prevLineNum), s:beginpat) != -1
+      execute "normal :" . l:prevLineNum . "\<CR>"
+      normal 0f\
+      return
+    endif
+    let l:linenum -= 1
+  endwhile
+endfunction
+
+" Return: empty.
+function tex_seven#environments#GoToEndBelow()
+  " We start the search at line the cursor is in.
+  let l:linenum = line(".")
+  let l:lastLineNum = line("$")
+
+  while 1
+    if l:linenum == l:lastLineNum
+      return
+    endif
+
+    let l:nextLineNum = l:linenum + 1
+    if match(getline(l:nextLineNum), s:endpat) != -1
+      execute "normal :" . l:nextLineNum . "\<CR>"
+      normal 0f\
+      return
+    endif
+    let l:linenum += 1
+  endwhile
 endfunction
 
 function tex_seven#environments#InsertEnv()
