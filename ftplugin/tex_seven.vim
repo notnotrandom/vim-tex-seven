@@ -45,7 +45,7 @@ let b:init_tex_seven = 1
 " Defaults
 let b:tex_seven_config = {
       \    'debug'                  : 0,
-      \    'diamond_tex'            : 0,
+      \    'diamond_tex'            : 1,
       \    'disable'                : 0,
       \    'environment_dictionary' : '',
       \    'leader'                 : '',
@@ -211,7 +211,7 @@ inoremap <buffer> <LocalLeader>-- \bigcap
 inoremap <buffer> <LocalLeader>-+ \bigcup
 if exists('g:tex_seven_config')
       \ && has_key(g:tex_seven_config, 'diamond_tex')
-      \ && g:tex_seven_config['diamond_tex'] == '1'
+      \ && g:tex_seven_config['diamond_tex'] == 0
   inoremap <buffer> <LocalLeader>< \leq
   inoremap <buffer> <LocalLeader>> \geq
 else
@@ -232,7 +232,13 @@ inoremap <buffer> <LocalLeader>» \rangle
 inoremap <buffer> <LocalLeader>( \left(  \right)<Esc>F(la
 inoremap <buffer> <LocalLeader>[ \left[  \right]<Esc>F[la
 inoremap <buffer> <LocalLeader>{ \left\{  \right\}<Esc>F{la
-inoremap <buffer> <LocalLeader>< \langle  \rangle<Esc>F\hi
+" If the user did not explicitly disable the 'diamond_tex' setting, also map
+" <LocalLeader>< to an enlarged delimiter.
+if ! (exists('g:tex_seven_config')
+      \ && has_key(g:tex_seven_config, 'diamond_tex')
+      \ && g:tex_seven_config['diamond_tex'] == 1 )
+  inoremap <buffer> <LocalLeader>< \langle  \rangle<Esc>F\hi
+endif
 
 " Neat insertion of various LaTeX constructs by tapping keys.
 inoremap <buffer><expr> _ tex_seven#IsLeft('_') ? '{}<Left>' : '_'
