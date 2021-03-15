@@ -141,14 +141,16 @@
     references, `\ref{ref}', works in a similar way. The corresponding mapping is
     <LocalLeader>R.
 
+    There are also some macros that work by tapping a character on your
+    keyboard (super convenient for subscripts and superscripts!).
+
+    >
+        ^^ -> ^{}
+        __ -> _{}
+        ~~ -> \approx
+        == -> &=
+<
 2.2. Normal mode
-
-    Typing <LocalLeader>B should move the cursor to the first line opening an
-    environment ("\begin{"), that is above the current line (the line where
-    the cursor is).
-
-    Similarly, typing <LocalLeader>E should move the cursor to the first line
-    ending an environment ("\end{"), that is below the current line.
 
     Typing <LocalLeader>V should open the document in the PDF viewer
     configured in `g:tex_seven_config` (see above). If you didn't set
@@ -168,7 +170,25 @@
     This functionality also works for things other than label's and cite's;
     see |tex_seven-jumping|.
 
+    Typing <LocalLeader>B should move the cursor to the first line opening an
+    environment ("\begin{"), that is above the current line (the line where
+    the cursor is).
+
+    Similarly, typing <LocalLeader>E should move the cursor to the first line
+    ending an environment ("\end{"), that is below the current line.
+
+    The last tow mappings are super useful to select entire environments, as
+    described next.
+
 2.3. Visual mode
+
+    TeX-7 comes with a custom `environment operator' (see ||text-objects||).
+    Press 'vie' or 'vae' in normal normal to highlight the current inner
+    environment (without the \begin and \end statements) or the outer
+    environment respectively. Replace 'v' with another operator to achieve
+    yanking, changing or deleting etc. For example, typing 'dae' makes it
+    trivial to move figures and tables around in the document. Delete the
+    environment, find a new location and paste it back to the buffer!
 
 ==============================================================================
 
@@ -393,23 +413,6 @@
 
 6.4 Extras
 
-    TeX-7 comes with a custom `environment operator' (see ||text-objects||).
-    Press 'vie' or 'vae' in normal normal to highlight the current inner
-    environment (without the \begin and \end statements) or the outer
-    environment respectively. Replace 'v' with another operator to achieve
-    yanking, changing or deleting etc. For example, typing 'dae' makes it
-    trivial to move figures and tables around in the document. Delete the
-    environment, find a new location and paste it back to the buffer!
-    
-    There are also some macros that work by tapping a character on your
-    keyboard (super convenient for subscripts and superscripts!).     
-
-    >
-        ^^ -> ^{}
-        __ -> _{}
-        ~~ -> \approx
-        == -> &=
-<
     Finally, try omni-completion () inside curly braces when you're
     including a picture with `\includegraphics{}': you'll get a listing of
     pictures in the compilation folder. Supported picture formats are PDF, JPG
