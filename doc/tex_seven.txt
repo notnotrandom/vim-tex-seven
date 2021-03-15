@@ -43,7 +43,7 @@
     1.  Installation                                 |tex_seven-installation||
     2.  Basics                                       |tex_seven-basics|
     3.  Advanced                                     |tex_seven-advanced|
-    4.  Snippets                                     |tex_seven-snippets|
+    4.  Jumping                                      |tex_seven-jumping|
     5.  BibTeX                                       |tex_seven-bibtex|
     6.  Mappings                                     |tex_seven-mappings|
     7.  Tips and trick                               |tex_seven-tips|
@@ -124,33 +124,47 @@
 
     Below is a short tutorial that should get you going in no time.
 
-2.1. Insert mode
+2.1 Insert mode
 
     To insert an environment, press <LocalLeader>B. You're prompted for an
-    environment name and if a corresponding LaTeX code snippet was defined,
-    it is inserted into the file (see |tex_seven-snippets|).
+    environment name, then the following is inserted:
 
-    Type <LocalLeader>M to get a popup list of different maths symbols. In
-    addition, the most frequently used maths symbols have their own
-    shortcuts.  Typing <LocalLeader>a expands to \alpha for example. Refer
-    to |tex_seven-mappings| for a complete listing.
+        \begin{<envname>}
+          |
+        \end{<envname>}
 
-    Type <LocalLeader>C to insert a citation, i.e. `\cite{citekey}'. You're
+    <envname> is the supplied environment name; the cursor is left where the |
+    is.
+
+    To insert a command, press <LocalLeader><Space>. "\cmd{}" is inserted
+    (sans quotes), with the "cmd" part visually selected. So just write the
+    command name. Then you will have to move one char to the right, to write
+    the command's argument. You might find the following map useful:
+    >
+        inoremap <C-l> <Right>
+<
+    Type <LocalLeader>C to insert a citation, i.e. `\cite{citekey}`. You're
     prompted with a popup list of completions if the \bibliography{} statement
-    contains a valid BibTeX file (see |tex_seven-bibtex| for details). Inserting
-    references, `\ref{ref}', works in a similar way. The corresponding mapping is
-    <LocalLeader>R.
+    contains a valid BibTeX file. Inserting references, `\ref{ref}`, works in
+    a similar way. The corresponding mapping is <LocalLeader>R. Here are a few
+    other mappings that work similarly:
+
+        * <LocalLeader>A inserts `\includeonly{}` and starts completion inside
+          the brackets.
+        * <LocalLeader>E inserts `\eqref{}` and starts completion inside the
+          brackets.
+        * <LocalLeader>Z inserts `\includegraphics{}` and starts completion
+          inside the brackets. Supported graphic types: JPG, PDF, PNG.
 
     There are also some macros that work by tapping a character on your
     keyboard (super convenient for subscripts and superscripts!).
-
     >
         ^^ -> ^{}
         __ -> _{}
         ~~ -> \approx
         == -> &=
 <
-2.2. Normal mode
+2.2 Normal mode
 
     Typing <LocalLeader>V should open the document in the PDF viewer
     configured in `g:tex_seven_config` (see above). If you didn't set
@@ -180,7 +194,7 @@
     The last tow mappings are super useful to select entire environments, as
     described next.
 
-2.3. Visual mode
+2.3 Visual mode
 
     TeX-7 comes with a custom `environment operator' (see ||text-objects||).
     Press 'vie' or 'vae' in normal normal to highlight the current inner
@@ -194,7 +208,7 @@
 
 3.  Advanced                                        *tex_seven-advanced*
 
-3.1. Multi-file projects
+3.1 Multi-file projects
 
     The traditional way to handle multi-file projects is to set up a Makefile
     and compile with `make'. TeX-7 supports this behavior via the
@@ -225,7 +239,7 @@
     (When using [gp], to close the preview window use [gb]. When using [gd],
     to go back hit CTRL-o. All in normal mode.)
 
-4.1. Citations
+4.1 Citations
 
     If you have a citation like `\cite[some note]{key}`, or `\nocite{key}`,
     then placing the cursor *anywhere*, even outside of the "key" part, and
@@ -242,20 +256,20 @@
     the curly brackets, "key1" is used. If the cursor is at the closing brace
     '}', then "key2" is used.
 
-4.2. Labels and references
+4.2 Labels and references
 
     If you have a reference like `\ref{key}`, or `\eqref{key}`, then placing
     the cursor *anywhere*, even outside of the "key" part, and pressing [gp]
     will open a preview window showing the corresponding `\label{key}`
     statement.
 
-4.3. Includes
+4.3 Includes
 
     If you have a line like `\include{filename}`, or `\insideonly{filename}`, then placing
     the cursor *anywhere*, even outside of the "filename" part, and pressing [gp]
     will show `filename` in  preview window.
 
-4.4. Graphics
+4.4 Graphics
 
     If you have a line like `\includegraphics{graphicfilename}`, then placing
     the cursor *anywhere*, even outside of the "graphicfilename" part, and
@@ -279,6 +293,11 @@
 5.1 Omni-Completion TODO
 
 5.2 Math-Completion TODO
+
+    Type <LocalLeader>M to get a popup list of different maths symbols. In
+    addition, the most frequently used maths symbols have their own
+    shortcuts.  Typing <LocalLeader>a expands to \alpha for example. Refer
+    to |tex_seven-mappings| for a complete listing.
 
 
 ==============================================================================
@@ -422,7 +441,7 @@
 
 7.  Tips and tricks                                  *tex_seven-tips*
 
-7.1.    Preferred way to override, extend and hack TeX-7
+7.1 Preferred way to override, extend and hack TeX-7
 
         Create a custom tex.vim file in the after directory, i.e.
         ~/.vim/after/ftplugin/tex.vim. Here you can redefine mappings and
@@ -456,7 +475,15 @@
           unlet g:maplocalleader
         endif
 
-7.2     Spell checking
+7.2 Custom environment list
+
+        You can set a custom list of environment names for environment
+        insertion (see |tex_seven-basics|). In `g:tex_seven_config`, set the
+        "environment_list" key to point to the location of the file containing
+        the list of environments. One environment name per line. See example
+        in |tex_seven-installation|.
+
+7.3 Spell checking
 
         If you've enabled 'modeline', you may conveniently activate spell
         checking in your LaTeX documents by editing the modeline in the
@@ -473,7 +500,7 @@
 <       for disabling spell checking of comments that otherwise get messed up
        pretty badly.
 
-7.3     Folding
+7.4 Folding
 
         With newer versions of Vim it's easy as >
 
