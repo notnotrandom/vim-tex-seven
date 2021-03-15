@@ -103,9 +103,9 @@ nnoremap <buffer><silent> gm :execute "edit " . tex_seven#GetMainFile()<CR>
 " Go from \ref to \label, or from \cite bib entry. If argument is true (1),
 " use preview window; if false (0), use normal window (i.e. :edit).
 " gb in normal mode closes the preview window, if it is opened.
-nnoremap <buffer><silent> gp :call tex_seven#QueryKey(1)<CR>
 nnoremap <buffer><silent> gb :pclose<CR>
 nnoremap <buffer><silent> gd :call tex_seven#QueryKey(0)<CR>
+nnoremap <buffer><silent> gp :call tex_seven#QueryKey(1)<CR>
 
 " Visual mode and operator mappings.
 
