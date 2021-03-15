@@ -20,7 +20,7 @@
 "
 "    You should have received a copy of the GNU General Public License
 "    along with this program. If not, see <http://www.gnu.org/licenses/>.
-"                    
+"
 "    Copyright Elias Toivanen, 2011-2014
 "    Copyright Óscar Pereira, 2020-2021
 "
@@ -102,8 +102,9 @@ function tex_seven#omni#GetGraphicsList(prefix = '')
   let l:path = tex_seven#GetPath()
 
   " Find files. The -printf is to use relative paths. It also removes the
-  " starting './' of the path of found files. The -path -prune thingy skips
-  " files inside anydirectory which name contains the string "build".
+  " starting './' of the path of found files (that what the -printf string is
+  " for). The -path -prune thingy skips files inside anydirectory which name
+  " contains the string "build".
   let l:graphicFiles = system("find " . fnameescape(l:path) . " -type f " .
         \ "-path \\*build\\*/\\* -prune -o " .
         \ "-iname \\*.jpg -printf \"%P\n\" -o " .
