@@ -107,6 +107,10 @@ nnoremap <buffer><silent> gb :pclose<CR>
 nnoremap <buffer><silent> gd :call tex_seven#QueryKey(0)<CR>
 nnoremap <buffer><silent> gp :call tex_seven#QueryKey(1)<CR>
 
+" Small compile. Note that the map trigger here is :ww, and NOT
+" <LocalLeader>ww !!
+nnoremap <buffer><silent> :ww :write<CR>:call tex_seven#build#BuildOnWrite()<CR>
+
 " Visual mode and operator mappings.
 
 " Robust inner/outer environment operators.
@@ -114,6 +118,12 @@ vmap <buffer><expr> ae tex_seven#EnvironmentOperator('outer')
 omap <buffer><silent> ae :normal vae<CR>
 vmap <buffer><expr> ie tex_seven#EnvironmentOperator('inner')
 omap <buffer><silent> ie :normal vie<CR>
+
+" TeX text objects for inline math.
+vnoremap am vmq?\$<cr>v/\$<cr>
+onoremap am :normal vam<CR>`q
+vnoremap im vmq?\$<cr>lv/\$<cr>h
+onoremap im :normal vim<CR>`q
 
 " As these are visual mode mappings, they interfere with other usages of
 " visual mode, notoriously the snippets plugin. Using <Leader> hopefully
