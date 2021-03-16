@@ -24,7 +24,7 @@
         * Omni-completion of BibTeX database entries and label references
         * Omni-completion of mathematical symbols, and included files
         * Preview of BibTeX database entries and label references
-        * Preview images used \includegraphics (JPG, PNG, or PDF)
+        * Preview of \includegraphics (supported formats: JPG, PNG, or PDF)
         * Filetype specific indentation (courtesy of Johannes Tanzler)
         * No-hassle settings, relatively few mappings
 
@@ -67,7 +67,7 @@
 
     disable: Boolean
         * TeX-7 is disabled temporarily.
-        * Default: 0 (TeX-7 is loaded)
+        * Default: 0 (TeX-7 is loaded).
 
     diamond_tex: Boolean
         * TeX-9 originally mapped <LocalLeader>< to \leq, and <LocalLeader>>
@@ -75,27 +75,27 @@
           to I prefer to map <LocalLeader>< to \langle\rangle, and
           <LocalLeader>> to <> (sometimes called diamond). Among other things,
           the latter is useful when writing Beamer templates.
-        * Default: 1 (map <LocalLeader>> to <> and <LocalLeader>< to * \(lr)angle)
+        * Default: 1 (map <LocalLeader>> to <> and <LocalLeader>< to * \(lr)angle).
 
     environment_list: String
         * Path to a file containing a customised list of LaTeX environments.
-        * Default: empty (TeX-7 uses its own environment list)
+        * Default: empty (TeX-7 uses its own environment list).
 
     leader: String
-        *   Most TeX-7 mappings begin with this prefix
-        *   Optional
+        *   Most TeX-7 mappings begin with this prefix.
+        *   Optional.
         *   Default: The value of |maplocalleader|. Otherwise set to colon
             ':'.
 
     viewer: String
         *   Application used for viewing PDF files.
-        *   Optional
-        *   Default: 'xdg-open'
+        *   Optional.
+        *   Default: empty.
 
     viewer_images: String
         *   Application used for viewing JPG/PNG files.
-        *   Optional
-        *   Default: 'xdg-open'
+        *   Optional.
+        *   Default: empty.
 
     You set these, er, settings, by defining a |Dictionary| called
     `g:tex_seven_config` in your |vimrc| (or better yet, in
@@ -191,8 +191,8 @@
     Similarly, typing <LocalLeader>E should move the cursor to the first line
     ending an environment ("\end{"), that is below the current line.
 
-    The last tow mappings are super useful to select entire environments, as
-    described next.
+    The last two mappings are super useful to select/yank/move/etc. entire
+    environments, as described next.
 
 2.3 Visual mode
 
@@ -246,15 +246,15 @@
     pressing [gp] will open a preview window displaying the bib entry
     corresponding to that key.
 
-    If you have a citation like `\cite{key1, key2},` or `\cite[some
-    note]{key1, key2},`, if you press [gp] when the cursor is over "key1", or
+    If you have a citation like `\cite{key1, key2}`, or `\cite[some
+    note]{key1, key2}`, if you press [gp] when the cursor is over "key1", or
     "key2", then the corresponding bib entry will be shown. If the cursor is
     *before* the first key, e.g. over the "\cite{" string, then the entry for
     that first key is shown (in this case "key1"). If the cursor is inside the
-    curly braces, but not over key, then *the first preceding key*
+    curly braces, but not over any key, then *the first preceding key*
     is used. In the example, if the cursor is at the comma or the space inside
-    the curly brackets, "key1" is used. If the cursor is at the closing brace
-    '}', then "key2" is used.
+    the curly brackets, "key1" is used. If the cursor is at the closing
+    bracket '}', then "key2" is used.
 
 4.2 Labels and references
 
@@ -274,7 +274,7 @@
     If you have a line like `\includegraphics{graphicfilename}`, then placing
     the cursor *anywhere*, even outside of the "graphicfilename" part, and
     pressing [gd] or [gp] will open `graphicfilename` using the application
-    configured in `g:tex_seven_config.viewer` for PDf files, and `g:tex_seven_config.viewer_images` for JPG or PNG files (see |tex_seven-installation|). If you
+    configured in `g:tex_seven_config.viewer` for PDF files, and `g:tex_seven_config.viewer_images` for JPG or PNG files (see |tex_seven-installation|). If you
     didn't set `g:tex_seven_config.viewer`, and/or
     `g:tex_seven_config.viewer_images`, an error message is shown.
 
@@ -282,23 +282,57 @@
 
 5.  Completion                                      *tex_seven-completion*
 
-    In addition to citekey completion (see insert mode above), TeX-7 provides
-    a preview feature
-    that makes it easier to work with BibTeX and LaTeX files in the same
-    Vim session. You may take a quick peek at a particular BibTeX entry
-    by pressing `gb' over its citekey, i.e. \cite{citekey}. This command
-    is in line with ||gd|| and  |gf| with the exception that the BibTeX
-    entry is shown in a  |preview-window||.
+    Say you have the following text in a .tex file: "\ref{|}", with the cursor
+    being in the position of '|' (in insert mode). If you press
+    <LocalLeader>K, `vim` will show you a popup, containing all keys
+    corresponding to `\label{key}` statements found in the main .tex file, and
+    any files `\include`'d therein, if any. Furthermore, if what is actually
+    in your .tex file is something like: "\ref{sec:|}", then the popup will
+    show only label keys that start with the prefix "sec:" (sans quotes).
 
-5.1 Omni-Completion TODO
+    Pretty nice, right? This is called *completion*. What I described above is
+    a part of so-called "omni-completion". The other is completion of math
+    paraphernalia, creatively named "math-completion". Both are described in
+    the following sections.
 
-5.2 Math-Completion TODO
+    Note that as in the example above, all completion always takes place in
+    insert mode. Also, | is used to denote the cursor's position.
 
-    Type <LocalLeader>M to get a popup list of different maths symbols. In
-    addition, the most frequently used maths symbols have their own
+5.1 Omni-Completion
+
+    The above introduction already covers the case of omni-completion for
+    "\ref{"; completion for "\eqref{" works in the same way.
+
+    Completion for "\includeonly{" and "\includegraphics{" are similar, with the
+    difference that what is returned are list of files `\include`'d in the
+    main .tex file (if any), and graphics files, respectively. The graphic
+    files are searched in the folder that contains the main .tex file, and any
+    subfolders therein (but note that any files inside folders with names
+    containing the string "build" are ignored).
+
+    In all the cases described here, if there is a prefix, then only matches
+    that start with it are returned, just as was explained for the case of
+    "\ref{sec:}" above.
+
+5.2 Math-Completion
+
+    Type <LocalLeader>M to get a popup list of different maths symbols,
+    together with their shape (e.g. "\alpha" corresponds to α). I have
+    (mostly) chosen to put on the completion list
+    (~/.vim/autoload/tex_seven/omniMath.vim) symbols that have an Unicode
+    representation, and ca hence be "previewed" in this fashion.
+
+    Furthermore, if there is a word to the left of the cursor, that word is
+    used to filter the results of the popup list. For example, if you write
+    "$x arrow|$" and press <LocalLeader>M (| being the cursor position), the
+    popup list will contain all math symbols containing, but not necessarily
+    starting with, the string "arrow". This also works if you write "\arrow".
+    In both cases, you get a command, i.e., if you write "arrow" or "\arrow",
+    and then select "rightarrow", you get the command "\rightarrow".
+
+    Additionally, the most frequently used maths symbols have their own
     shortcuts.  Typing <LocalLeader>a expands to \alpha for example. Refer
-    to |tex_seven-mappings| for a complete listing.
-
+    to |tex_seven-mappings| below for a complete listing.
 
 ==============================================================================
 
@@ -429,13 +463,6 @@
         For example, to convert the word under the cursor to boldface, type
         >
             viw<Leader>bf
-
-6.4 Extras
-
-    Finally, try omni-completion () inside curly braces when you're
-    including a picture with `\includegraphics{}': you'll get a listing of
-    pictures in the compilation folder. Supported picture formats are PDF, JPG
-    and PNG.
 
 ==============================================================================
 
