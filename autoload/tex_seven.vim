@@ -87,14 +87,14 @@ function tex_seven#ChangeFontStyle(style)
 endfunction
 
 function tex_seven#CheckViewerImages()
-  if exists('g:tex_seven_config') && has_key(g:tex_seven_config, 'viewer_images')
+  if has_key(b:tex_seven_config, 'viewer_images')
     return v:true
   endif
   return v:false
 endfunction
 
 function tex_seven#CheckViewerPDF()
-  if exists('g:tex_seven_config') && has_key(g:tex_seven_config, 'viewer')
+  if has_key(b:tex_seven_config, 'viewer')
     return v:true
   endif
   return v:false
@@ -481,14 +481,14 @@ function tex_seven#QueryKey(preview)
       return
     elseif l:extension =~? 'pdf' " Match ignoring case.
       if tex_seven#CheckViewerPDF() == v:true
-        let l:viewer = g:tex_seven_config.viewer
+        let l:viewer = b:tex_seven_config.viewer
       else
         echoerr "Cannot view document, as there is no PDF viewer set!"
         return
       endif
     elseif l:extension =~? '\(jpg\|png\)' " Match ignoring case.
       if tex_seven#CheckViewerImages() == v:true
-        let l:viewer = g:tex_seven_config.viewer_images
+        let l:viewer = b:tex_seven_config.viewer_images
       else
         echoerr "Cannot view image, as there is no JPG/PNG viewer set!"
         return
@@ -646,7 +646,7 @@ function tex_seven#ViewDocument()
   endtry
 
   if tex_seven#CheckViewerPDF() == v:true
-    let l:viewer = g:tex_seven_config.viewer
+    let l:viewer = b:tex_seven_config.viewer
   else
     echoerr "Cannot view document, as there is no PDF viewer set!"
     return

@@ -45,13 +45,15 @@ let b:init_tex_seven = 1
 " Defaults
 let b:tex_seven_config = {
       \    'debug'            : 0,
+      \    'compiler'         : 'make',
+      \    'compiler_opts'    : '',
       \    'diamond_tex'      : 1,
       \    'disable'          : 0,
       \    'environment_list' : '',
       \    'leader'           : '',
       \    'verbose'          : 0,
-      \    'viewer'           : 'xdg-open' ,
-      \    'viewer_images'    : 'xdg-open' ,
+      \    'viewer'           : '' ,
+      \    'viewer_images'    : '' ,
       \}
 
 " Override values with user preferences.
