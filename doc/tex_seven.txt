@@ -29,7 +29,7 @@
         * No-hassle settings, relatively few mappings
         * Supports distraction-free LaTeX "small compile", done when saving.
 
-    The last feature talks of a small compile, meaning a one-time run of the
+    The last feature talks of a "small compile", meaning a one-time run of the
     LaTeX compilation program or script. Other compilation cycles, like a
     "full build" that also constructs the bibliography, are outside of the
     scope of the this plugin. This is because compilation of LaTeX files is
@@ -221,10 +221,10 @@
     environment, find a new location and paste it back to the buffer!
 
     Additionally, there are similar operators for inline math, i.e., math
-    delimited by $ signs. For example, if you have $x = 1$, then pressing
-    'vam' with the cursor anywhere in that inline math expression, will
-    visually select all of it, including the delimiters. Hitting 'vim' does
-    the same, but excludes the delimiters. And on for 'dam', 'dim', etc.
+    delimited by dollar signs ($). For example, if you have $x = 1$, then
+    pressing 'vam' with the cursor anywhere in that inline math expression,
+    will visually select all of it, including the delimiters. Hitting 'vim'
+    does the same, but excludes the delimiters. And on for 'dam', 'dim', etc.
 
 ==============================================================================
 
@@ -246,24 +246,18 @@
 
 3.2 Multi-file projects
 
-    The traditional way to handle multi-file projects is to set up a Makefile
-    and compile with `make'. TeX-7 supports this behavior via the
-    `g:tex_seven_config.compiler' option which can be set to `make'.
+    In order to work with LaTeX projects containing multiple files, each file
+    other than the main one (the one containing the "\documentclass" line)
+    must contain a *modeline* indicating the relative location of the main
+    .tex file. E.g., if your main file is named main.tex, and it includes a
+    file with relative path chapters/introduction.tex, then this file must
+    contain a modeline similar to:
 
-    You can save yourself the trouble of writing a Makefile by indicating the
-    relative location of the main file in the \include-ed files with a modeline
-    of the form
->
-    % mainfile: MAIN_FILE
-<
-    The string MAIN_FILE could be for example `../main.tex' if the included
-    file is in a subdirectory of the actual compilation folder. The modeline
-    must appear in the first block of commented lines at the start of the
-    document. Note that this assumes that line number 1 is commented. This way
-    all the TeX-7 mappings continue to work as expected wherever you are in
-    your project.
+    % mainfile: ../main.tex
 
-    NB! Make sure the filename MAIN_FILE does not contain any whitespace!  
+    The modeline must appear either on the three first lines of the file, or
+    on the three last. Also note that the relative path must not contain
+    spaces!
 
 ==============================================================================
 
@@ -398,7 +392,7 @@
         <LocalLeader>e                      \varepsilon
         <LocalLeader>/e                     \epsilon
         <LocalLeader>f                      \varphi
-        <LocalLeader>/f                      \phi
+        <LocalLeader>/f                     \phi
         <LocalLeader>g                      \gamma
         <LocalLeader>h                      \eta
         <LocalLeader>k                      \kappa
