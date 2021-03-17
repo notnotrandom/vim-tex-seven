@@ -116,16 +116,16 @@ nnoremap <buffer><silent> :ww :write<CR>:call tex_seven#build#BuildOnWrite()<CR>
 " Visual mode and operator mappings.
 
 " Robust inner/outer environment operators.
-vmap <buffer><expr> ae tex_seven#EnvironmentOperator('outer')
-omap <buffer><silent> ae :normal vae<CR>
-vmap <buffer><expr> ie tex_seven#EnvironmentOperator('inner')
-omap <buffer><silent> ie :normal vie<CR>
+vnoremap <buffer><expr>   ae tex_seven#EnvironmentOperator('outer')
+onoremap <buffer><silent> ae :normal vae<CR>
+vnoremap <buffer><expr>   ie tex_seven#EnvironmentOperator('inner')
+onoremap <buffer><silent> ie :normal vie<CR>
 
 " TeX text objects for inline math.
-vnoremap am vmq?\$<cr>v/\$<cr>
-onoremap am :normal vam<CR>`q
-vnoremap im vmq?\$<cr>lv/\$<cr>h
-onoremap im :normal vim<CR>`q
+vnoremap <buffer>         am v?\$<CR>v/\$<CR>
+onoremap <buffer><silent> am :<C-U>normal vam<CR>
+vnoremap <buffer>         im v?\$<CR>lv/\$<CR>h
+onoremap <buffer><silent> im :<C-U>normal vim<CR>
 
 " As these are visual mode mappings, they interfere with other usages of
 " visual mode, notoriously the snippets plugin. Using <Leader> hopefully
