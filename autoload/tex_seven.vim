@@ -104,14 +104,17 @@ endfunction
 " \documentclass. Also sets s:path.
 " Return: none.
 "
-" Synopsis: First, assume that the current file IS the main file. If so, set
-" s:mainFile, and also looks for a bibliography file, if any (since we
-" already iterating over the main file's lines...).
-" If the current file is not the main one, then, search for a modeline, which
-" will tell us the location of the main file, relative to the current file. It
+" Synopsis: First, look for the modeline, in the first three lines of the
+" current file, and then on the last three lines of the same file. It should
+" tell us the location of the main file, relative to the current file. It
 " should be near the top of the file, and it is usually something like:
 " % mainfile: ../main.tex
-" Note that in this case, we will not search for a bibliography file.
+"
+" If no modeline can be found, assume that the current file IS the main file,
+" and iterate over its lines to confirm. If a \\documentclass line is found,
+" set s:mainFile to the full path of the current file, and also look for a
+" bibliography file, if any (since we already iterating over the main file's
+" lines...).
 function tex_seven#DiscoverMainFile()
   " If we already know the main file, no need to searching for it... (it is
   " very unlikely to change, after all).
@@ -119,9 +122,32 @@ function tex_seven#DiscoverMainFile()
     return
   endif
 
-  " Otherwise, first, check if the current buffer is the main file (should
-  " be the most common case, i.e., where the TeX input is not split across
-  " multiple files).
+  let l:lines = [1, 2, 3, line('$') - 2, line('$') - 1, line('$')]
+  for lnum in lines
+    let l:line = getline(lnum)
+    let l:mainfile = matchstr(line, g:tex_seven#modelinePattern)
+    if l:mainfile != ""
+      " We found the main file. As it is a relative path (e.g.,
+      " "../main.tex"), we concatenate the full path (minus filename) of the
+      " current file with that relative path, and then use the fnamemodify()
+      " function to get the full path of the main file. For example, suppose
+      " the full path of the current file is:
+      " /home/user/latexProj/chapters/introduction.tex
+      " If the modeline of that file is "../main.tex", then concatenation
+      " yields:
+      " /home/user/latexProj/chapters/../main.tex
+      " The fnamemodify() function turns this into:
+      " /home/user/latexProj/main.tex
+      " Which is the correct main file, according to the modeline.
+      let s:mainFile = fnamemodify(expand('%:p:h') . '/' . l:mainfile, ':p')
+      let s:path = fnamemodify(s:mainFile, ':p:h') . '/'
+      return
+    endif
+  endfor
+
+  " Control reaches this point if no modeline has been found, neither in the
+  " first three lines, nor in the last three lines. So iterate over the entire
+  " file, to see if we are the main file or not.
   for line in getline(1, line('$'))
     if line =~ g:tex_seven#emptyOrCommentLinesPattern
       continue " Skip comments or empty lines.
@@ -159,34 +185,6 @@ function tex_seven#DiscoverMainFile()
     let s:epochMainFileLastReadForIncludes = str2nr(system("date +%s"))
     return
   endif
-
-  " If the current buffer is not the main file, then go look for a modeline.
-  " We start looking at the top of the file, and continue downwards (stopping
-  " as soon as we find a non-comment line).
-  for line in getline(1, line('$'))
-    if line !~ '\m^%'
-      break
-    endif
-
-    " We found the main file. As it is a relative path (e.g.,
-    " "../main.tex"), we concatenate the full path (minus filename) of
-    " the current file with that relative path, and then use the fnamemodify()
-    " function to get the full path of the main file. For example, suppose the
-    " full path of the current file is:
-    " /home/user/latexProj/chapters/introduction.tex
-    " If the modeline of that file is "../main.tex", then concatenation
-    " yields:
-    " /home/user/latexProj/chapters/../main.tex
-    " The fnamemodify() function turns this into:
-    " /home/user/latexProj/main.tex
-    " Which is the correct main file, according to the modeline.
-    let l:mainfile = matchstr(line, g:tex_seven#modelinePattern)
-    if l:mainfile != ""
-      let s:mainFile = fnamemodify(expand('%:p:h') . '/' . l:mainfile, ':p')
-      let s:path = fnamemodify(s:mainFile, ':p:h') . '/'
-      return
-    endif
-  endfor
 
   " If control reaches here, then we have not found the main .tex file. This
   " might not be a mistake, if the user has just begun writing his LaTeX
