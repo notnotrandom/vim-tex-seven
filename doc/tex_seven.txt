@@ -27,11 +27,14 @@
         * Preview of \includegraphics (supported formats: JPG, PNG, or PDF)
         * Filetype specific indentation (courtesy of Johannes Tanzler)
         * No-hassle settings, relatively few mappings
+        * Supports distraction-free LaTeX "small compile", done when saving.
 
-    The main limitation of TeX-7 is that, unlike its predecessor (TeX-9), it
-    does *not* deal with *compilation* of LaTeX files, for two reasons:
-    compilation of LaTeX files is very tricky to get right in all
-    circumstances, and Vim is not an IDE.
+    The last feature talks of a small compile, meaning a one-time run of the
+    LaTeX compilation program or script. Other compilation cycles, like a
+    "full build" that also constructs the bibliography, are outside of the
+    scope of the this plugin. This is because compilation of LaTeX files is
+    very tricky to get right in all circumstances, and after all, Vim is not
+    an IDE. See |tex_seven-compile-mfile| for details.
 
     Shoutouts & thanks
         * Elias Toivanen, the original author of the TeX-9 plugin.
@@ -42,9 +45,9 @@
 
     1.  Installation                                 |tex_seven-installation||
     2.  Basics                                       |tex_seven-basics|
-    3.  Advanced                                     |tex_seven-advanced|
+    3.  Advanced                                     |tex_seven-compile-mfile|
     4.  Jumping                                      |tex_seven-jumping|
-    5.  BibTeX                                       |tex_seven-bibtex|
+    5.  Completion                                   |tex_seven-completion|
     6.  Mappings                                     |tex_seven-mappings|
     7.  Tips and trick                               |tex_seven-tips|
 
@@ -62,8 +65,17 @@
         filetype plugin indent on
 <
     Strictly speaking, for basic usage you don't need to configure anything
-    else. However, you may the following settings very useful in making TeX-7
-    more convenient to use.
+    else. However, you may find the following settings very useful in making
+    TeX-7 more convenient to use (well, except the first one, that is just to
+    disable the plugin).
+
+    compiler : String
+        * Program used to compile LaTeX sources.
+        * Default: "make".
+
+    compiler_opts : String
+        * Options or parameters to be given when invoking the LaTeX compiler.
+        * Default: empty.
 
     disable: Boolean
         * TeX-7 is disabled temporarily.
@@ -104,6 +116,8 @@
     Example:
 
     let g:tex_seven_config = {
+      \ 'compiler'         : '/bin/bash',
+      \ 'compiler_opts'    : 'CompileTeX.sh',
       \ 'environment_list' : '~/.vim/ownsettings/latex_envs.txt' ,
       \ 'viewer'           : 'okular' ,
       \ 'viewer_images'    : 'gwenview' }
@@ -114,13 +128,15 @@
 
     TeX-7 defines various mappings that speed up typesetting LaTeX code. Most
     of the mappings are prefixed with a leader referred below with the symbol
-    <LocalLeader>. If you have set `g:tex_seven_config.leader', the
+    <LocalLeader>. If you have set `g:tex_seven_config.leader`, the
     corresponding character is used. Otherwise, if it is set, |maplocalleader|
     is used. As a last resort, the leader defaults to colon (:).
 
-    TeX-7 uses relative paths in several places; hence, especially for
-    multi-file projects, it is recommended to lauch `(g)vim` from the same
-    folder where the main `.tex` file is located.
+    Especially for multi-file projects, it is recommended to lauch `(g)vim`
+    from the same folder where the main `.tex` file is located. While most
+    features should work fine even if you don't do this, it is the best
+    strategy to avoid unforeseen problems with relative paths. Besides, it's
+    the most natural thing to do anyway, so...
 
     Below is a short tutorial that should get you going in no time.
 
@@ -137,17 +153,17 @@
     is.
 
     To insert a command, press <LocalLeader><Space>. "\cmd{}" is inserted
-    (sans quotes), with the "cmd" part visually selected. So just write the
-    command name. Then you will have to move one char to the right, to write
+    (sans quotes), with the "cmd" part visually selected. So just type the
+    command name. Then you will have to move one char to the right, to type
     the command's argument. You might find the following map useful:
     >
         inoremap <C-l> <Right>
 <
     Type <LocalLeader>C to insert a citation, i.e. `\cite{citekey}`. You're
-    prompted with a popup list of completions if the \bibliography{} statement
-    contains a valid BibTeX file. Inserting references, `\ref{ref}`, works in
-    a similar way. The corresponding mapping is <LocalLeader>R. Here are a few
-    other mappings that work similarly:
+    prompted with a popup list of completions if the \bibliography{} (or
+    \addbibresources{}) statement contains a valid BibTeX file. Inserting
+    references, `\ref{ref}`, works in a similar way. The corresponding mapping
+    is <LocalLeader>R. Here are a few other mappings that work similarly:
 
         * <LocalLeader>A inserts `\includeonly{}` and starts completion inside
           the brackets.
@@ -204,11 +220,31 @@
     trivial to move figures and tables around in the document. Delete the
     environment, find a new location and paste it back to the buffer!
 
+    Additionally, there are similar operators for inline math, i.e., math
+    delimited by $ signs. For example, if you have $x = 1$, then pressing
+    'vam' with the cursor anywhere in that inline math expression, will
+    visually select all of it, including the delimiters. Hitting 'vim' does
+    the same, but excludes the delimiters. And on for 'dam', 'dim', etc.
+
 ==============================================================================
 
-3.  Advanced                                        *tex_seven-advanced*
+3.  Compilation and Multi-file                      *tex_seven-compile-mfile*
 
-3.1 Multi-file projects
+3.1 Compilation
+
+    As any LaTeX user knows (and as novice users quickly find out), LaTeX's
+    error messages can be notoriously hard to interpret correctly... So what
+    one usually does is save and build often, so that if any errors do occur,
+    then the user likely can pinpoint the change that caused it.
+
+    To aid in this task, this plugin defines a normal mode mapping :ww (note
+    that the : is a literal colon, not the default value of <LocalLeader>),
+    that saves the current file, and does a small compile of the LaTeX
+    project. This is done in background, and if it succeeds, nothing more is
+    said to the user, that can just continue to work. He is only notified if
+    errors occur, to he can go fix them, before writing any more.
+
+3.2 Multi-file projects
 
     The traditional way to handle multi-file projects is to set up a Makefile
     and compile with `make'. TeX-7 supports this behavior via the
@@ -305,7 +341,7 @@
 
     Completion for "\includeonly{" and "\includegraphics{" are similar, with the
     difference that what is returned are list of files `\include`'d in the
-    main .tex file (if any), and graphics files, respectively. The graphic
+    main .tex file (if any), and graphic files, respectively. The graphic
     files are searched in the folder that contains the main .tex file, and any
     subfolders therein (but note that any files inside folders with names
     containing the string "build" are ignored).
@@ -320,15 +356,15 @@
     together with their shape (e.g. "\alpha" corresponds to α). I have
     (mostly) chosen to put on the completion list
     (~/.vim/autoload/tex_seven/omniMath.vim) symbols that have an Unicode
-    representation, and ca hence be "previewed" in this fashion.
+    representation, and can hence be "previewed" in this fashion.
 
     Furthermore, if there is a word to the left of the cursor, that word is
     used to filter the results of the popup list. For example, if you write
-    "$x arrow|$" and press <LocalLeader>M (| being the cursor position), the
-    popup list will contain all math symbols containing, but not necessarily
-    starting with, the string "arrow". This also works if you write "\arrow".
-    In both cases, you get a command, i.e., if you write "arrow" or "\arrow",
-    and then select "rightarrow", you get the command "\rightarrow".
+    "$x arrow|$" and press <LocalLeader>M, the popup list will contain all
+    math symbols containing, but not necessarily starting with, the string
+    "arrow". This also works if you write "\arrow". In both cases, you get a
+    command, i.e., if you write "arrow" or "\arrow", and then select
+    "rightarrow" from the completion popup, you get the command "\rightarrow".
 
     Additionally, the most frequently used maths symbols have their own
     shortcuts.  Typing <LocalLeader>a expands to \alpha for example. Refer
