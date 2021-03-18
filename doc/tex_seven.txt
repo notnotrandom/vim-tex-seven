@@ -543,14 +543,14 @@
 
     If you've enabled 'modeline', you may conveniently activate spell checking
     (among other settings) in your LaTeX documents, like so (example for
-    anglophones): 
+    anglophones):
 >
     % vim:tw=66 sw=2 ft=tex spell spelllang=en
 <
     Notice that newer versions of Vim provide an option >
 
     let g:tex_comment_nospell=1
-<   
+
     for disabling spell checking of comments that otherwise get messed up
     pretty badly.
 
