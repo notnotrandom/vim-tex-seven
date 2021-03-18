@@ -45,11 +45,11 @@
 
     1.  Installation                                 |tex_seven-installation||
     2.  Basics                                       |tex_seven-basics|
-    3.  Advanced                                     |tex_seven-compile-mfile|
+    3.  Compilation and Multi-file                   |tex_seven-compile-mfile|
     4.  Jumping                                      |tex_seven-jumping|
     5.  Completion                                   |tex_seven-completion|
     6.  Mappings                                     |tex_seven-mappings|
-    7.  Tips and trick                               |tex_seven-tips|
+    7.  Tips and tricks                              |tex_seven-tips|
 
 ==============================================================================
 
@@ -500,72 +500,66 @@
 
 7.1 Preferred way to override, extend and hack TeX-7
 
-        Create a custom tex.vim file in the after directory, i.e.
-        ~/.vim/after/ftplugin/tex.vim. Here you can redefine mappings and
-        extend TeX-7's functionality with your own ideas. If you come up with
-        something sweet, drop me a line (email address available at
-        https://randomwalk.eu).
+    Create a custom tex.vim file in the after directory, i.e.
+    ~/.vim/after/ftplugin/tex.vim. Here you can redefine mappings and extend
+    TeX-7's functionality with your own ideas. If you come up with something
+    sweet, drop me a line (email address available at https://randomwalk.eu).
 
-        Notice that to redefine mappings, you need need to set <LocalLeader>
-        again. As an example, here is my ~/.vim/after/ftplugin/tex.vim:
+    Notice that to redefine mappings, you need need to set <LocalLeader>
+    again. As an example, here is my ~/.vim/after/ftplugin/tex.vim:
 
-        " First, reset <LocalLeader>. Note that this will run *after* TeX-7,
-        " and hence that variable b:tex_seven_leader will be set.
-        if exists('g:maplocalleader')
-          let s:maplocalleader_saved = g:maplocalleader
-            endif
-            let g:maplocalleader = b:tex_seven_leader
-
-        " Now, implement user's customisations. In this case, override of
-        " selected TeX-7 mappings.
-        inoremap <buffer> <LocalLeader>e \varepsilon
-        inoremap <buffer> <LocalLeader>_e \epsilon
-
-        inoremap <buffer> <LocalLeader>_0 \emptyset
-        inoremap <buffer> <LocalLeader>0 \varnothing
-
-
-        " And lastly, revert <LocalLeader> to its previous setting, if any.
-        if exists('s:maplocalleader_saved')
-          let g:maplocalleader = s:maplocalleader_saved
-        else
-          unlet g:maplocalleader
+    " First, reset <LocalLeader>. Note that this will run *after* TeX-7,
+    " and hence that variable b:tex_seven_leader will be set.
+    if exists('g:maplocalleader')
+      let s:maplocalleader_saved = g:maplocalleader
         endif
+        let g:maplocalleader = b:tex_seven_leader
+
+    " Now, implement user's customisations. In this case, override of
+    " selected TeX-7 mappings.
+    inoremap <buffer> <LocalLeader>e \varepsilon
+    inoremap <buffer> <LocalLeader>_e \epsilon
+
+    inoremap <buffer> <LocalLeader>_0 \emptyset
+    inoremap <buffer> <LocalLeader>0 \varnothing
+
+
+    " And lastly, revert <LocalLeader> to its previous setting, if any.
+    if exists('s:maplocalleader_saved')
+      let g:maplocalleader = s:maplocalleader_saved
+    else
+      unlet g:maplocalleader
+    endif
 
 7.2 Custom environment list
 
-        You can set a custom list of environment names for environment
-        insertion (see |tex_seven-basics|). In `g:tex_seven_config`, set the
-        "environment_list" key to point to the location of the file containing
-        the list of environments. One environment name per line. See example
-        in |tex_seven-installation|.
+    You can set a custom list of environment names for environment insertion
+    (see |tex_seven-basics|). In `g:tex_seven_config`, set the
+    "environment_list" key to point to the location of the file containing the
+    list of environments. One environment name per line. See example of config
+    in |tex_seven-installation|.
 
 7.3 Spell checking
 
-        If you've enabled 'modeline', you may conveniently activate spell
-        checking in your LaTeX documents by editing the modeline in the
-        skeleton file.
-
-        Example for anglophones: >
-
-                % vim:tw=66 sw=2 ft=tex spell spelllang=en
+    If you've enabled 'modeline', you may conveniently activate spell checking
+    (among other settings) in your LaTeX documents, like so (example for
+    anglophones): 
+>
+    % vim:tw=66 sw=2 ft=tex spell spelllang=en
 <
-        Notice that newer versions of Vim provide an option >
+    Notice that newer versions of Vim provide an option >
 
-                let g:tex_comment_nospell=1
-
-<       for disabling spell checking of comments that otherwise get messed up
-       pretty badly.
+    let g:tex_comment_nospell=1
+<   
+    for disabling spell checking of comments that otherwise get messed up
+    pretty badly.
 
 7.4 Folding
 
-        With newer versions of Vim it's easy as >
+    With newer versions of Vim it's easy as >
 
-                let g:tex_fold_enabled = 1
+    let g:tex_fold_enabled = 1
 
 ==============================================================================
 
-
- vim:tw=72:ts=8:ft=help:norl:autoindent
-
-
+vim:tw=72:ts=8:ft=help:norl:autoindent
