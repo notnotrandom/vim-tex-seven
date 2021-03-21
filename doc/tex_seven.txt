@@ -152,18 +152,30 @@
     <envname> is the supplied environment name; the cursor is left where the |
     is.
 
-    To insert a command, press <LocalLeader><Space>. "\cmd{}" is inserted
+    To insert a command, press <LocalLeader><Space>. "\cmd{arg}" is inserted
     (sans quotes), with the "cmd" part visually selected. So just type the
-    command name. Then you will have to move one char to the right, to type
-    the command's argument. You might find the following map useful:
-    >
-        inoremap <C-l> <Right>
-<
-    Type <LocalLeader>C to insert a citation, i.e. `\cite{citekey}`. You're
-    prompted with a popup list of completions if the \bibliography{} (or
-    \addbibresources{}) statement contains a valid BibTeX file. Inserting
-    references, `\ref{ref}`, works in a similar way. The corresponding mapping
-    is <LocalLeader>R. Here are a few other mappings that work similarly:
+    command name. Then just hit <Tab>, to move to the "arg" part, which will be
+    left visually selected, for you type over. After that, hitting <Tab> once
+    more will move the cursor to the right of the now finished command (i.e.,
+    after the '}'), so you can continue to type your LaTeX document.
+
+    Note that mappings that set the <Tab> key behaviour described above are
+    local (for the current buffer only), and are unset after finishing
+    typing the command (i.e., after pressing <Tab> for the second time).
+    However, if you want to interrupt the command insertion for whatever
+    reason, then pressing <Esc> will clear all local maps of the <Tab> key,
+    restoring any previous mappings, if any (e.g. a snippets plugin).
+
+    Also note that the local mapping of the <Esc> key itself, that allows
+    pressing it to unamp the <Tab> key, is itself cleared when pressing <Esc>.
+    So long story short, this works as you would expect, without surprises.
+
+    Moving on, type <LocalLeader>C to insert a citation, i.e.
+    `\cite{citekey}`. You're prompted with a popup list of completions if the
+    \bibliography{} (or \addbibresources{}) statement contains a valid BibTeX
+    file. Inserting references, `\ref{ref}`, works in a similar way. The
+    corresponding mapping is <LocalLeader>R. Here are a few other mappings
+    that work similarly:
 
         * <LocalLeader>A inserts `\includeonly{}` and starts completion inside
           the brackets.

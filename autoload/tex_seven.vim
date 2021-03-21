@@ -286,9 +286,57 @@ function tex_seven#GoToMainFileIfSet()
   endtry
 endfunction
 
+""""" INSERT COMMAND MACRO """""
+
+" This first function inserts:
+" \cmd{arg}
+" selects the "cmd" word, and lets the user change it to whatever he wants. It
+" also temporarily maps the Tab key to the function InsertCommandGotoArg(), so
+" that the user can press it and move to the argument part.
+" (The Esc keymap is explained further below.)
 function tex_seven#InsertCommand()
-  return "\\cmd{}\<Esc>Fcviw"
+  inoremap <buffer><expr> <Esc> tex_seven#InsertCommandUnmapTab()
+  inoremap <buffer><expr> <Tab> tex_seven#InsertCommandGoToArg()
+  return "\\cmd{arg}\<Esc>Fcviw"
 endfunction
+
+" Here, the user has inserted the command name (see above comment), thus now
+" we move him to the arg part, which we leave selected, so that the user only
+" has to type the argument. And map the Tab key so that, once the user has
+" finished typing up said argument, he can press Tab to exit the finished
+" command; see below comment.
+function tex_seven#InsertCommandGoToArg()
+  inoremap <buffer><expr> <Tab> tex_seven#InsertCommandExitArg()
+  return "\<Esc>faviw"
+endfunction
+
+" Here the user has finished inserting both the command name, and its
+" argument. So if the finished command is, e.g., \somecmd{somearg}, pressing
+" Tab will now move him to the right of the '}', so that he can continue to
+" type his LaTeX document. And since we are finished, also unmap our
+" buffer-local mapping of the Tab key.
+function tex_seven#InsertCommandExitArg()
+  call tex_seven#InsertCommandUnmapTab()
+  return "\<Esc>f}a"
+endfunction
+
+" Here we unmap the buffer-local Tab keymap, allowing the Tab key to revert to
+" its previous mapping, if any.
+"   As for the Esc mapping, it may so happen that the command insertion is
+" interrupted before the InsertCommandExitArg() function is called. This would
+" have the side effect of leaving the Tab key mapped either to
+" InsertCommandGotoArg(), or to InsertCommandExitArg(). To avoid this, the
+" first thing done in the InsertCommand() function, is to locally map the Esc
+" key to this function, InsertCommandUnmaptab(), that clears any local
+" mappings of the Tab key. It also clears the local Esc map, because after
+" clearing the Tab map, it is no longer necessary.
+function tex_seven#InsertCommandUnmapTab()
+  iunmap <buffer><expr> <Esc>
+  iunmap <buffer><expr> <Tab>
+  return "\<Esc>"
+endfunction
+
+""""" END INSERT COMMAND MACRO """""
 
 " Used for completion of sub and super scripts. See ftplugin/tex_seven.vim.
 function tex_seven#IsLeft(lchar)
