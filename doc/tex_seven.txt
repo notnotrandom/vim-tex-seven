@@ -184,23 +184,30 @@
         * <LocalLeader>Z inserts `\includegraphics{}` and starts completion
           inside the brackets. Supported graphic types: JPG, PDF, PNG.
 
-    There are also some macros that work by tapping a character on your
+    There are also some macros that work by double tapping a character on your
     keyboard (super convenient for subscripts and superscripts!).
-    >
+
         ^^ -> ^{}
         __ -> _{}
         ~~ -> \approx
         == -> &=
-<
+
+    Furthermore, pressing <LocalLeader>" inserts "LaTeX quotes", i.e.,
+    ``''. Also works for single quotes. And by defaut, hitting
+    <LocalLeader> twice (i.e. <Localleader><localleader>) inserts that
+    character itself. E.g., if <LocalLeader> is set to colon (:) (the
+    default without user config and |maplocalleader| defined), then
+    <Localleader><localleader> inserts a literal colon in the text.
+
 2.2 Normal mode
 
     Typing <LocalLeader>V should open the document in the PDF viewer
     configured in `g:tex_seven_config` (see above). If you didn't set
     `g:tex_seven_config.viewer`, an error message is shown.
 
-    If you are using multi-file projects (see |tex_seven-advanced|), then
-    hitting <LocalLeader>gm will bring you back to the main .tex file
-    (mnemonic: "go to main file").
+    If you are using multi-file projects (see
+    |tex_seven-compile-mfile|), then hitting <LocalLeader>gm will bring
+    you back to the main .tex file (mnemonic: "go to main file").
 
     To go from from a `\label{` or `\cite{` to its corresponding definition,
     place the cursor over them and hit either [gp] or [gd]: the first will
@@ -209,18 +216,15 @@
     definition). Note that in the case of a preview window, the cursor does
     NOT move to that window. To close it, hit [gb] (mnemonic: go back).
 
-    This functionality also works for things other than label's and cite's;
+    This functionality also works for things other than \label's and \cite's;
     see |tex_seven-jumping|.
 
     Typing <LocalLeader>B should move the cursor to the first line opening an
     environment ("\begin{"), that is above the current line (the line where
-    the cursor is).
-
-    Similarly, typing <LocalLeader>E should move the cursor to the first line
-    ending an environment ("\end{"), that is below the current line.
-
-    The last two mappings are super useful to select/yank/move/etc. entire
-    environments, as described next.
+    the cursor is). Similarly, typing <LocalLeader>E should move the cursor to
+    the first line ending an environment ("\end{"), that is below the current
+    line. Both are super useful when used in combination with the mappings to
+    select/yank/move/etc. entire environments, as described next.
 
 2.3 Visual mode
 
@@ -252,9 +256,11 @@
     To aid in this task, this plugin defines a normal mode mapping :ww (note
     that the : is a literal colon, not the default value of <LocalLeader>),
     that saves the current file, and does a small compile of the LaTeX
-    project. This is done in background, and if it succeeds, nothing more is
-    said to the user, that can just continue to work. He is only notified if
-    errors occur, to he can go fix them, before writing any more.
+    project. So instead of writing (:w), the user can instead do a
+    write-and-build, relatively seamlessly (:ww). This build is done in
+    background, and if it succeeds, nothing more is said to the user,
+    that can just continue to work. He is only notified if errors occur,
+    so that he can go fix them, before writing any more.
 
 3.2 Multi-file projects
 
@@ -307,18 +313,19 @@
 
 4.3 Includes
 
-    If you have a line like `\include{filename}`, or `\insideonly{filename}`, then placing
-    the cursor *anywhere*, even outside of the "filename" part, and pressing [gp]
-    will show `filename` in  preview window.
+    If you have a line like `\include{filename}`, or `\insideonly{filename}`,
+    then placing the cursor *anywhere*, even outside of the "filename" part,
+    and pressing [gp] will show `filename` in  preview window.
 
 4.4 Graphics
 
     If you have a line like `\includegraphics{graphicfilename}`, then placing
     the cursor *anywhere*, even outside of the "graphicfilename" part, and
     pressing [gd] or [gp] will open `graphicfilename` using the application
-    configured in `g:tex_seven_config.viewer` for PDF files, and `g:tex_seven_config.viewer_images` for JPG or PNG files (see |tex_seven-installation|). If you
-    didn't set `g:tex_seven_config.viewer`, and/or
-    `g:tex_seven_config.viewer_images`, an error message is shown.
+    configured in `g:tex_seven_config.viewer` for PDF files, and
+    `g:tex_seven_config.viewer_images` for JPG or PNG files (see
+    |tex_seven-installation|). If you didn't set `g:tex_seven_config.viewer`,
+    and/or `g:tex_seven_config.viewer_images`, an error message is shown.
 
 ==============================================================================
 
@@ -345,8 +352,8 @@
     The above introduction already covers the case of omni-completion for
     "\ref{"; completion for "\eqref{" works in the same way.
 
-    Completion for "\includeonly{" and "\includegraphics{" are similar, with the
-    difference that what is returned are list of files `\include`'d in the
+    Completion for "\includeonly{" and "\includegraphics{" are similar, with
+    the difference that what is returned are list of files `\include`'d in the
     main .tex file (if any), and graphic files, respectively. The graphic
     files are searched in the folder that contains the main .tex file, and any
     subfolders therein (but note that any files inside folders with names
@@ -380,131 +387,157 @@
 
 6.  Mappings                                        *tex_seven-mappings*
 
-    The symbol <LocalLeader> refers to the value of
-    `g:tex_seven_config.leader', |maplocalleader|. If none of
-    these are set, the default value is colon ':'.
+    As explained in |tex_seven-basics|, the symbol <LocalLeader> refers to the
+    value of `g:tex_seven_config.leader`, or if this is not set, to the value
+    of |maplocalleader|. If this is also unset, then the default value is
+    colon ':'.
 
-6.1 Insert mode >
+    Furthermore, keep in mind that these mappings can be customised; see
+    |tex_seven-tips| to see an example.
 
-        <LocalLeader><LocalLeader>          <LocalLeader>
-        <LocalLeader>M                      Maths completion 
-        <LocalLeader>"                      LaTeX's inverted commas ``''
-        <LocalLeader>B                      Insert an environment
-        <LocalLeader>C                      Insert a citation
-        <LocalLeader>E                      Insert an equation reference
-        <LocalLeader>R                      Insert a reference
-        <LocalLeader>Z                      Insert an \includeonly reference
-<
-        Greek
-        >
-        <LocalLeader>a                      \alpha
-        <LocalLeader>b                      \beta
-        <LocalLeader>c                      \chi
-        <LocalLeader>d                      \delta
-        <LocalLeader>e                      \varepsilon
-        <LocalLeader>/e                     \epsilon
-        <LocalLeader>f                      \varphi
-        <LocalLeader>/f                     \phi
-        <LocalLeader>g                      \gamma
-        <LocalLeader>h                      \eta
-        <LocalLeader>k                      \kappa
-        <LocalLeader>l                      \lambda
-        <LocalLeader>m                      \mu
-        <LocalLeader>n                      \nu
-        <LocalLeader>o                      \omega
-        <LocalLeader>p                      \pi
-        <LocalLeader>q                      \theta
-        <LocalLeader>r                      \varrho
-        <LocalLeader>s                      \sigma
-        <LocalLeader>t                      \tau
-        <LocalLeader>u                      \upsilon
-        <LocalLeader>w                      \varpi
-        <LocalLeader>x                      \xi
-        <LocalLeader>y                      \psi
-        <LocalLeader>z                      \zeta
-        <LocalLeader>D                      \Delta
-        <LocalLeader>F                      \Phi
-        <LocalLeader>G                      \Gamma
-        <LocalLeader>L                      \Lambda
-        <LocalLeader>O                      \Omega
-        <LocalLeader>P                      \Pi
-        <LocalLeader>Q                      \Theta
-        <LocalLeader>U                      \Upsilon
-        <LocalLeader>X                      \Xi
-        <LocalLeader>Y                      \Psi
-<
-        Maths
-        >
-        <LocalLeader>\                      \setminus
-        <LocalLeader>½                      \sqrt{}
-        <LocalLeader>N                      \nabla
-        <LocalLeader>S                      \sum_{}^{}
-        <LocalLeader>/S                     \prod_{}^{}
-        <LocalLeader>V                      \vec{}
-        <LocalLeader>I                      \int\limits_{}^{}
-        <LocalLeader>0                      \varnothing
-        <LocalLeader>/0                      \emptyset
-        <LocalLeader>6                      \partial
-        <LocalLeader>i                      \infty
-        <LocalLeader>/                      \frac{}{}
-        <LocalLeader>v                      \vee
-        <LocalLeader>&                      \wedge
-        <LocalLeader>/v                     \bigvee
-        <LocalLeader>/&                     \bigwedge
-        <LocalLeader>@                      \circ
-        <LocalLeader>*                      \not
-        <LocalLeader>!                      \neq
-        <LocalLeader>~                      \neg
-        <LocalLeader>=                      \equiv
-        <LocalLeader>-                      \cap
-        <LocalLeader>+                      \cup
-        <LocalLeader>/-                     \bigcap
-        <LocalLeader>/+                     \bigcup
-        <LocalLeader><                      \leq
-        <LocalLeader>>                      \geq
-        <LocalLeader>~                      \widetilde{}
-        <LocalLeader>^                      \widehat{}
-        <LocalLeader>_                      \overline{}
-        <LocalLeader>.                      \cdot
-        <LocalLeader><CR>                   \nonumber\\<CR>
-        <LocalLeader>(                      \left(\right)
-        <LocalLeader>[                      \left[\right]
-        <LocalLeader>{                      \left{\right}
-        <LocalLeader>«                      \langle
-        <LocalLeader>»                      \rangle
+6.1 Insert mode
 
-        The choice for some mappings, that start with a forward slash
-        '/', might seem odd. The reason is for when are multiple choices,
-        e.g. for the letters phi and epsilon. In those cases, I put the
-        version I prefer best (e.g. \varphi) with the most natural
-        mapping (<LocalLeader>f), and the other one (\phi) with the
-        "slashed" mapping (<LocalLeader>/f). Of course, this means Vim
-        will introduce a slight delay before expanding <LocalLeader>/
-        (to see if it is actually any of the other mappings that also
-        start with a '/'). But as I do not use <LocalLeader>/ much (this
-        is a case I prefer to deal with a snippet from snipMate), this
-        doesn't bother me much.
+    In the mappings below, whenever completion is available (e.g. for
+    \ref), it is started. Cf. |tex_seven-completion| for details.
 
-6.2 Normal Mode >
+    <LocalLeader><LocalLeader> <LocalLeader>
+    <LocalLeader>'             LaTeX's inverted single commas `'
+    <LocalLeader>"             LaTeX's inverted double commas ``''
+    <LocalLeader>B             Insert an \includeonly
+    <LocalLeader>C             Insert a citation (\cite)
+    <LocalLeader>E             Insert an equation reference (\eqref)
+    <LocalLeader>K             Regular (non-math) completion
+    <LocalLeader>M             Math completion
+    <LocalLeader>R             Insert a reference (\ref)
+    <LocalLeader>Z             Insert an \includeonly reference
 
-        gd              Go from \ref to the corresponding \label declaration, or from \cite to the corresponding entry in bibliography file.
-        gp              Same as gp, but open a preview window.
-        <LocalLeader>V  View the document
+    Greek
+
+    <LocalLeader>a  \alpha
+    <LocalLeader>b  \beta
+    <LocalLeader>c  \chi
+    <LocalLeader>d  \delta
+    <LocalLeader>e  \epsilon
+    <LocalLeader>f  \phi
+    <LocalLeader>g  \gamma
+    <LocalLeader>h  \eta
+    <LocalLeader>i  \iota
+    <LocalLeader>k  \kappa
+    <LocalLeader>l  \lambda
+    <LocalLeader>m  \mu
+    <LocalLeader>n  \nu
+    <LocalLeader>o  \omega
+    <LocalLeader>p  \pi
+    <LocalLeader>q  \theta
+    <LocalLeader>r  \rho
+    <LocalLeader>s  \sigma
+    <LocalLeader>t  \tau
+    <LocalLeader>u  \upsilon
+    <LocalLeader>w  \varpi
+    <LocalLeader>x  \xi
+    <LocalLeader>y  \psi
+    <LocalLeader>z  \zeta
+    <LocalLeader>D  \Delta
+    <LocalLeader>F  \Phi
+    <LocalLeader>G  \Gamma
+    <LocalLeader>L  \Lambda
+    <LocalLeader>O  \Omega
+    <LocalLeader>P  \Pi
+    <LocalLeader>Q  \Theta
+    <LocalLeader>U  \Upsilon
+    <LocalLeader>X  \Xi
+    <LocalLeader>Y  \Psi
+    <LocalLeader>_e \varepsilon
+    <LocalLeader>_q \vartheta
+    <LocalLeader>_r \varrho
+    <LocalLeader>_s \varsigma
+    <LocalLeader>_f \varphi
+
+    Maths
+
+    <LocalLeader>\     \setminus
+    <LocalLeader>½     \sqrt{}<Left>
+    <LocalLeader>N     \nabla
+    <LocalLeader>S     \sum_{}^{}<Esc>2F{a
+    <LocalLeader>_S    \prod_{}^{}<Esc>2F{a
+    <LocalLeader>V     \vec{}<Left>
+    <LocalLeader>I     \int\limits_{}^{}<Esc>2F{a
+    <LocalLeader>0     \emptyset
+    <LocalLeader>_0    \varnothing
+    <LocalLeader>6     \partial
+    <LocalLeader>Q     \infty
+    <LocalLeader>/     \frac{}{}<Esc>2F{a
+    <LocalLeader>\|    \lor
+    <LocalLeader>&     \land
+    <LocalLeader>\|\|  \bigvee
+    <LocalLeader>&&    \bigwedge
+    <LocalLeader>@     \circ
+    <LocalLeader>*     \not
+    <LocalLeader>!     \neq
+    <LocalLeader>~     \neg
+    <LocalLeader>=     \equiv
+    <LocalLeader>-     \cap
+    <LocalLeader>+     \cup
+    <LocalLeader>--    \bigcap
+    <LocalLeader>-+    \bigcup
+    <LocalLeader>~     \widetilde{}<Left>
+    <LocalLeader>^     \widehat{}<Left>
+    <LocalLeader>_     \overline{}<Left>
+    <LocalLeader>.     \cdot<Space>
+    <LocalLeader><CR>  \nonumber\\<CR>
+    <LocalLeader>«     \langle
+    <LocalLeader>»     \rangle
+    <LocalLeader>(     \left(  \right)<Esc>F(la
+    <LocalLeader>[     \left[  \right]<Esc>F[la
+    <LocalLeader>{     \left\{  \right\}<Esc>F{la
+
+    <LocalLeader>> <><Left>
+    <LocalLeader>< \langle  \rangle<Esc>F\hi
+
+    The last two mappings above are as I preferr them. However, by
+    setting the config flag `diamond_tex` to 0 (see
+    |tex_seven-installation|), you can revert them to TeX-9's original
+    mappings:
+
+    <LocalLeader>< \leq
+    <LocalLeader>> \geq
+
+6.2 Normal Mode
+
+    See |tex_seven-basics| for the details of the functionality provided
+    by the mappings below.
+
+    gb              Go back from preview window (alias to :pclose)
+    gd              Go from \ref to the corresponding \label declaration, or similar
+    gm              Go back to main file
+    gp              Same as gd, but open a preview window
+
+    <LocalLeader>B  Go to \begin above
+    <LocalLeader>E  Go to \end below
+    <LocalLeader>V  View the document
+
+    :ww             Do a small compile (see |tex_seven-compile-mfile|)
 
 6.3 Visual Mode
 
-        You can change the font style using these mappings:
+    Besides the operator for selecting environments and inline
+    mathematics (see |tex_seven-basics|), the following mappings allow
+    you to quickly change the style of already existing text.
 
-        vmap <buffer><expr> <Leader>bf tex_seven#ChangeFontStyle('bf')
-        vmap <buffer><expr> <Leader>it tex_seven#ChangeFontStyle('it')
-        vmap <buffer><expr> <Leader>rm tex_seven#ChangeFontStyle('rm')
-        vmap <buffer><expr> <Leader>sf tex_seven#ChangeFontStyle('sf')
-        vmap <buffer><expr> <Leader>tt tex_seven#ChangeFontStyle('tt')
-        vmap <buffer>       <Leader>up di\text{}<Left><C-R>"
+    vmap <buffer><expr> <LocalLeader>bf tex_seven#ChangeFontStyle('bf')
+    vmap <buffer><expr> <LocalLeader>it tex_seven#ChangeFontStyle('it')
+    vmap <buffer><expr> <LocalLeader>rm tex_seven#ChangeFontStyle('rm')
+    vmap <buffer><expr> <LocalLeader>sf tex_seven#ChangeFontStyle('sf')
+    vmap <buffer><expr> <LocalLeader>tt tex_seven#ChangeFontStyle('tt')
+    vmap <buffer>       <LocalLeader>up di\text{}<Left><C-R>"
 
-        For example, to convert the word under the cursor to boldface, type
-        >
-            viw<Leader>bf
+    For example, to convert the word under the cursor to boldface, type:
+
+    viw<Leader>bf
+
+    To convert the current visual selectio to upright text, type:
+
+    <Leader>up
 
 ==============================================================================
 
