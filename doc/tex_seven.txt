@@ -535,6 +535,11 @@
     inoremap <buffer> <LocalLeader>_0 \emptyset
     inoremap <buffer> <LocalLeader>0 \varnothing
 
+    " I find this easier to insert commands in .tex files (something I do
+    " often).
+    inoremap <buffer><expr> ,, tex_seven#InsertCommand()
+    inoremap <buffer> <LocalLeader>,, ,,
+
 
     " And lastly, revert <LocalLeader> to its previous setting, if any.
     if exists('s:maplocalleader_saved')
