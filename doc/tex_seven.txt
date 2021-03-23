@@ -29,13 +29,6 @@
         * No-hassle settings, relatively few mappings
         * Supports distraction-free LaTeX "small compile", done when saving.
 
-    The last feature talks of a "small compile", meaning a one-time run of the
-    LaTeX compilation program or script. Other compilation cycles, like a
-    "full build" that also constructs the bibliography, are outside of the
-    scope of the this plugin. This is because compilation of LaTeX files is
-    very tricky to get right in all circumstances, and after all, Vim is not
-    an IDE. See |tex_seven-compile-mfile| for details.
-
     Shoutouts & thanks
         * Elias Toivanen, the original author of the TeX-9 plugin.
 
@@ -248,12 +241,18 @@
 
 3.1 Compilation
 
-    As any LaTeX user knows (and as novice users quickly find out), LaTeX's
-    error messages can be notoriously hard to interpret correctly... So what
-    one usually does is save and build often, so that if any errors do occur,
-    then the user likely can pinpoint the change that caused it.
+    The last feature in the feature list at the beginning talks of a "small
+    compile", meaning a one-time run of the LaTeX compilation program or
+    script. Other compilation cycles, like a "full build" that also constructs
+    the bibliography, are outside of the scope of the this plugin. This is
+    because compilation of LaTeX files is very tricky to get right in all
+    circumstances, and after all, Vim is not an IDE.
 
-    To aid in this task, this plugin defines a normal mode mapping :ww (note
+    Now, as any LaTeX user knows (and as novice users quickly find out),
+    LaTeX's error messages can be notoriously hard to interpret correctly...
+    So what one usually does is save and build often, so that if any errors do
+    occur, then the user likely can pinpoint the change that caused it. To aid
+    in this task, this plugin defines a normal mode mapping :ww (note
     that the : is a literal colon, not the default value of <LocalLeader>),
     that saves the current file, and does a small compile of the LaTeX
     project. So instead of writing (:w), the user can instead do a
@@ -612,4 +611,8 @@
 
 ==============================================================================
 
+<<<<<<< HEAD
 vim:tw=72:ts=8:ft=help:norl:autoindent
+=======
+vim:tw=72:ts=8:ft=help:norl
+>>>>>>> ghmaster
