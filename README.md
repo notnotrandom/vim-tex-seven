@@ -29,5 +29,6 @@ A no hassle vim plugin for writing LaTeX documents. See section 2 of doc/tex_sev
 
 Initially this was a fork of Elias Toivanen's TeX-9 plugin (https://github.com/vim-scripts/TeX-9). Its minimalistic spirit is, I hope, left unchanged.
 
-Shoutouts & thanks
-    * Elias Toivanen, the original author of the TeX-9 plugin.
+Shoutout & thanks:
+
+* Elias Toivanen, the original author of the TeX-9 plugin.
