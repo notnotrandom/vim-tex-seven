@@ -218,6 +218,9 @@
     the first line ending an environment ("\end{"), that is below the current
     line. Both are super useful when used in combination with the mappings to
     select/yank/move/etc. entire environments, as described next.
+    Especially in the case of nested environments, when the cursor is
+    positioned at the innermost environment, but you want to select,
+    say, the outermost.
 
 2.3 Visual mode
 
