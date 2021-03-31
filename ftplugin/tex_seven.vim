@@ -107,6 +107,7 @@ nnoremap <buffer><silent> gm :execute "edit " . tex_seven#GetMainFile()<CR>
 " gb in normal mode closes the preview window, if it is opened.
 nnoremap <buffer><silent> gb :pclose<CR>
 nnoremap <buffer><silent> gd :call tex_seven#QueryKey(0)<CR>
+nnoremap <buffer><silent> gf :call tex_seven#QueryKey(0)<CR>
 nnoremap <buffer><silent> gp :call tex_seven#QueryKey(1)<CR>
 
 " Small compile. Note that the map trigger here is :ww, and NOT

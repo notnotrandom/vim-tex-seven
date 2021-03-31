@@ -289,6 +289,9 @@
     (When using [gp], to close the preview window use [gb]. When using [gd],
     to go back hit CTRL-o. All in normal mode.)
 
+    Furthermore, [gf] is an alias to [gd]. See section 4.3 below for the
+    reason for this.
+
 4.1 Citations
 
     If you have a citation like `\cite[some note]{key}`, or `\nocite{key}`,
@@ -301,8 +304,8 @@
     "key2", then the corresponding bib entry will be shown. If the cursor is
     *before* the first key, e.g. over the "\cite{" string, then the entry for
     that first key is shown (in this case "key1"). If the cursor is inside the
-    curly braces, but not over any key, then *the first preceding key*
-    is used. In the example, if the cursor is at the comma or the space inside
+    curly braces, but not over any key, then *the first preceding key* is
+    used. In the example, if the cursor is at the comma or the space inside
     the curly brackets, "key1" is used. If the cursor is at the closing
     bracket '}', then "key2" is used.
 
@@ -315,9 +318,16 @@
 
 4.3 Includes
 
-    If you have a line like `\include{filename}`, or `\insideonly{filename}`,
+    If you have a line like `\include{filename}`, or `\includeonly{filename}`,
     then placing the cursor *anywhere*, even outside of the "filename" part,
     and pressing [gp] will show `filename` in  preview window.
+
+    As stated above, [gf] is an alias to [gd]. The reason for this is that by
+    default, hitting [gf] when the cursor is over a file name/path makes vim
+    open that file in a new buffer (if the file exists). So to jump between
+    files, I thought that the [gf] map might feel more natural (it does to
+    me). Of course, this also means that you can use [gf] to, say, jump from a
+    \ref to the corresponding \label. Use whatever shortcut suits you best!
 
 4.4 Graphics
 
@@ -614,8 +624,4 @@
 
 ==============================================================================
 
-<<<<<<< HEAD
-vim:tw=72:ts=8:ft=help:norl:autoindent
-=======
-vim:tw=72:ts=8:ft=help:norl
->>>>>>> ghmaster
+vim:tw=78:ts=8:ft=help:norl
