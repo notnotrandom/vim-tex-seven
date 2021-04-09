@@ -207,7 +207,7 @@ function tex_seven#environments#Get_latex_environment()
     try
       let [ l:endenv, l:endenvline ] = 
           \ tex_seven#environments#FindEndBelow(l:beginenvline + 1)
-    catch 
+    catch
       return []
     endtry
 

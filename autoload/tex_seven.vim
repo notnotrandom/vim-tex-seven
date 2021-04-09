@@ -281,7 +281,7 @@ function tex_seven#GoToMainFileIfSet()
     if s:mainFile != ""
       execute "edit " . s:mainFile
     endif
-  catch "MainFileIsNotSet"
+  catch /^MainFileIsNotSet$/
     echoerr "Cannot return to main file, as it is not set!"
   endtry
 endfunction
@@ -686,7 +686,7 @@ endfunction
 function tex_seven#ViewDocument()
   try
     call tex_seven#GetMainFile()
-  catch "MainFileIsNotSet"
+  catch /^MainFileIsNotSet$/
     echoerr "Cannot view document, as there is no mainfile set!"
     return
   endtry

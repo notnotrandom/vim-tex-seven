@@ -36,7 +36,7 @@ let s:compiler_opts = ''
 function tex_seven#build#BuildOnWrite()
   try
     call tex_seven#build#CheckCompilerAndOptions()
-  catch "CompilerNotDefined"
+  catch /^CompilerNotDefined$/
     echoerr "Cannot compile document, as there is no compiler set!"
     return
   endtry
