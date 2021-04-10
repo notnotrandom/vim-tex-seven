@@ -98,6 +98,7 @@ call tex_seven#AddBuffer()
 " Normal mode mappings.
 nnoremap <buffer><silent> <LocalLeader>B :call tex_seven#environments#GoToBeginAbove()<CR>
 nnoremap <buffer><silent> <LocalLeader>E :call tex_seven#environments#GoToEndBelow()<CR>
+nnoremap <buffer><silent> <LocalLeader>R :call tex_seven#environments#RenameEnvironment()<CR>
 nnoremap <buffer><silent> <LocalLeader>V :call tex_seven#ViewDocument()<CR>
 
 nnoremap <buffer><silent> gm :execute "edit " . tex_seven#GetMainFile()<CR>
@@ -146,7 +147,7 @@ inoremap <buffer> <LocalLeader>' `'<Left><Left>
 
 inoremap <buffer><expr> <LocalLeader><Space> tex_seven#InsertCommand()
 inoremap <buffer><expr> <LocalLeader>A tex_seven#SmartInsert('\includeonly{')
-inoremap <buffer><expr> <LocalLeader>B tex_seven#environments#InsertEnv()
+inoremap <buffer><expr> <LocalLeader>B tex_seven#environments#InsertEnvironment()
 inoremap <buffer><expr> <LocalLeader>C tex_seven#SmartInsert('\cite{')
 inoremap <buffer><expr> <LocalLeader>E tex_seven#SmartInsert('\eqref{')
 inoremap <buffer> <LocalLeader>K 

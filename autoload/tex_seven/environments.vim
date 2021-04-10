@@ -312,9 +312,9 @@ function tex_seven#environments#GoToEndBelow()
   endwhile
 endfunction
 
-function tex_seven#environments#InsertEnv()
-  let s:env = input('Environment: ', '', 'custom,ListEnvCompletions')
-  return "\\begin{" . s:env . "}\n\\end{" . s:env . "}\<Esc>O"
+function tex_seven#environments#InsertEnvironment()
+  let l:env = input('Environment: ', '', 'custom,ListEnvCompletions')
+  return "\\begin{" . l:env . "}\n\\end{" . l:env . "}\<Esc>O"
 endfunction
 
 " Brief: Returns 1 (true) if current line is inside a math environment, and 0
@@ -349,4 +349,34 @@ function! ListEnvCompletions(ArgLead, CmdLine, CursorPos)
   else
     return ""
   endif
+endfunction
+
+function tex_seven#environments#RenameEnvironment()
+  let l:getEnv = tex_seven#environments#Get_LaTeX_environment()
+  if len(l:getEnv) != 3
+    " There is no surrounding environment, and hence there is nothing to do
+    " (other than warning the user).
+    echohl WarningMsg | echo  "No surrounding environment found!" | echohl None
+    return
+  endif
+
+  let [ l:origEnvName, l:origEnvStartLineNum, l:origEnvEndLineNum ] = l:getEnv
+
+  " Ask the user for the new environment name.
+  let l:newEnvName = input('Change environment '. l:origEnvName .' to: ', '',
+        \ 'custom,ListEnvCompletions')
+
+  " Substitute the environment name in the \begin line.
+  let l:line = getline(l:origEnvStartLineNum)
+  let l:newBeginLine = substitute(l:line, '\\begin{'. l:origEnvName .'}',
+        \ '\\begin{'. l:newEnvName .'}', "")
+
+  " Substitute the environment name in the \end line.
+  let l:line = getline(l:origEnvEndLineNum)
+  let l:newEndLine = substitute(l:line, '\\end{'. l:origEnvName .'}',
+        \ '\\end{'. l:newEnvName .'}', "")
+
+  " Actually replace those lines in the file.
+  call setline(l:origEnvStartLineNum, l:newBeginLine)
+  call setline(l:origEnvEndLineNum, l:newEndLine)
 endfunction
