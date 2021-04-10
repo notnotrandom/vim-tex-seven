@@ -35,34 +35,16 @@ let s:bibtexEntryKeyPattern = '\m^@\a\+{\zs\S\+\ze,'
 let s:bibEntryList = []
 let s:epochSourceFileLastRead = ""
 
-function tex_seven#omni#QueryBibKey(citekey, preview)
-  let l:sourcesFile = tex_seven#SetSourcesFile()
-  if l:sourcesFile == ""
-    throw "BibSourceFileNotFound"
-  endif
-
-  " To preview, or not to preview.
-  let l:to_p_or_nor_to_p = 'p'
-  if a:preview == 0 | let l:to_p_or_nor_to_p = '' | endif
-
-  execute l:to_p_or_nor_to_p . 'edit +/' . a:citekey . '/;normal\ zt ' . l:sourcesFile
-  redraw
-endfunction
-
 " Brief:
+" Throws: SourcesFileNotReadable
 function tex_seven#omni#GetBibEntries()
   let l:needToReadSourcesFile = "false"
   let l:sourcesFile = tex_seven#GetSourcesFile()
 
   if s:epochSourceFileLastRead == ""
-    " We have not previously read s:sourcesFile. So first, discover if there
-    " is one, to begin with...
-    if l:sourcesFile == ""
-      let l:sourcesFile = tex_seven#SetSourcesFile()
-    endif
-
-    " If s:sourcesFile is still empty, that means no bibliography file was
-    " found. Hence just return an empty list of bib entries...
+    " We have not previously read s:sourcesFile. If s:sourcesFile is empty,
+    " that means no bibliography file was found (and hence, could have been
+    " read before). So just return an empty list of bib entries...
     if l:sourcesFile == "" | return [] | endif
 
     " Otherwise, we need to read the sources file, so:
@@ -84,7 +66,7 @@ function tex_seven#omni#GetBibEntries()
     let s:bibEntryList = []
     let s:epochSourceFileLastRead = str2nr(system("date +%s"))
 
-    for line in readfile(l:sourcesFile)
+    for line in tex_seven#GetLinesListFromFile(l:sourcesFile)
       let entry_key = matchstr(line, s:bibtexEntryKeyPattern)
       if entry_key != ""
         call add(s:bibEntryList, entry_key)
@@ -126,7 +108,7 @@ function tex_seven#omni#GetLabels(prefix = '')
   " Since we need to read s:mainFile anayway, also check (and update) the \include's.
   let l:includedFilesList = []
 
-  for line in readfile(l:mainFile)
+  for line in tex_seven#GetLinesListFromFile(l:mainFile)
     if line =~ g:tex_seven#emptyOrCommentLinesPattern
       continue " Skip comments or empty lines.
     endif
@@ -151,7 +133,8 @@ function tex_seven#omni#GetLabels(prefix = '')
 
   " Now search the included files.
   for l:fname in tex_seven#GetIncludedFilesList()
-    let l:fcontents = readfile(tex_seven#GetPath() . l:fname . '.tex')
+    let l:fcontents =
+          \ tex_seven#GetLinesListFromFile(tex_seven#GetPath() . l:fname . '.tex')
     for l:line in l:fcontents
       let newlabel = matchstr(l:line,  '\m\\label{\zs\S\+\ze}')
       if newlabel != ""
@@ -165,12 +148,35 @@ function tex_seven#omni#GetLabels(prefix = '')
   return l:labelsFound
 endfunction
 
+function tex_seven#omni#QueryBibKey(citekey, preview)
+  let l:sourcesFile = tex_seven#GetSourcesFile()
+  if l:sourcesFile == ""
+    throw "BibSourceFileNotFound"
+  endif
+
+  " To preview, or not to preview.
+  let l:to_p_or_not_to_p = 'p'
+  if a:preview == 0 | let l:to_p_or_not_to_p = '' | endif
+
+  " :edit or :pedit the bib sources file, and search for a:citekey.
+  execute l:to_p_or_not_to_p . 'edit +/' . a:citekey . ' ' . l:sourcesFile
+  " The redraw command is needed to avoid a "Press here to continue" message
+  " from being shown...
+  redraw
+  " Center the line the cursor is at in the older (original) buffer.
+  execute 'normal! zz'
+  " If opening a preview window, then move the cursor there (^Wp). It will be
+  " placed on the line containing a:citekey; the zt positions the window so
+  " that that line is shown near the top of the preview window.
+  if a:preview == 1 | execute 'normal! pzt' | endif
+endfunction
+
 function tex_seven#omni#QueryIncKey(inckey, preview)
   " To preview, or not to preview.
-  let l:to_p_or_nor_to_p = 'p'
-  if a:preview == 0 | let l:to_p_or_nor_to_p = '' | endif
+  let l:to_p_or_not_to_p = 'p'
+  if a:preview == 0 | let l:to_p_or_not_to_p = '' | endif
 
-  execute l:to_p_or_nor_to_p . 'edit ' . a:inckey . '.tex'
+  execute l:to_p_or_not_to_p . 'edit ' . a:inckey . '.tex'
 endfunction
 
 " For completion of say, \cite{}, the cursor is on '}'. Also remember that
@@ -199,24 +205,42 @@ function tex_seven#omni#OmniCompletions(base)
   " out here. \label's are searched when needed, and hence we pass a:base to
   " to the function that does that, so that filtering can happen on-the-fly.
   if l:keyword == 'cite'
-    if a:base == ""
-      return tex_seven#omni#GetBibEntries()
-    else
-      return filter(copy(tex_seven#omni#GetBibEntries()), 'v:val =~ "\\m^" . a:base')
-    endif
+    try
+      if a:base == ""
+        return tex_seven#omni#GetBibEntries()
+      else
+        return filter(copy(tex_seven#omni#GetBibEntries()), 'v:val =~ "\\m^" . a:base')
+      endif
+    catch
+      echoerr "Retrieving bib entries failed."
+    endtry
   elseif l:keyword == 'includegraphics'
-    return tex_seven#omni#GetGraphicsList(a:base)
+    try
+      return tex_seven#omni#GetGraphicsList(a:base)
+    catch
+      echoerr "Retrieving \\includegraphics' list failed."
+    endtry
   elseif l:keyword == 'includeonly'
-    if a:base == ""
-      return tex_seven#GetIncludedFilesList()
-    else
-      return filter(copy(tex_seven#GetIncludedFilesList()), 'v:val =~ "\\m^" . a:base')
-    endif
+    try
+      if a:base == ""
+        return tex_seven#GetIncludedFilesList()
+      else
+        return filter(copy(tex_seven#GetIncludedFilesList()), 'v:val =~ "\\m^" . a:base')
+      endif
+    catch
+      echoerr "Retrieving \\include'd files' list failed."
+    endtry
   elseif l:keyword =~ '.*ref'
-    return tex_seven#omni#GetLabels(a:base)
+    try
+      return tex_seven#omni#GetLabels(a:base)
+    catch
+      echoerr "Retrieving \\labels failed."
+    endtry
   else
     return []
   endif
+
+  return []
 endfunction
 
 function tex_seven#omni#QueryRefKey(refkey, preview)
@@ -238,16 +262,27 @@ function tex_seven#omni#QueryRefKey(refkey, preview)
 
     let l:column = match(l:line,  '\m\\label{' . a:refkey . '}')
     if l:column != -1 " -1 means no match.
-      " To preview, or not to preview.
-      let l:to_p_or_nor_to_p = 'p'
-      if a:preview == 0 | let l:to_p_or_nor_to_p = '' | endif
+      " So if control reaches here, this means that we have a match.
 
-      " echom "l c : " . l:linenum . ' ' . l:column
-      execute l:to_p_or_nor_to_p . 'edit +call\ setpos(".",\ [0,\ '
+      " To preview, or not to preview.
+      let l:to_p_or_not_to_p = 'p'
+      if a:preview == 0 | let l:to_p_or_not_to_p = '' | endif
+
+      " Do an :edit, or a :pedit (preview window edit), setting the viewing
+      " position to that of the matched text.
+      execute l:to_p_or_not_to_p . 'edit +call\ setpos(".",\ [0,\ '
             \ . l:linenum . ',\ ' . l:column . ',\ 0]) ' . expand('%:p')
-      execute 'normal zz'
+      " In the old (original) window, also vertically center the line where
+      " the cursor is placed.
+      execute 'normal! zz'
+      " And if we are opening a preview window, move the cursor to that
+      " window, to the position of the match, and also vertically center that
+      " line.
+      if a:preview == 1 | execute 'normal! pzz' | endif
       return
     elseif l:currentFileIsMain == 1 " Current file is s:mainFile.
+      " Control reaches here if there was no match, but we are in the main
+      " file -- in which case, we search for \include'd files (see below why).
       let included_file = matchstr(line, g:tex_seven#includedFilePattern)
       if included_file != ""
         call add(l:includedFilesList, included_file)
@@ -255,8 +290,8 @@ function tex_seven#omni#QueryRefKey(refkey, preview)
     endif
   endfor
 
-  " If reach here if we didn't find the \label we were looking for in the
-  " current file. Now, if the loop above did not find \include'd files
+  " Control reaches here if we didn't find the \label we were looking for in
+  " the current file. Now, if the loop above did not find \include'd files
   " (len(l:includedFilesList) == 0), that means it either searched for
   " \label's over some file OTHER than s:mainFile, or that it searched
   " s:mainFile, but found no \include statement. In the latter case there is
@@ -265,7 +300,7 @@ function tex_seven#omni#QueryRefKey(refkey, preview)
   " to see if any of them contain the \label we're after. In the following if
   " statement, we search s:mainFile, if the current file is not it.
   if len(l:includedFilesList) == 0 && l:currentFileIsMain == 0
-    for line in readfile(l:mainFile)
+    for line in tex_seven#GetLinesListFromFile(l:mainFile)
       if l:line =~ g:tex_seven#emptyOrCommentLinesPattern
         continue " Skip comments or empty lines.
       endif
@@ -283,7 +318,8 @@ function tex_seven#omni#QueryRefKey(refkey, preview)
     call tex_seven#SetIncludedFilesList(l:includedFilesList)
 
     for l:fname in l:includedFilesList
-      let l:fcontents = readfile(tex_seven#GetPath() . l:fname . '.tex')
+      let l:fcontents =
+            \ tex_seven#GetLinesListFromFile(tex_seven#GetPath() . l:fname . '.tex')
       let l:linenum = 0
       for l:line in l:fcontents
         let l:linenum += 1
@@ -295,14 +331,17 @@ function tex_seven#omni#QueryRefKey(refkey, preview)
         " \label's in the same line...
         let l:column = match(l:line,  '\m\\label{' . a:refkey . '}')
         if l:column != -1
-          " To preview, or not to preview.
-          let l:to_p_or_nor_to_p = 'p'
-          if a:preview == 0 | let l:to_p_or_nor_to_p = '' | endif
+          " If we have match, then we show it (:edit or :pedit) to the user.
+          " The code below, until the return statement, is similar what has
+          " been used above; see the comments therein.
+          let l:to_p_or_not_to_p = 'p'
+          if a:preview == 0 | let l:to_p_or_not_to_p = '' | endif
 
-          execute l:to_p_or_nor_to_p . 'edit +call\ setpos(".",\ [0,\ '
+          execute l:to_p_or_not_to_p . 'edit +call\ setpos(".",\ [0,\ '
                 \ . l:linenum . ',\ ' . l:column . ',\ 0]) ' . tex_seven#GetPath() .
                 \ l:fname . '.tex'
-          execute 'normal zz'
+          execute 'normal! zz'
+          if a:preview == 1 | execute 'normal! pzz' | endif
           return
         endif
       endfor

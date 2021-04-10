@@ -228,7 +228,7 @@ function tex_seven#GetIncludedFilesList()
   if l:needToReadMainFile == "true"
     let s:includedFilesList = []
 
-    for line in readfile(s:mainFile)
+    for line in tex_seven#GetLinesListFromFile(s:mainFile)
       if line =~ g:tex_seven#emptyOrCommentLinesPattern
         continue " Skip comments or empty lines.
       endif
@@ -246,6 +246,18 @@ endfunction
 " s:epochMainFileLastReadForIncludes.
 function tex_seven#GetEpochMainFileLastReadForIncludes()
   return s:epochMainFileLastReadForIncludes
+endfunction
+
+function tex_seven#GetLinesListFromFile(fname)
+  " readfile() shows an error message when the file cannot be read.
+  " Surrounding it with a try/catch turns that error message into an
+  " exception.
+  try
+    return readfile(a:fname)
+  catch
+    "XXX put a debug message here
+    throw "FileIsNotReadable"
+  endtry
 endfunction
 
 " Brief: This function basically calls tex_seven#DiscoverMainFile(), but
@@ -269,6 +281,9 @@ endfunction
 
 " Brief: Allow external scripts to retrieve that value of s:sourcesFile.
 function tex_seven#GetSourcesFile()
+  if s:sourcesFile == ""
+    call tex_seven#SetSourcesFile()
+  endif
   return s:sourcesFile
 endfunction
 
@@ -643,10 +658,10 @@ endfunction
 
 "Brief: If s:mainFile is set, then iterate through its lines, to discover
 "the bibliography file, if any.
-" Return: full path of sources file, or empty if there is no such file.
+" Return: none.
 function tex_seven#SetSourcesFile()
   if s:sourcesFile != ""
-    return s:sourcesFile
+    return
   endif
 
   call tex_seven#GetMainFile()
@@ -655,7 +670,7 @@ function tex_seven#SetSourcesFile()
   " list.
   let s:includedFilesList = []
 
-  for line in readfile(s:mainFile)
+  for line in tex_seven#GetLinesListFromFile(s:mainFile)
     let l:aux = matchstr(line, g:tex_seven#bibtexSourcesFilePattern)
     if l:aux != ""
       let s:sourcesFile = fnamemodify(s:mainFile, ':p:h') . '/' . l:aux . ".bib"
@@ -671,7 +686,6 @@ function tex_seven#SetSourcesFile()
     endif
   endfor
   let s:epochMainFileLastReadForIncludes = str2nr(system("date +%s"))
-  return s:sourcesFile
 endfunction
 
 " TODO rethink this function...

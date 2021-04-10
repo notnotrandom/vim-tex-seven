@@ -343,7 +343,8 @@ function! ListEnvCompletions(ArgLead, CmdLine, CursorPos)
   endif
 
   if filereadable(b:env_list)
-    let s:joinedEnvironmentsList = join(readfile(b:env_list), "\<nl>")
+    let s:joinedEnvironmentsList =
+          \ join(tex_seven#GetLinesListFromFile(b:env_list), "\<nl>")
     return s:joinedEnvironmentsList
   else
     return ""
