@@ -186,7 +186,7 @@ endfunction
 "
 " Note that this function deals with nested environments (e.g. an
 " equation env inside a proof env). Cf. FindBeginAbove() and FindEndBelow().
-function tex_seven#environments#Get_latex_environment()
+function tex_seven#environments#Get_LaTeX_environment()
   let l:environment = ""
 
   let l:beginenv = ""
@@ -319,9 +319,9 @@ endfunction
 
 " Brief: Returns 1 (true) if current line is inside a math environment, and 0
 " (false) otherwise.
-function tex_seven#environments#Is_latex_math_environment()
+function tex_seven#environments#Is_LaTeX_math_environment()
   let l:mathenvpat = '\mmatrix\|cases\|math\|equation\|align\|array'
-  let l:ce = tex_seven#environments#Get_latex_environment() " Get the name of current LaTeX env.
+  let l:ce = tex_seven#environments#Get_LaTeX_environment() " Get the name of current LaTeX env.
   if len(l:ce) == 3
     let [ l:curr_environment, l:startline, l:endline ] = l:ce
 

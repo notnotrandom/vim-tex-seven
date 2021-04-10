@@ -80,7 +80,7 @@ endfunction
 " etc. See ftplugin/tex_seven.vim.
 function tex_seven#ChangeFontStyle(style)
   let str = 'di'
-  let is_math = tex_seven#environments#Is_latex_math_environment()
+  let is_math = tex_seven#environments#Is_LaTeX_math_environment()
   let str .= is_math ? '\math'.a:style : '\text'.a:style
   let str .= "{}\<Left>\<C-R>\""
   return str
@@ -194,7 +194,7 @@ endfunction
 " For visual selection operators of inner or outer (current) environment. See
 " ftplugin/tex_seven.vim.
 function tex_seven#EnvironmentOperator(mode)
-  let pos = tex_seven#environments#Get_latex_environment()[1:]
+  let pos = tex_seven#environments#Get_LaTeX_environment()[1:]
   if !pos[0] && !pos[1]
     return "\<Esc>"
   endif
