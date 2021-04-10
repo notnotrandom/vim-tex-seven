@@ -202,12 +202,19 @@
     |tex_seven-compile-mfile|), then hitting <LocalLeader>gm will bring
     you back to the main .tex file (mnemonic: "go to main file").
 
+    To rename an enclosing environment, press <LocalLeader>R. You're prompted
+    for a new environment name, and that gets replaced both in the \begin and
+    \end lines of that enclosing environment. This works if the cursor is
+    placed anywhere on the \begin line, anywhere on the \end line, or anywhere
+    inside the environment (but *not* inside an inner nested environment, for
+    that case it is that inner environment's name that gets replaced).
+
     To go from from a `\label{` or `\cite{` to its corresponding definition,
     place the cursor over them and hit either [gp] or [gd]: the first will
     open the corresponding `\ref{` or bib entry in a preview window (mnemonic:
     go preview), and the second in a new buffer (using :edit; mnemonic: go to
-    definition). Note that in the case of a preview window, the cursor does
-    NOT move to that window. To close it, hit [gb] (mnemonic: go back).
+    definition). Note that in the case of a preview window, the cursor WILL
+    MOVE to that window. To close it, hit :q, as usual.
 
     This functionality also works for things other than \label's and \cite's;
     see |tex_seven-jumping|.
@@ -286,8 +293,10 @@
     All the stuff described here with [gp], also works with [gd], with the
     difference that in the latter case it does not open in a preview window.
 
-    (When using [gp], to close the preview window use [gb]. When using [gd],
-    to go back hit CTRL-o. All in normal mode.)
+    (When using [gp], to close the preview window after having placed the
+    cursor in some other window, there is no need to back to the preview
+    window. Just hit [gb], which is an alias to :pclose.
+    When using [gd], to go back hit CTRL-o. All in normal mode.)
 
     Furthermore, [gf] is an alias to [gd]. See section 4.3 below for the
     reason for this.
@@ -388,8 +397,9 @@
     "$x arrow|$" and press <LocalLeader>M, the popup list will contain all
     math symbols containing, but not necessarily starting with, the string
     "arrow". This also works if you write "\arrow". In both cases, you get a
-    command, i.e., if you write "arrow" or "\arrow", and then select
-    "rightarrow" from the completion popup, you get the command "\rightarrow".
+    command, i.e., if you write "arrow" or "\arrow", hit <LocalLeader>M, and
+    then select "rightarrow" from the completion popup, you get the command
+    "\rightarrow".
 
     Additionally, the most frequently used maths symbols have their own
     shortcuts.  Typing <LocalLeader>a expands to \alpha for example. Refer
@@ -415,12 +425,13 @@
     <LocalLeader><LocalLeader> <LocalLeader>
     <LocalLeader>'             LaTeX's inverted single commas `'
     <LocalLeader>"             LaTeX's inverted double commas ``''
-    <LocalLeader>B             Insert an \includeonly
-    <LocalLeader>C             Insert a citation (\cite)
-    <LocalLeader>E             Insert an equation reference (\eqref)
-    <LocalLeader>K             Regular (non-math) completion
-    <LocalLeader>M             Math completion
-    <LocalLeader>R             Insert a reference (\ref)
+    <LocalLeader>A             Insert an \includeonly, and start completion
+    <LocalLeader>B             Insert an environment (prompts for a name)
+    <LocalLeader>C             Insert a \cite, and start completion
+    <LocalLeader>E             Insert an \eqref (equation reference), and start completion
+    <LocalLeader>K             Start regular (non-math) completion
+    <LocalLeader>M             Start math completion
+    <LocalLeader>R             Insert a \ref, and start completion
     <LocalLeader>Z             Insert an \includeonly reference
 
     Greek
@@ -526,6 +537,7 @@
 
     <LocalLeader>B  Go to \begin above
     <LocalLeader>E  Go to \end below
+    <LocalLeader>R  Rename environment
     <LocalLeader>V  View the document
 
     :ww             Do a small compile (see |tex_seven-compile-mfile|)
