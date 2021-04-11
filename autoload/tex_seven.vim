@@ -194,15 +194,20 @@ endfunction
 " For visual selection operators of inner or outer (current) environment. See
 " ftplugin/tex_seven.vim.
 function tex_seven#EnvironmentOperator(mode)
-  let pos = tex_seven#environments#Get_LaTeX_environment()[1:]
-  if !pos[0] && !pos[1]
+  let l:pos = tex_seven#environments#Get_LaTeX_environment()
+  if len(l:pos) == 0
     return "\<Esc>"
   endif
   if a:mode == 'inner'
-    let pos[0] += 1
-    let pos[1] -= 1
+    let l:pos[1] += 1
+    let l:pos[2] -= 1
   endif
-  return "\<Esc>:".pos[1]."\<Enter>m>:".pos[0]."\<Enter>V'>"
+  if l:pos[2] < l:pos[1]
+    echoerr "Env start position cannot be bigger than end position."
+  elseif l:pos[2] == l:pos[1]
+    return "\<Esc>:".l:pos[1]."\<Enter>V"
+  else
+    return "\<Esc>:".l:pos[1]."\<Enter>V".(l:pos[2]-l:pos[1])."j"
 endfunction
 
 function tex_seven#GetIncludedFilesList()

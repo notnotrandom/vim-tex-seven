@@ -29,7 +29,6 @@
 let s:beginpat = '\m^\s*\\begin{\zs\w\+\ze}'
 let s:endpat = '\m^\s*\\end{\zs\w\+\ze}'
 let s:joinedEnvironmentsList = ""
-let s:numLines = line('$')
 
 " Brief: starting with the given line number, search upwards for a \begin.
 " Ignores nested \begin...\end pairs in between.
@@ -48,7 +47,7 @@ let s:numLines = line('$')
 " looking for! Otherwise, if the line matches neither \end nor \begin,
 " continue searching...
 function tex_seven#environments#FindBeginAbove(startlnum)
-  let l:endWithoutBegin = ""
+  let l:endsWithoutBeginList = []
 
 " We start the search at line a:startlnum.
   let l:linenum = a:startlnum
@@ -58,33 +57,28 @@ function tex_seven#environments#FindBeginAbove(startlnum)
   while 1
     let l:envname = matchstr(l:line, s:endpat)
     if l:envname != "" " Found an \end in the current line.
-      if l:endWithoutBegin != ""
-        " If there is already an \end without a \begin, and we find another
-        " \end, return error.
-        throw "FoundTwoEndsWithoutBegins"
-      endif
-      " Otherwise, let l:endWithoutBegin contain the name of the environment
-      " found.
-      let l:endWithoutBegin = l:envname
+      " Found an \end in the current line. So append it, and continue
+      " searching.
+      call add(l:endsWithoutBeginList, l:envname)
       " After this line, control should go to line decrementing
       " l:linenum, below.
     else
       " The current line is not an \end, so see if it is a \begin.
       let l:envname = matchstr(l:line, s:beginpat)
       if l:envname != "" " Found a \begin in the current line.
-        if l:endWithoutBegin != ""
-          " We have a previous unmatched \end, so check if the \begin we found
-          " matches it. If so, set l:endWithoutBegin to "", and continue
-          " searching. Otherwise, issue an error.
-          if l:envname == l:endWithoutBegin
-            let l:endWithoutBegin = ""
-            " After this line, control should go to line decrementing
+        if len(l:endsWithoutBeginList) > 0
+          " We have previous unmatched \end's, so check if the \begin we found
+          " matches the last \end on the list. If so, remove that element from
+          " the list, and continue searching. Otherwise, issue an error.
+          if l:envname == l:endsWithoutBeginList[-1]
+            call remove(l:endsWithoutBeginList, -1)
+            " After this line, control should go to line incrementing
             " l:linenum, below.
           else
             throw "MismatchedBeginAndEnd"
           endif
         else
-          " We found a \begin, and there is no unmatched \end. So this must be
+          " We found an \begin, and there is no unmatched \end. So this must be
           " the line we are looking for!
           return [ l:envname, l:linenum ]
         endif
@@ -119,7 +113,9 @@ endfunction
 " looking for! Otherwise, if the line matches neither \begin nor \end,
 " continue searching...
 function tex_seven#environments#FindEndBelow(startlnum)
-  let l:beginWithoutEnd = ""
+  let l:numLines = line('$')
+  let l:beginsWithoutEndList = []
+  echom l:numLines
 
 " We start the search at line a:startlnum.
   let l:linenum = a:startlnum
@@ -128,27 +124,22 @@ function tex_seven#environments#FindEndBelow(startlnum)
 
   while 1
     let l:envname = matchstr(l:line, s:beginpat)
-    if l:envname != "" " Found a \begin in the current line.
-      if l:beginWithoutEnd != ""
-        " If there is already a \begin without an \end, and we find another
-        " \begin, return error.
-        throw "FoundTwoBeginsWithoutEnds"
-      endif
-      " Otherwise, let l:beginWithoutEnd contain the name of the environment
-      " found. And then continue searching...
-      let l:beginWithoutEnd = l:envname
+    if l:envname != ""
+      " Found a \begin in the current line. So append it, and continue
+      " searching.
+      call add(l:beginsWithoutEndList, l:envname)
       " After this line, control should go to line incrementing
       " l:linenum, below.
     else
       " The current line is not a \begin, so see if it is a \end.
       let l:envname = matchstr(l:line, s:endpat)
       if l:envname != "" " Found an \end in the current line.
-        if l:beginWithoutEnd != ""
-          " We have a previous unmatched \begin, so check if the \end we found
-          " matches it. If so, set l:beginWithoutEnd to "", and continue
-          " searching. Otherwise, issue an error.
-          if l:envname == l:beginWithoutEnd
-            let l:beginWithoutEnd = ""
+        if len(l:beginsWithoutEndList) > 0
+          " We have previous unmatched \begin's, so check if the \end we found
+          " matches the last \begin on the list. If so, remove that element
+          " from the list, and continue searching. Otherwise, issue an error.
+          if l:envname ==# l:beginsWithoutEndList[-1]
+            call remove(l:beginsWithoutEndList, -1)
             " After this line, control should go to line incrementing
             " l:linenum, below.
           else
@@ -160,12 +151,12 @@ function tex_seven#environments#FindEndBelow(startlnum)
           return [ l:envname, l:linenum ]
         endif
       endif
+      " If control reaches here, this means the current line is also not a
+      " \end. So keep searching...
     endif
 
-    " If control reaches here, this means the current line is also not a
-    " \end. So keep searching...
     let l:linenum += 1
-    if l:linenum > s:numLines " ... unless we've reached beyond the last line.
+    if l:linenum > l:numLines " ... unless we've reached beyond the last line.
       return []
     else
       let l:line = getline(l:linenum)
@@ -173,8 +164,8 @@ function tex_seven#environments#FindEndBelow(startlnum)
   endwhile
 endfunction
 
-" Brief: Discovers the name, and location (start and ending lines numbers) of the
-" current environment, if any.
+" Brief: Discovers the name, and location (start and ending lines numbers) of
+" the current environment, if any.
 " Return: a list [ envname, startline num, endline num ] if there is an
 " enclosing environment. Returns [] if one such environment cannot be
 " found.
@@ -363,7 +354,7 @@ function tex_seven#environments#RenameEnvironment()
   let [ l:origEnvName, l:origEnvStartLineNum, l:origEnvEndLineNum ] = l:getEnv
 
   " Ask the user for the new environment name.
-  let l:newEnvName = input('Change environment '. l:origEnvName .' to: ', '',
+  let l:newEnvName = input('Rename env ['. l:origEnvName .'] to: ', '',
         \ 'custom,ListEnvCompletions')
 
   " Substitute the environment name in the \begin line.
