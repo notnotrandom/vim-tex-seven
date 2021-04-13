@@ -33,7 +33,8 @@ let s:compiler = ''
 let s:compiler_opts = ''
 
 " Brief: Build the TeX project in background.
-function tex_seven#build#BuildOnWrite()
+function tex_seven#build#WriteAndBuild()
+  write
   try
     call tex_seven#build#CheckCompilerAndOptions()
   catch /^CompilerNotDefined$/

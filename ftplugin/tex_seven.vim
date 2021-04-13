@@ -113,7 +113,8 @@ nnoremap <buffer><silent> gp :call tex_seven#QueryKey(1)<CR>
 
 " Small compile. Note that the map trigger here is :ww, and NOT
 " <LocalLeader>ww !!
-nnoremap <buffer><silent> :ww :write<CR>:call tex_seven#build#BuildOnWrite()<CR>
+command WaB :call tex_seven#build#WriteAndBuild()
+nnoremap <buffer> :ww :WaB
 
 " Visual mode and operator mappings.
 
