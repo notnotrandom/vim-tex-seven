@@ -42,7 +42,7 @@ endif
 let b:init_tex_seven = 1
 
 " ************************ Common Settings ************************
-" Defaults
+" Defaults.
 let b:tex_seven_config = {
       \    'debug'            : 0,
       \    'compiler'         : 'make',
