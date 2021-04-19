@@ -26,7 +26,7 @@
 "
 "************************************************************************
 
-" Let the user have the last word
+" Let the user have the last word.
 if exists('g:tex_seven_config') && has_key(g:tex_seven_config, 'disable')
   if g:tex_seven_config.disable
     redraw
