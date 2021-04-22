@@ -316,6 +316,11 @@ endfunction
 " (The Esc keymap is explained further below.)
 function tex_seven#InsertCommand()
   inoremap <buffer><expr> <Esc> tex_seven#InsertCommandUnmapTab()
+  snoremap <buffer><expr> <Esc> tex_seven#InsertCommandUnmapTab()
+
+  inoremap <buffer><expr> <C-c> tex_seven#InsertCommandUnmapTab()
+  snoremap <buffer><expr> <C-c> tex_seven#InsertCommandUnmapTab()
+
   inoremap <buffer><expr> <Tab> tex_seven#InsertCommandGoToArg()
   return "\\cmd{arg}\<Esc>Fcviw"
 endfunction
@@ -352,6 +357,11 @@ endfunction
 " clearing the Tab map, it is no longer necessary.
 function tex_seven#InsertCommandUnmapTab()
   iunmap <buffer><expr> <Esc>
+  sunmap <buffer><expr> <Esc>
+
+  iunmap <buffer><expr> <C-c>
+  sunmap <buffer><expr> <C-c>
+
   iunmap <buffer><expr> <Tab>
   return "\<Esc>"
 endfunction
