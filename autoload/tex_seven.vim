@@ -310,10 +310,12 @@ endfunction
 
 " This first function inserts:
 " \cmd{arg}
-" selects the "cmd" word, and lets the user change it to whatever he wants. It
-" also temporarily maps the Tab key to the function InsertCommandGotoArg(), so
-" that the user can press it and move to the argument part.
-" (The Esc keymap is explained further below.)
+" selects the "cmd" word, and lets the user change it to whatever he wants (by
+" visually selecting the "cmd" string, and then entering select-mode with ^G).
+" It also temporarily maps the Tab key to the function InsertCommandGotoArg(),
+" so that the user can press it and move to the argument part.
+" (The Esc and Ctrl-c keymaps are explained further below; cf. the comments to
+" function tex_seven#InsertCommandUnmapTab()).
 function tex_seven#InsertCommand()
   inoremap <buffer><expr> <Esc> tex_seven#InsertCommandUnmapTab()
   snoremap <buffer><expr> <Esc> tex_seven#InsertCommandUnmapTab()
@@ -355,6 +357,8 @@ endfunction
 " key to this function, InsertCommandUnmaptab(), that clears any local
 " mappings of the Tab key. It also clears the local Esc map, because after
 " clearing the Tab map, it is no longer necessary.
+"   The above considerations for the Esc key mapping, apply verbatim to the
+" Ctrl-c mapping.
 function tex_seven#InsertCommandUnmapTab()
   iunmap <buffer><expr> <Esc>
   sunmap <buffer><expr> <Esc>
