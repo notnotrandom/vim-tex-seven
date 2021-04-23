@@ -1,4 +1,4 @@
-TeX-7                                  
+TeX-7
 
 A semi-automatic, minimalistic LaTeX ftplugin that does not get in your way!
 
