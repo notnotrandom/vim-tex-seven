@@ -357,6 +357,11 @@ function tex_seven#environments#RenameEnvironment()
   let l:newEnvName = input('Rename env ['. l:origEnvName .'] to: ', '',
         \ 'custom,ListEnvCompletions')
 
+  " If new environment name is empty, then there is nothing more to do...
+  if l:newEnvName == ""
+    return
+  endif
+
   " Substitute the environment name in the \begin line.
   let l:line = getline(l:origEnvStartLineNum)
   let l:newBeginLine = substitute(l:line, '\\begin{'. l:origEnvName .'}',
