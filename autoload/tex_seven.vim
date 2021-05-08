@@ -51,7 +51,12 @@ let s:mainFile = ""
 
 " Matches \somecmd{foo} or \somecmd[bar]{foo}. When used with matchstr(),
 " returns "somecmd", sans quotes.
-let g:tex_seven#matchCommand = '\m^\\\zs\a\+\ze\(\[.\+\]\)\?{'
+let g:tex_seven#matchCommand = '\m^\\\zs[A-Za-z0-9]\+\ze\(\[.\+\]\)\?{'
+
+" Same as g:tex_seven#matchCommand regexp above, but matches the "foo" part,
+" sans quotes.
+let g:tex_seven#matchCommandArg = '\m\\[A-Za-z0-9]\+\(\[.\+\]\)\?{\zs\S\+\ze}'
+
 
 " Matches a modeline like:
 " % mainfile: ../main.tex
@@ -539,8 +544,8 @@ function tex_seven#QueryKey(preview)
   " And it cannot be done after this if/else block, because we will already
   " have left the current buffer...)
   if l:keyword == 'input' || l:keyword == 'include' || l:keyword == 'includeonly'
-    normal! f}vi}y
-    let inckey = getreg()
+    let inckey = matchstr(l:line[ l:startBackslashIdx : ], g:tex_seven#matchCommandArg)
+    if inckey == "" | throw "EmptyTeXCommandArg" | endif
 
     " Before opening a new window, set the cursor in the current window, to
     " its original position.
@@ -551,8 +556,9 @@ function tex_seven#QueryKey(preview)
     " Important: this only functions if in the .tex, the argument of
     " \includegraphics includes the extension! E.g. \includegraphics{fname.ext}
 
-    normal! f}vi}y
-    let l:graphicFilename = getreg()
+    let l:graphicFilename =
+          \ matchstr(l:line[ l:startBackslashIdx : ], g:tex_seven#matchCommandArg)
+    if l:graphicFilename == "" | throw "EmptyTeXCommandArg" | endif
 
     let l:viewer = ''
     let l:extension = matchstr(l:graphicFilename, '\m\.\zs\S\S\S$')
@@ -584,8 +590,8 @@ function tex_seven#QueryKey(preview)
     echo "Viewing the image file...\r"
     call system(l:viewer . " " . shellescape(l:graphicFilename) . " &")
   elseif l:keyword =~ '.*ref'
-    normal! f}vi}y
-    let refkey = getreg()
+    let refkey = matchstr(l:line[ l:startBackslashIdx : ], g:tex_seven#matchCommandArg)
+    if refkey == "" | throw "EmptyTeXCommandArg" | endif
 
     " Before opening a new window, set the cursor in the current window, to
     " its original position.
