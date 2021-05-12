@@ -44,3 +44,4 @@ titlepage
 titlingpage
 topic
 verbatim
+wrapfigure
