@@ -386,7 +386,7 @@ endfunction
 function tex_seven#InsertBibEntry()
   let s:env = input('Bib entry type: ', '', 'custom,ListBibTypesCompletions')
   if s:env == "url"
-		let l:res = "@manual{bibkey,\n" .
+		let l:res = "@misc{bibkey,\n" .
           \ "title  = \"XXX\",\n" .
           \ "author = \"XXX\",\n" .
           \ "note   = \"\url{XXX} (last accessed: XXX)\",\n" .
@@ -433,8 +433,12 @@ function tex_seven#MathCompletion(findstart, base)
     if a:base != ""
       if a:base == '\' | return g:tex_seven#omniMath#symbols | endif
 
+      " Filter completion. Check that a:base (what the user has typed) matches
+      " either the word (i.e. the math command, like \setminus, or whatever),
+      " or, check if a:base mathches the info entry, if it exists.
       let compl = copy(g:tex_seven#omniMath#symbols)
-      call filter(compl, 'v:val.word =~ "\\m' . a:base . '"')
+      call filter(compl, 'v:val.word =~? "\\m' . a:base .
+            \ '" || (has_key(v:val, "info") && v:val.info =~? "\\m' . a:base . '")')
       return compl
     else
       return g:tex_seven#omniMath#symbols
