@@ -215,7 +215,7 @@ function tex_seven#EnvironmentOperator(mode)
     return "\<Esc>:".l:pos[1]."\<Enter>V".(l:pos[2]-l:pos[1])."j"
 endfunction
 
-function tex_seven#GetIncludedFilesList()
+function tex_seven#GetIncludedFilesList(prefix = '')
   call tex_seven#GetMainFile()
 
   let l:needToReadMainFile = "false"
@@ -249,7 +249,12 @@ function tex_seven#GetIncludedFilesList()
     endfor
     let s:epochMainFileLastReadForIncludes = str2nr(system("date +%s"))
   endif
-  return s:includedFilesList
+
+  if a:prefix == ''
+    return s:includedFilesList
+  else
+    return filter(copy(s:includedFilesList), 'v:val =~ "\\m^" . a:prefix')
+  endif
 endfunction
 
 " Brief: Allow external scripts to retrieve that value of

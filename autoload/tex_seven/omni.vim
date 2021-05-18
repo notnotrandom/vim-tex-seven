@@ -249,11 +249,7 @@ function tex_seven#omni#OmniCompletions(base)
     endtry
   elseif l:keyword == 'includeonly'
     try
-      if a:base == ""
-        return tex_seven#GetIncludedFilesList()
-      else
-        return filter(copy(tex_seven#GetIncludedFilesList()), 'v:val =~ "\\m^" . a:base')
-      endif
+      return tex_seven#GetIncludedFilesList(a:base)
     catch
       echoerr "Retrieving \\include'd files' list failed."
     endtry
