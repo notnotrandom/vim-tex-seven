@@ -520,7 +520,7 @@ function tex_seven#QueryKey(preview)
       elseif l:res !~ '\m\(eq\)\?ref' &&
             \ l:res !~ '\m\(no\)\?cite.\?' &&
             \ l:res !~ '\minclude\(graphics\|only\)\?' && l:res !~ '\minput'
-        echoerr "Pattern not found"
+        echoerr "Pattern not found: " . l:res . "."
         return
       else
         " l:keyword will be ref, or eqref, or cite, or nocite, or include, or

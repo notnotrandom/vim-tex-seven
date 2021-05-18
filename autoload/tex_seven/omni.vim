@@ -148,6 +148,26 @@ function tex_seven#omni#GetLabels(prefix = '')
   return l:labelsFound
 endfunction
 
+function tex_seven#omni#GetTeXFilesList(prefix = '')
+  let l:path = tex_seven#GetPath()
+
+  " Find files. The -printf is to use relative paths. It also removes the
+  " starting './' of the path of found files (that what the -printf string is
+  " for). The -path -prune thingy skips files inside any directory which name
+  " contains the string "build". The sed command removes the .tex extension.
+  " This is because \include{filename} *requires* no extension be given. For
+  " \input{} it doesn't matter but no extension also works.
+  let l:texFiles = system("find " . fnameescape(l:path) . " -type f " .
+        \ "-path \\*build\\*/\\* -prune -o -iname \\*.tex " .
+        \ "-printf \"%P\n\" | sed 's/\.tex$//'" )
+
+  if a:prefix == ''
+    return split(l:texFiles, "\n")
+  else
+    return filter(split(l:texFiles, "\n"), 'v:val =~ "\\m^" . a:prefix')
+  endif
+endfunction
+
 function tex_seven#omni#QueryBibKey(citekey, preview)
   let l:sourcesFile = tex_seven#GetSourcesFile()
   if l:sourcesFile == ""
@@ -220,6 +240,12 @@ function tex_seven#omni#OmniCompletions(base)
       return tex_seven#omni#GetGraphicsList(a:base)
     catch
       echoerr "Retrieving \\includegraphics' list failed."
+    endtry
+  elseif l:keyword == 'include' || l:keyword == 'input'
+    try
+      return tex_seven#omni#GetTeXFilesList(a:base)
+    catch
+      echoerr "Retrieving .tex files list failed."
     endtry
   elseif l:keyword == 'includeonly'
     try
