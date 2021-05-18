@@ -125,7 +125,7 @@
     corresponding character is used. Otherwise, if it is set, |maplocalleader|
     is used. As a last resort, the leader defaults to colon (:).
 
-    Especially for multi-file projects, it is recommended to lauch `(g)vim`
+    Especially for multi-file projects, it is recommended to launch `(g)vim`
     from the same folder where the main `.tex` file is located. While most
     features should work fine even if you don't do this, it is the best
     strategy to avoid unforeseen problems with relative paths. Besides, it's
@@ -146,22 +146,32 @@
     is.
 
     To insert a command, press <LocalLeader><Space>. "\cmd{arg}" is inserted
-    (sans quotes), with the "cmd" part visually selected. So just type the
-    command name. Then just hit <Tab>, to move to the "arg" part, which will be
-    left visually selected, for you type over. After that, hitting <Tab> once
-    more will move the cursor to the right of the now finished command (i.e.,
-    after the '}'), so you can continue to type your LaTeX document.
+    (sans quotes), with the "cmd" part visually selected (select-mode, not
+    visual-mode). So just type the command name. Then just hit <Tab>, to move
+    to the "arg" part, which will be left visually selected (idem.), for you
+    type over. After that, hitting <Tab> once more will move the cursor to the
+    right of the now finished command (i.e., after the '}'), so you can
+    continue to type your LaTeX document.
+
+    Nested commands will also work, but in this scenario, the cursor will be
+    left after the innermost '}'. For example, if you use this feature to
+    insert "\footnote{\url{https://example.com}}", the cursor will be left
+    after the '}' that closes the "\url" command.
 
     Note that mappings that set the <Tab> key behaviour described above are
     local (for the current buffer only), and are unset after finishing
     typing the command (i.e., after pressing <Tab> for the second time).
     However, if you want to interrupt the command insertion for whatever
     reason, then pressing <Esc> will clear all local maps of the <Tab> key,
-    restoring any previous mappings, if any (e.g. a snippets plugin).
+    restoring any previous mappings, if any (e.g. a mapping from a snippets
+    plugin).
 
     Also note that the local mapping of the <Esc> key itself, that allows
     pressing it to unamp the <Tab> key, is itself cleared when pressing <Esc>.
     So long story short, this works as you would expect, without surprises.
+
+    Lastly, besides <Esc>, you can also interrupt command insertion with
+    <C-c>. It will work just like <Esc>, including unsetting its own mapping.
 
     Moving on, type <LocalLeader>C to insert a citation, i.e.
     `\cite{citekey}`. You're prompted with a popup list of completions if the
