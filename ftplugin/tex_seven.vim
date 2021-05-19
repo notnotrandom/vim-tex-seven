@@ -69,11 +69,6 @@ if exists('g:maplocalleader')
 endif
 let g:maplocalleader = g:tex_seven_config.leader
 
-" Save the value of g:maplocalleader that will used by TeX-7. This allows,
-" e.g., ~/.vim/after/ scripts to remap maps that use <LocalLeader>. See this
-" plugin's documention for further details.
-let g:tex_seven_leader = g:maplocalleader
-
 let b:env_list = fnameescape(expand('<sfile>:h') . '/environments.txt')
 
 " Completion.

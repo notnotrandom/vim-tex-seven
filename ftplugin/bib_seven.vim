@@ -33,7 +33,7 @@ endif
 " The user might have opened a .bib file, before opening a .tex file, so TeX-7
 " might not have run yet.
 if exists('b:init_tex_seven')
-  let g:maplocalleader = b:tex_seven_leader
+  let g:maplocalleader = g:tex_seven_config.leader
 else
   let g:maplocalleader = ":"
 endif
@@ -46,6 +46,7 @@ inoremap <buffer><expr> <LocalLeader>B tex_seven#InsertBibEntry()
 
 if exists('s:maplocalleader_saved')
   let g:maplocalleader = s:maplocalleader_saved
+  unlet s:maplocalleader_saved
 else
   unlet g:maplocalleader
 endif
