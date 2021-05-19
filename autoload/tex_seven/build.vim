@@ -68,10 +68,10 @@ function tex_seven#build#CheckCompilerAndOptions()
 
   " Otherwise, check settings to see if there is a compiler defined. If so,
   " also check for compiler options.
-  if has_key(b:tex_seven_config, 'compiler')
-    let s:compiler = b:tex_seven_config.compiler
-    if has_key(b:tex_seven_config, 'compiler_opts')
-      let s:compiler_opts = b:tex_seven_config.compiler_opts
+  if has_key(g:tex_seven_config, 'compiler')
+    let s:compiler = g:tex_seven_config.compiler
+    if has_key(g:tex_seven_config, 'compiler_opts')
+      let s:compiler_opts = g:tex_seven_config.compiler_opts
     endif
   else
     throw "CompilerNotDefined"

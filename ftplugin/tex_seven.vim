@@ -43,30 +43,31 @@ let b:init_tex_seven = 1
 
 " ************************ Common Settings ************************
 " Defaults.
-let b:tex_seven_config = {
+let s:tex_seven_config = {
       \    'debug'            : 0,
       \    'compiler'         : 'make',
       \    'compiler_opts'    : '',
       \    'diamond_tex'      : 1,
       \    'disable'          : 0,
-      \    'leader'           : '',
+      \    'leader'           : ':',
       \    'verbose'          : 0,
       \    'viewer'           : '' ,
       \    'viewer_images'    : '' ,
       \}
 
-" Override values with user preferences.
 if exists('g:tex_seven_config')
-  call extend(b:tex_seven_config, g:tex_seven_config)
+  " If user config exits, add to it any defaults that might be missing.
+  call extend(g:tex_seven_config, s:tex_seven_config)
+else
+  " Otherwise config is the default one.
+  let g:tex_seven_config = s:tex_seven_config
 endif
 
-" If the user specified a <LocalLeader>, use that. If not, use ':' as
-" <LocalLeader>.
-if b:tex_seven_config.leader != ''
-  let g:maplocalleader = b:tex_seven_config.leader
-else
-  let g:maplocalleader = ':'
+" Save previous localleader, if any. Then, set it to the value from config.
+if exists('g:maplocalleader')
+  let s:maplocalleader_saved = g:maplocalleader
 endif
+let g:maplocalleader = g:tex_seven_config.leader
 
 " Save the value of g:maplocalleader that will used by TeX-7. This allows,
 " e.g., ~/.vim/after/ scripts to remap maps that use <LocalLeader>. See this
@@ -254,8 +255,10 @@ inoremap <buffer><expr> ^ tex_seven#IsLeft('^') ? '{}<Left>' : '^'
 inoremap <buffer><expr> = tex_seven#IsLeft('=') ? '<BS>&=' : '='
 inoremap <buffer><expr> ~ tex_seven#IsLeft('~') ? '<BS>\approx' : '~'
 
-if exists('g:tex_seven_leader')
-  let g:maplocalleader = g:tex_seven_leader
+" Lastly, revert <LocalLeader> to its previous setting, if any.
+if exists('s:maplocalleader_saved')
+  let g:maplocalleader = s:maplocalleader_saved
+  unlet s:maplocalleader_saved
 else
   unlet g:maplocalleader
 endif

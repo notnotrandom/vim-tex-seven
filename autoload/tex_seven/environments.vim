@@ -304,6 +304,11 @@ endfunction
 
 function tex_seven#environments#InsertEnvironment()
   let l:env = input('Environment: ', '', 'custom,ListEnvCompletions')
+  "
+  " If environment name is empty, then there is nothing more to do...
+  if l:env == ""
+    return ""
+  endif
 
   " By default, return a simple begin/end skeleton.
   return "\\begin{" . l:env . "}\n\\end{" . l:env . "}\<Esc>O"
