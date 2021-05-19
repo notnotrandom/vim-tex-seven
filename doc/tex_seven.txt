@@ -85,8 +85,7 @@
     leader: String
         *   Most TeX-7 mappings begin with this prefix.
         *   Optional.
-        *   Default: The value of |maplocalleader|. Otherwise set to colon
-            ':'.
+        *   Default: ':'.
 
     viewer: String
         *   Application used for viewing PDF files.
@@ -138,7 +137,18 @@
         \end{<envname>}
 
     <envname> is the supplied environment name; the cursor is left where the |
-    is.
+    is. The list of environments comes from file ftplugin/environments.txt.
+    This can be customised; cf. section 7.2.
+
+    Furthermore, by default the template for an environment is the one shown
+    above, but it can be customised for specific environments. This is file
+    ftplugin/environments.snippets. See the examples in that file, but the
+    syntax is simple: the word following the "snippet" keyword must be the
+    name of the environment to be customised. The other lines MUST start with
+    a <Tab>, and contain the snippet to be inserted for that environment. Note
+    that NO EMPTY lines are allowed, for otherwise it would be possible to
+    detect where a snippet ended. This list of templates can also be
+    customised; again, cf. section 7.2.
 
     To insert a command, press <LocalLeader><Space>. "\cmd{arg}" is inserted
     (sans quotes), with the "cmd" part visually selected (select-mode, not
@@ -583,23 +593,22 @@
     Notice that to redefine mappings, you need need to set <LocalLeader>
     again. As an example, here is my ~/.vim/after/ftplugin/tex.vim:
 
-    " First, reset <LocalLeader>. Note that this will run *after* TeX-7,
-    " and hence that variable g:tex_seven_config.leader will be set.
+    " First, reset <LocalLeader>. Note that this will run *after* TeX-7, and hence
+    " that variable g:tex_seven_config.leader will be set.
     if exists('g:maplocalleader')
       let s:maplocalleader_saved = g:maplocalleader
     endif
     let g:maplocalleader = g:tex_seven_config.leader
 
-    " Now, implement user's customisations. In this case, override of
-    " selected TeX-7 mappings.
+    " Now, implement user's customisations. In this case, override of selected
+    " TeX-7 mappings.
     inoremap <buffer> <LocalLeader>e \varepsilon
     inoremap <buffer> <LocalLeader>_e \epsilon
 
     inoremap <buffer> <LocalLeader>_0 \emptyset
     inoremap <buffer> <LocalLeader>0 \varnothing
 
-    " I find this easier to insert commands in .tex files (something I do
-    " often).
+    " I find this easier to insert commands in .tex files (something I do often).
     inoremap <buffer><expr> ,, tex_seven#InsertCommand()
     inoremap <buffer> <LocalLeader>,, ,,
 
@@ -611,7 +620,7 @@
       unlet g:maplocalleader
     endif
 
-7.2 Custom environment list
+7.2 Custom environment list/templates
 
     You can set a custom list of environment names for environment insertion
     (see |tex_seven-basics|). Copy the environment names file
@@ -623,6 +632,13 @@
 
     Environment name completion will now use your name list, rather than
     TeX-7's default list.
+
+    The same trick can be used to set up a custom environment template list;
+    the line to add to ~/.vim/after/ftplugin/tex.vim is:
+
+    let b:env_snippets = fnameescape(expand('<sfile>:h') . '/environments.snippets')
+
+    And of course, the file to copy is ftplugin/environments.snippets.
 
 7.3 Spell checking
 
