@@ -82,10 +82,6 @@
           the latter is useful when writing Beamer templates.
         * Default: 1 (map <LocalLeader>> to <> and <LocalLeader>< to * \(lr)angle).
 
-    environment_list: String
-        * Path to a file containing a customised list of LaTeX environments.
-        * Default: empty (TeX-7 uses its own environment list).
-
     leader: String
         *   Most TeX-7 mappings begin with this prefix.
         *   Optional.
@@ -111,7 +107,6 @@
     let g:tex_seven_config = {
       \ 'compiler'         : '/bin/bash',
       \ 'compiler_opts'    : 'CompileTeX.sh',
-      \ 'environment_list' : '~/.vim/ownsettings/latex_envs.txt' ,
       \ 'viewer'           : 'okular' ,
       \ 'viewer_images'    : 'gwenview' }
 
@@ -579,10 +574,11 @@
 
 7.1 Preferred way to override, extend and hack TeX-7
 
-    Create a custom tex.vim file in the after directory, i.e.
+    Create a custom tex.vim file in the after/ directory, i.e.
     ~/.vim/after/ftplugin/tex.vim. Here you can redefine mappings and extend
     TeX-7's functionality with your own ideas. If you come up with something
-    sweet, drop me a line (email address available at https://randomwalk.eu).
+    sweet, kindly drop me a line :-) (email address available at
+    https://randomwalk.eu).
 
     Notice that to redefine mappings, you need need to set <LocalLeader>
     again. As an example, here is my ~/.vim/after/ftplugin/tex.vim:
@@ -607,7 +603,6 @@
     inoremap <buffer><expr> ,, tex_seven#InsertCommand()
     inoremap <buffer> <LocalLeader>,, ,,
 
-
     " And lastly, revert <LocalLeader> to its previous setting, if any.
     if exists('s:maplocalleader_saved')
       let g:maplocalleader = s:maplocalleader_saved
@@ -618,10 +613,15 @@
 7.2 Custom environment list
 
     You can set a custom list of environment names for environment insertion
-    (see |tex_seven-basics|). In `g:tex_seven_config`, set the
-    "environment_list" key to point to the location of the file containing the
-    list of environments. One environment name per line. See example of config
-    in |tex_seven-installation|.
+    (see |tex_seven-basics|). Copy the environment names file
+    (ftplugin/environments.txt) to ~/.vim/after/ftplugin/ (see 7.1 above), and
+    customise it to suit your needs. Then, in ~/.vim/after/ftplugin/tex.vim,
+    insert:
+
+    let b:env_list = fnameescape(expand('<sfile>:h') . '/environments.txt')
+
+    Environment name completion will now use your name list, rather than
+    TeX-7's default list.
 
 7.3 Spell checking
 

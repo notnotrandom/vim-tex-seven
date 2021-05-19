@@ -78,11 +78,7 @@ endif
 " plugin's documention for further details.
 let b:tex_seven_leader = g:maplocalleader
 
-if b:tex_seven_config.environment_list == ''
-  let b:env_list = fnameescape(expand('<sfile>:h') . '/environments.txt')
-else
-  let b:env_list = fnameescape(expand(b:tex_seven_config.environment_list))
-endif
+let b:env_list = fnameescape(expand('<sfile>:h') . '/environments.txt')
 
 " Completion.
 setlocal completeopt=longest,menuone

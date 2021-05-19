@@ -115,7 +115,6 @@ endfunction
 function tex_seven#environments#FindEndBelow(startlnum)
   let l:numLines = line('$')
   let l:beginsWithoutEndList = []
-  echom l:numLines
 
 " We start the search at line a:startlnum.
   let l:linenum = a:startlnum
