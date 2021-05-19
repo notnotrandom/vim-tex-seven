@@ -70,6 +70,7 @@ endif
 let g:maplocalleader = g:tex_seven_config.leader
 
 let b:env_list = fnameescape(expand('<sfile>:h') . '/environments.txt')
+let b:env_snippets = fnameescape(expand('<sfile>:h') . '/environments.snippets')
 
 " Completion.
 setlocal completeopt=longest,menuone
@@ -133,11 +134,11 @@ inoremap <buffer> <LocalLeader><LocalLeader> <LocalLeader>
 inoremap <buffer> <LocalLeader>" ``''<Left><Left>
 inoremap <buffer> <LocalLeader>' `'<Left><Left>
 
-inoremap <buffer><expr> <LocalLeader><Space> tex_seven#InsertCommand()
-inoremap <buffer><expr> <LocalLeader>A tex_seven#SmartInsert('\includeonly{')
-inoremap <buffer><expr> <LocalLeader>B tex_seven#environments#InsertEnvironment()
-inoremap <buffer><expr> <LocalLeader>C tex_seven#SmartInsert('\cite{')
-inoremap <buffer><expr> <LocalLeader>E tex_seven#SmartInsert('\eqref{')
+inoremap <buffer><expr>  <LocalLeader><Space> tex_seven#InsertCommand()
+inoremap <buffer><expr>  <LocalLeader>A tex_seven#SmartInsert('\includeonly{')
+inoremap <buffer><silent> <LocalLeader>B <C-r>=tex_seven#environments#InsertEnvironment()<CR>
+inoremap <buffer><expr>  <LocalLeader>C tex_seven#SmartInsert('\cite{')
+inoremap <buffer><expr>  <LocalLeader>E tex_seven#SmartInsert('\eqref{')
 inoremap <buffer> <LocalLeader>K 
 
 " Start mathmode completion.

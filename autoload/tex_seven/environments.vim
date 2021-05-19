@@ -28,7 +28,19 @@
 
 let s:beginpat = '\m^\s*\\begin{\zs\w\+\ze}'
 let s:endpat = '\m^\s*\\end{\zs\w\+\ze}'
+
+let s:envSnippetsDict = {}
+
 let s:joinedEnvironmentsList = ""
+
+let s:snippetCommentLinePattern = '\m^#'
+
+" Matches lines like 'snippet trigger "doc string"', with the doc string
+" optional.
+let s:snippetDeclarationLinePattern = '\m^snippet \zs\S\+\ze\(\s\|$\)'
+
+let s:snippetEmptyLinePattern = '\m^$'
+let s:snippetLinePattern = '\m^\t\zs.*\ze'
 
 " Brief: starting with the given line number, search upwards for a \begin.
 " Ignores nested \begin...\end pairs in between.
@@ -161,6 +173,22 @@ function tex_seven#environments#FindEndBelow(startlnum)
       let l:line = getline(l:linenum)
     endif
   endwhile
+endfunction
+
+function tex_seven#environments#GetEnvironmentSnippet(envname)
+  if len(s:envSnippetsDict) == 0
+    try
+      call tex_seven#environments#SlurpSnippetFile()
+    catch
+      echoerr "Caught exception when slurping snippets file."
+    endtry
+  endif
+
+  if has_key(s:envSnippetsDict, a:envname)
+    return s:envSnippetsDict[a:envname]
+  else
+    return ""
+  endif
 endfunction
 
 " Brief: Discovers the name, and location (start and ending lines numbers) of
@@ -302,16 +330,43 @@ function tex_seven#environments#GoToEndBelow()
   endwhile
 endfunction
 
+" XXX deal with expandtab/retab of snippet lines...
 function tex_seven#environments#InsertEnvironment()
   let l:env = input('Environment: ', '', 'custom,ListEnvCompletions')
-  "
+
   " If environment name is empty, then there is nothing more to do...
   if l:env == ""
     return ""
   endif
 
-  " By default, return a simple begin/end skeleton.
-  return "\\begin{" . l:env . "}\n\\end{" . l:env . "}\<Esc>O"
+  let l:envLinesList = tex_seven#environments#GetEnvironmentSnippet(l:env)
+
+  let l:snipNumLines = len(l:envLinesList)
+  if l:snipNumLines == 0
+    " By default, return a simple begin/end skeleton.
+    let l:envLinesList = [ "\\begin{" . l:env . "}", "\\end{" . l:env . "}" ]
+  endif
+
+  let l:col = charcol(".")
+  let l:line = getline(".") " Current line.
+  let l:currLineNum = line(".") " Current line number.
+
+  " charcol() starts at 1, but slice() takes array indexes, which start at 0.
+  " Hence we use l:col - 1.
+  let l:before = slice(l:line, 0, l:col - 1)
+  let l:after = slice(l:line, l:col - 1)
+
+  call setline(".", l:before . l:envLinesList[0])
+
+  let l:numOfLastSnipLine = l:currLineNum + len(l:envLinesList) - 1
+
+  let l:indent = matchend(l:line, '^.\{-}\ze\(\S\|$\)')
+  call append(l:currLineNum,
+        \ map(l:envLinesList[1:], "'".strpart(l:line, 0, l:indent)."'.v:val"))
+  call setline(l:numOfLastSnipLine,
+        \ getline(l:numOfLastSnipLine) . l:after)
+
+  return "\<Esc>:" . l:numOfLastSnipLine . "\<CR>O"
 endfunction
 
 " Brief: Returns 1 (true) if current line is inside a math environment, and 0
@@ -381,4 +436,75 @@ function tex_seven#environments#RenameEnvironment()
   " Actually replace those lines in the file.
   call setline(l:origEnvStartLineNum, l:newBeginLine)
   call setline(l:origEnvEndLineNum, l:newEndLine)
+endfunction
+
+function tex_seven#environments#SlurpSnippetFile()
+  let l:currentSnippetKey = ""
+  let l:snippetLinesList = []
+
+  for line in tex_seven#GetLinesListFromFile(b:env_snippets)
+    if line =~ s:snippetEmptyLinePattern
+      throw "EmptyLineOnSnippetFile"
+    elseif line =~ s:snippetCommentLinePattern
+      continue " Skip comments.
+    endif
+
+    let l:aux = matchstr(line, s:snippetDeclarationLinePattern)
+    if l:aux != ""
+      " We found a "snippet trigger" line. So first, check to see if we have
+      " found that trigger before. If so, throw up error, has multiple snips
+      " are not supported.
+      if has_key(s:envSnippetsDict, l:aux) == v:true
+        throw "DuplicateSnippetKeyFound"
+        return
+      endif
+
+      " Next, if we had previously found a trigger, then the new trigger marks
+      " the end of the previous trigger's expansion.
+      if l:currentSnippetKey != ""
+        if len(l:snippetLinesList) > 0
+          let s:envSnippetsDict[l:currentSnippetKey] = l:snippetLinesList
+        else
+          " Control reaches when there is a previous trigger, but no expansion
+          " for it. Hence, throw error.
+          throw "FoundTriggerWithoutExpansion"
+        endif
+      endif
+
+      " Finally, as we have found a new trigger, the array (List) where we
+      " collect the expansion line(s) is reset to empty.
+      let l:snippetLinesList = []
+      " And the current snippet key takes the value of trigger we found with
+      " the matchstr() above.
+      let l:currentSnippetKey = l:aux
+    else
+      " We didn't find a line like "^snippet trigger ...", so look for other
+      " possibilities...
+
+      let l:aux = matchstrpos(line, s:snippetLinePattern)
+      if ! (l:aux[1] == -1 && l:aux[2] == -1)
+        " We found a line that starts with a <Tab>; i.e., it is part of the
+        " expansion of a snippet. So add it to the list of expansion lines,
+        " and continue onto to the next line.
+        call add(l:snippetLinesList, l:aux[0])
+        continue
+      else
+        " We found a line that is not a comment, is not a "snippet trigger"
+        " line, and does not start with a <Tab>. So throw error.
+        throw "InvalidLineFound"
+      endif
+    endif
+  endfor
+
+  " When we reach the end of the .snippet file, check if there is any pending
+  " trigger with body. If so, add them to the g:snipper#snippets dictionary.
+  if l:currentSnippetKey != ""
+    if len(l:snippetLinesList) > 0
+      let s:envSnippetsDict[l:currentSnippetKey] = l:snippetLinesList
+    else
+      " Control reaches when there is a previous trigger, but no expansion
+      " for it. Hence, throw error.
+      throw "FoundTriggerWithoutExpansion"
+    endif
+  endif
 endfunction
