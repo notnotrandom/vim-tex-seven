@@ -304,6 +304,8 @@ endfunction
 
 function tex_seven#environments#InsertEnvironment()
   let l:env = input('Environment: ', '', 'custom,ListEnvCompletions')
+
+  " By default, return a simple begin/end skeleton.
   return "\\begin{" . l:env . "}\n\\end{" . l:env . "}\<Esc>O"
 endfunction
 

@@ -587,8 +587,8 @@
     " and hence that variable b:tex_seven_leader will be set.
     if exists('g:maplocalleader')
       let s:maplocalleader_saved = g:maplocalleader
-        endif
-        let g:maplocalleader = b:tex_seven_leader
+    endif
+    let g:maplocalleader = g:tex_seven_leader
 
     " Now, implement user's customisations. In this case, override of
     " selected TeX-7 mappings.
@@ -606,6 +606,7 @@
     " And lastly, revert <LocalLeader> to its previous setting, if any.
     if exists('s:maplocalleader_saved')
       let g:maplocalleader = s:maplocalleader_saved
+      unlet s:maplocalleader_saved
     else
       unlet g:maplocalleader
     endif
