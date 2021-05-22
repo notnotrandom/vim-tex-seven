@@ -26,6 +26,46 @@ snippet subfigure
 		\end{subfigure}
 		\caption{text}\label{fig:somelabel}
 	\end{figure}
+snippet subtable
+	% NOTA BENE:
+	% \usepackage{subcaption}
+	% \captionsetup[subfigure]{labelformat=simple}
+	% \renewcommand\thesubfigure{(\alph{subfigure})}
+	\begin{figure}[!htb]
+		\centering
+		\renewcommand{\arraystretch}{1.2} % Increase row separation.
+		\begin{subfigure}{0.5\textwidth}
+			\centering
+			\begin{tabular}{c | c | c}
+				a & b & c \\
+				\hline
+				d & e & f
+			\end{tabular}
+			\captionsetup{width=0.95\linewidth}
+			\caption{text}\label{tab:somelabel1}
+		\end{subfigure}%
+		\begin{subfigure}{0.5\textwidth}
+			\centering
+			\begin{tabular}{c | c | c}
+				d & e & f \\
+				\hline
+				a & b & c
+			\end{tabular}
+			\captionsetup{width=0.95\linewidth}
+			\caption{text}\label{tab:somelabel2}
+		\end{subfigure}
+		\caption{text}\label{tab:somelabel}
+	\end{figure}
+snippet table
+	\begin{table}
+		\centering
+		\renewcommand{\arraystretch}{1.2}
+		\begin{tabular}{c | c | c}
+			foo & bar & baz \\
+			\hline
+		\end{tabular}
+		\caption{text}\label{tab:label}
+	\end{table}
 snippet wrapfigure
 	\begin{wrapfigure}
 		% wrapfigure requires \usepackage{wrapfig}

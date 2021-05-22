@@ -150,6 +150,12 @@
     detect where a snippet ended. This list of templates can also be
     customised; again, cf. section 7.2.
 
+    The template code can contain indented lines, with tabs or spaces; upon
+    insertion, the :retab command is executed (only over the newly inserted
+    lines). Lastly, I should point out that, even though this feature was
+    developed with LaTeX environments in mind, there is nothing preventing its
+    use for other constructs the user might use frequently.
+
     To insert a command, press <LocalLeader><Space>. "\cmd{arg}" is inserted
     (sans quotes), with the "cmd" part visually selected (select-mode, not
     visual-mode). So just type the command name. Then just hit <Tab>, to move
