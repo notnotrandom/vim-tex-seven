@@ -366,7 +366,7 @@ function tex_seven#environments#InsertEnvironment()
   call setline(l:numOfLastSnipLine,
         \ getline(l:numOfLastSnipLine) . l:after)
 
-  return "\<Esc>:" . l:numOfLastSnipLine . "\<CR>O"
+  return "\<Esc>:" . l:numOfLastSnipLine . "\<CR>:retab\<CR>$"
 endfunction
 
 " Brief: Returns 1 (true) if current line is inside a math environment, and 0
