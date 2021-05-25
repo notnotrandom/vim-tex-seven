@@ -347,6 +347,15 @@ function tex_seven#environments#InsertEnvironment()
     let l:envLinesList = [ "\\begin{" . l:env . "}", "\\end{" . l:env . "}" ]
   endif
 
+  let l:envString = join(l:envLinesList, "\n")
+
+  if &expandtab " Expand tabs to spaces if 'expandtab' is set.
+    let l:envString = substitute(l:envString, '\t',
+          \ repeat(' ', &softtabstop ? &softtabstop : &shiftwidth), 'g')
+  endif
+
+  let l:envLinesList = split(l:envString, '\n', 1)
+
   let l:col = charcol(".")
   let l:line = getline(".") " Current line.
   let l:currLineNum = line(".") " Current line number.
@@ -368,8 +377,13 @@ function tex_seven#environments#InsertEnvironment()
 
   " Call :retab over the newly inserted lines, and then place the cursor at
   " the end of the last inserted line.
-  return "\<Esc>:" . l:currLineNum . "," . l:numOfLastSnipLine . "retab\<CR>$"
-        \ . ":" . l:numOfLastSnipLine . "\<CR>$"
+  if l:snipNumLines == 0
+    return "\<Esc>:" . l:numOfLastSnipLine . "\<CR>O"
+  else
+    return "\<Esc>:" . l:numOfLastSnipLine . "\<CR>$"
+  endif
+  " return "\<Esc>:" . l:currLineNum . "," . l:numOfLastSnipLine . "retab\<CR>$"
+  "       \ . ":" . l:numOfLastSnipLine . "\<CR>$"
 endfunction
 
 " Brief: Returns 1 (true) if current line is inside a math environment, and 0
