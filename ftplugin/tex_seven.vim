@@ -107,26 +107,26 @@ nnoremap <buffer> :ww :WaB
 " Visual mode and operator mappings.
 
 " Robust inner/outer environment operators.
-vnoremap <buffer><expr>   ae tex_seven#EnvironmentOperator('outer')
+xnoremap <buffer><expr>   ae tex_seven#EnvironmentOperator('outer')
 onoremap <buffer><silent> ae :normal vae<CR>
-vnoremap <buffer><expr>   ie tex_seven#EnvironmentOperator('inner')
+xnoremap <buffer><expr>   ie tex_seven#EnvironmentOperator('inner')
 onoremap <buffer><silent> ie :normal vie<CR>
 
 " TeX text objects for inline math.
-vnoremap <buffer>         am v?\$<CR>v/\$<CR>
+xnoremap <buffer>         am v?\$<CR>v/\$<CR>
 onoremap <buffer><silent> am :<C-U>normal vam<CR>
-vnoremap <buffer>         im v?\$<CR>lv/\$<CR>h
+xnoremap <buffer>         im v?\$<CR>lv/\$<CR>h
 onoremap <buffer><silent> im :<C-U>normal vim<CR>
 
 " As these are visual mode mappings, they interfere with other usages of
 " visual mode, notoriously the snippets plugin. Using <Leader> hopefully
 " minimises the problem...
-vmap <buffer><expr> <Leader>bf tex_seven#ChangeFontStyle('bf')
-vmap <buffer><expr> <Leader>it tex_seven#ChangeFontStyle('it')
-vmap <buffer><expr> <Leader>rm tex_seven#ChangeFontStyle('rm')
-vmap <buffer><expr> <Leader>sf tex_seven#ChangeFontStyle('sf')
-vmap <buffer><expr> <Leader>tt tex_seven#ChangeFontStyle('tt')
-vmap <buffer>       <Leader>up di\text{}<Left><C-R>"
+xnoremap <buffer><expr> <Leader>bf tex_seven#ChangeFontStyle('bf')
+xnoremap <buffer><expr> <Leader>it tex_seven#ChangeFontStyle('it')
+xnoremap <buffer><expr> <Leader>rm tex_seven#ChangeFontStyle('rm')
+xnoremap <buffer><expr> <Leader>sf tex_seven#ChangeFontStyle('sf')
+xnoremap <buffer><expr> <Leader>tt tex_seven#ChangeFontStyle('tt')
+xnoremap <buffer>       <Leader>up di\text{}<Left><C-R>"
 
 " Insert mode mappings.
 
