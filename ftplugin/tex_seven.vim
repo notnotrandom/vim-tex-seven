@@ -57,7 +57,7 @@ let s:tex_seven_config = {
 
 if exists('g:tex_seven_config')
   " If user config exits, add to it any defaults that might be missing.
-  call extend(g:tex_seven_config, s:tex_seven_config)
+  call extend(g:tex_seven_config, s:tex_seven_config, "keep")
 else
   " Otherwise config is the default one.
   let g:tex_seven_config = s:tex_seven_config

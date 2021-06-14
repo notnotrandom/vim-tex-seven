@@ -49,6 +49,11 @@ let s:includedFilesList = []
 " line).
 let s:mainFile = ""
 
+" Variables used to back up the mappings overwritten by
+" tex_seven#InsertCommand().
+let s:mappings_i = []
+let s:mappings_s = []
+
 " Matches \somecmd{foo} or \somecmd[bar]{foo}. When used with matchstr(),
 " returns "somecmd", sans quotes.
 let g:tex_seven#matchCommand = '\m^\\\zs[A-Za-z0-9]\+\ze\(\[.\+\]\)\?{'
@@ -99,6 +104,7 @@ function tex_seven#CheckViewerImages()
 endfunction
 
 function tex_seven#CheckViewerPDF()
+  " XXX check that the value is a valid program...
   if has_key(g:tex_seven_config, 'viewer')
     return v:true
   endif
@@ -327,6 +333,9 @@ endfunction
 " (The Esc and Ctrl-c keymaps are explained further below; cf. the comments to
 " function tex_seven#InsertCommandUnmapTab()).
 function tex_seven#InsertCommand()
+  let s:mappings_i = tex_seven#SaveBufferMappings(['<Tab>', '<Esc>', '<C-c>'], 'i')
+  let s:mappings_s = tex_seven#SaveBufferMappings(['<Esc>', '<C-c>'], 's')
+
   inoremap <buffer><expr> <Esc> tex_seven#InsertCommandUnmapTab()
   snoremap <buffer><expr> <Esc> tex_seven#InsertCommandUnmapTab()
 
@@ -344,7 +353,7 @@ endfunction
 " command; see below comment.
 function tex_seven#InsertCommandGoToArg()
   inoremap <buffer><expr> <Tab> tex_seven#InsertCommandExitArg()
-  return "\<Esc>faviw"
+  return "\<Esc>f{lviw"
 endfunction
 
 " Here the user has finished inserting both the command name, and its
@@ -354,7 +363,7 @@ endfunction
 " buffer-local mapping of the Tab key.
 function tex_seven#InsertCommandExitArg()
   call tex_seven#InsertCommandUnmapTab()
-  return "\<Esc>f}a"
+  return "\<Esc>F{f}a"
 endfunction
 
 " Here we unmap the buffer-local Tab keymap, allowing the Tab key to revert to
@@ -370,13 +379,12 @@ endfunction
 "   The above considerations for the Esc key mapping, apply verbatim to the
 " Ctrl-c mapping.
 function tex_seven#InsertCommandUnmapTab()
-  iunmap <buffer><expr> <Esc>
-  sunmap <buffer><expr> <Esc>
+  call tex_seven#RestoreBufferMappings(s:mappings_i)
+  call tex_seven#RestoreBufferMappings(s:mappings_s)
 
-  iunmap <buffer><expr> <C-c>
-  sunmap <buffer><expr> <C-c>
+  let s:mappings_i = []
+  let s:mappings_s = []
 
-  iunmap <buffer><expr> <Tab>
   return "\<Esc>"
 endfunction
 
@@ -679,6 +687,55 @@ function tex_seven#QueryKey(preview)
     " Now that we have the correct bibkey, give it to the correct function.
     call tex_seven#omni#QueryBibKey(l:entryKeyToBeSearched, a:preview)
   endif
+endfunction
+
+" Brief: Restore the previously saved value (if any) of the mappings that were
+" overwritten by the tex_seven#InsertCommand() function.
+"
+" Adapted from:
+" https://vi.stackexchange.com/questions/7734/how-to-save-and-restore-a-mapping
+function tex_seven#RestoreBufferMappings(mappings) abort
+  for l:mapping in a:mappings
+    if !has_key(l:mapping, 'unmapped')
+      call mapset(l:mapping.mode, 0, l:mapping)
+    else " has_key(mapping, 'unmapped') == true
+      silent! execute l:mapping.mode.'unmap '
+            \ .(l:mapping.buffer ? ' <buffer> ' : '')
+            \ . l:mapping.lhs
+    endif
+  endfor
+endfunction
+
+" Brief: Temporarily save the previous value (if any) of the mappings that are
+" overwritten by the tex_seven#InsertCommand() function.
+"
+" Adapted from:
+" https://vi.stackexchange.com/questions/7734/how-to-save-and-restore-a-mapping
+function tex_seven#SaveBufferMappings(keys, mode) abort
+  let l:mappings = []
+
+  for l:key in a:keys
+    let l:map_info = maparg(l:key, a:mode, 0, 1)
+
+    " If maparg() returns not empty, but it is not a local map (i.e., it is a
+    " global map; map_info.buffer == 0), it still means that the no local map
+    " for the given exists. So treat it like empty. (The local mappings shadow
+    " the global ones.)
+    if empty(l:map_info) == v:true || map_info.buffer == 0
+      call add(l:mappings, {
+            \ 'unmapped' : 1,
+            \ 'buffer'   : 1,
+            \ 'lhs'      : l:key,
+            \ 'mode'     : a:mode,
+            \ })
+      continue
+    endif
+
+    " Otherwise, add the Dict returned by maparg().
+    call add(l:mappings, l:map_info)
+  endfor
+
+  return l:mappings
 endfunction
 
 function tex_seven#SetEpochMainFileLastReadForIncludes(value)
