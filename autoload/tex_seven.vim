@@ -331,8 +331,8 @@ endfunction
 " visually selecting the "cmd" string, and then entering select-mode with ^G).
 " It also temporarily maps the Tab key to the function InsertCommandGotoArg(),
 " so that the user can press it and move to the argument part.
-" (The Esc and Ctrl-c keymaps are explained further below; cf. the comments to
-" function tex_seven#InsertCommandUnmapTab()).
+"   (The Esc and Ctrl-c keymaps are explained further below; cf. the comment
+" block after the function tex_seven#InsertCommandUnmapTab()).
 function tex_seven#InsertCommand()
   " Save previous mappings only once (this allows nested cmd insertion to
   " work).
@@ -366,15 +366,27 @@ endfunction
 " argument. So if the finished command is, e.g., \somecmd{somearg}, pressing
 " Tab will now move him to the right of the '}', so that he can continue to
 " type his LaTeX document. And since we are finished, also unmap our
-" buffer-local mapping of the Tab key.
+" buffer-local mappings of the Tab key, inter alia (see next function).
 function tex_seven#InsertCommandExitArg()
   call tex_seven#InsertCommandUnmapTab()
   return "\<Esc>F{f}a"
 endfunction
 
-" Here we unmap the buffer-local Tab keymap, allowing the Tab key to revert to
-" its previous mapping, if any.
-"   As for the Esc mapping, it may so happen that the command insertion is
+" Here we restore -- or unmap, if they didn't previously exist -- the saved
+" mappings that were overwritten above (function tex_seven#InsertCommand()).
+function tex_seven#InsertCommandUnmapTab()
+  call tex_seven#RestoreBufferMappings(s:mappings_i)
+  call tex_seven#RestoreBufferMappings(s:mappings_s)
+
+  let s:mappings_i = []
+  let s:mappings_s = []
+  let s:mappings_are_saved_b = v:false
+
+  return ""
+endfunction
+
+" <Esc> and <C-c> mappings:
+"   As for the <Esc> mapping, it may so happen that the command insertion is
 " interrupted before the InsertCommandExitArg() function is called. This would
 " have the side effect of leaving the Tab key mapped either to
 " InsertCommandGotoArg(), or to InsertCommandExitArg(). To avoid this, the
@@ -384,16 +396,6 @@ endfunction
 " clearing the Tab map, it is no longer necessary.
 "   The above considerations for the Esc key mapping, apply verbatim to the
 " Ctrl-c mapping.
-function tex_seven#InsertCommandUnmapTab()
-  call tex_seven#RestoreBufferMappings(s:mappings_i)
-  call tex_seven#RestoreBufferMappings(s:mappings_s)
-
-  let s:mappings_i = []
-  let s:mappings_s = []
-  let s:mappings_are_saved_b = v:false
-
-  return "\<Esc>"
-endfunction
 
 """"" END INSERT COMMAND MACRO """""
 
