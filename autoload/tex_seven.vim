@@ -51,6 +51,7 @@ let s:mainFile = ""
 
 " Variables used to back up the mappings overwritten by
 " tex_seven#InsertCommand().
+let s:mappings_are_saved_b = v:false
 let s:mappings_i = []
 let s:mappings_s = []
 
@@ -333,8 +334,13 @@ endfunction
 " (The Esc and Ctrl-c keymaps are explained further below; cf. the comments to
 " function tex_seven#InsertCommandUnmapTab()).
 function tex_seven#InsertCommand()
-  let s:mappings_i = tex_seven#SaveBufferMappings(['<Tab>', '<Esc>', '<C-c>'], 'i')
-  let s:mappings_s = tex_seven#SaveBufferMappings(['<Esc>', '<C-c>'], 's')
+  " Save previous mappings only once (this allows nested cmd insertion to
+  " work).
+  if s:mappings_are_saved_b == v:false
+    let s:mappings_i = tex_seven#SaveBufferMappings(['<Tab>', '<Esc>', '<C-c>'], 'i')
+    let s:mappings_s = tex_seven#SaveBufferMappings(['<Esc>', '<C-c>'], 's')
+    let s:mappings_are_saved_b = v:true
+  endif
 
   inoremap <buffer><expr> <Esc> tex_seven#InsertCommandUnmapTab()
   snoremap <buffer><expr> <Esc> tex_seven#InsertCommandUnmapTab()
@@ -384,6 +390,7 @@ function tex_seven#InsertCommandUnmapTab()
 
   let s:mappings_i = []
   let s:mappings_s = []
+  let s:mappings_are_saved_b = v:false
 
   return "\<Esc>"
 endfunction
