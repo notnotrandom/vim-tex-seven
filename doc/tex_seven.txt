@@ -169,20 +169,29 @@
     insert "\footnote{\url{https://example.com}}", the cursor will be left
     after the '}' that closes the "\url" command.
 
-    Note that mappings that set the <Tab> key behaviour described above are
-    local (for the current buffer only), and are unset after finishing
-    typing the command (i.e., after pressing <Tab> for the second time).
-    However, if you want to interrupt the command insertion for whatever
-    reason, then pressing <Esc> will clear all local maps of the <Tab> key,
-    restoring any previous mappings, if any (e.g. a mapping from a snippets
-    plugin).
+    Note that both the mappings that set the <Tab> key behaviour described
+    above, as well as the mappings for <Esc> and <C-c> described below, are
+    local (i.e., for the current buffer only). And after finishing typing the
+    command (i.e., after pressing <Tab> for the second time), they are either
+    unset, or restored to their previous values.
 
-    Also note that the local mapping of the <Esc> key itself, that allows
-    pressing it to unamp the <Tab> key, is itself cleared when pressing <Esc>.
-    So long story short, this works as you would expect, without surprises.
+    If you want to interrupt the command insertion for whatever reason, then
+    pressing <Esc> or hitting <C-c>, will clear all local maps of the <Tab>
+    key, restoring any previous mappings, if any (e.g. a mapping from a
+    snippets plugin).
 
-    Lastly, besides <Esc>, you can also interrupt command insertion with
-    <C-c>. It will work just like <Esc>, including unsetting its own mapping.
+    The local mapping of the <Esc> key itself, that allows pressing it to
+    unamp the <Tab> key, is itself cleared when pressing <Esc>. The same goes
+    for <C-c>. So long story short, this works as you would expect, without
+    surprises.
+
+    Well, EXCEPT for possibly one thing: suppose you insert a command like
+    "\foo{bar}", and after typing "bar", instead of hitting <Tab>, you use the
+    <Right> key to go past the last "}", and continue to type. Hitting <Tab>
+    then will bring the cursor back to the right of the previous "}" -- and
+    then clear the mappings. This is hard to detect without adding massive
+    state code, to keep track of the cursor position, so best to get used to
+    using only <Tab> :-)
 
     Moving on, type <LocalLeader>C to insert a citation, i.e.
     `\cite{citekey}`. You're prompted with a popup list of completions if the
