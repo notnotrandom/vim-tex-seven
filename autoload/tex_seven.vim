@@ -382,7 +382,7 @@ function tex_seven#InsertCommandUnmapTab()
   let s:mappings_s = []
   let s:mappings_are_saved_b = v:false
 
-  return ""
+  return "\<Esc>"
 endfunction
 
 " <Esc> and <C-c> mappings:
