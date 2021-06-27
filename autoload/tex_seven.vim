@@ -338,9 +338,16 @@ function tex_seven#InsertCommand()
   " work).
   if s:mappings_are_saved_b == v:false
     let s:mappings_i = tex_seven#SaveBufferMappings(['<Tab>', '<Esc>', '<C-c>'], 'i')
-    let s:mappings_s = tex_seven#SaveBufferMappings(['<Esc>', '<C-c>'], 's')
+    let s:mappings_s = tex_seven#SaveBufferMappings(['<BS>, <Esc>', '<C-c>'], 's')
     let s:mappings_are_saved_b = v:true
   endif
+
+  " This <BS> map is here because if the user, having a visually selected
+  " placeholder (select mode), hits backspace, the placeholder text is
+  " deleted, *but the user is left in normal mode*. To fix this, I map the
+  " backspace to actually delete the previous char, and then go to insert
+  " mode.
+  snoremap <buffer> <BS> <BS>i
 
   inoremap <buffer><expr> <Esc> tex_seven#InsertCommandUnmapTab()
   snoremap <buffer><expr> <Esc> tex_seven#InsertCommandUnmapTab()
