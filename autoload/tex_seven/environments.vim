@@ -382,8 +382,6 @@ function tex_seven#environments#InsertEnvironment()
   else
     return "\<Esc>:" . l:numOfLastSnipLine . "\<CR>$"
   endif
-  " return "\<Esc>:" . l:currLineNum . "," . l:numOfLastSnipLine . "retab\<CR>$"
-  "       \ . ":" . l:numOfLastSnipLine . "\<CR>$"
 endfunction
 
 " Brief: Returns 1 (true) if current line is inside a math environment, and 0
