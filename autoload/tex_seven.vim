@@ -365,6 +365,13 @@ endfunction
 " finished typing up said argument, he can press Tab to exit the finished
 " command; see below comment.
 function tex_seven#InsertCommandGoToArg()
+
+  " See tex_seven#InsertCommandExitArg() for the use of these two s:
+  " variables. charcol(".") is the column of the '{' in \foo{bar}. So in this
+  " example, it would be 4.
+  let s:startCol = charcol(".")
+  let s:startLine = line(".")
+
   inoremap <buffer><expr> <Tab> tex_seven#InsertCommandExitArg()
   return "\<Esc>f{lviw"
 endfunction
@@ -374,9 +381,57 @@ endfunction
 " Tab will now move him to the right of the '}', so that he can continue to
 " type his LaTeX document. And since we are finished, also unmap our
 " buffer-local mappings of the Tab key, inter alia (see next function).
+"   However, after inserting the argument, the user might take the cursor
+" elsewhere and continue typing. (I often do the following: use the
+" <Tab>-jumps to type \foo{bar|}, and then use a map for <Right> to take the
+" cursor after the '}', and continue writing.) In this scenario, if the user
+" presses <Tab>, we must return an actual <Tab> character. To ensure that this
+" <Tab> character will trigger any custom user maps, we use the feedkeys()
+" function.
 function tex_seven#InsertCommandExitArg()
+  " First, unmap <Tab> etc., because it is no longer needed.
   call tex_seven#InsertCommandUnmapTab()
-  return "\<Esc>F{f}a"
+
+  let l:lineNum = line(".")
+  let l:ret = ""
+
+  if l:lineNum != s:startLine
+    " If we are on a different line from that in which the command was
+    " inserted, then assume we are no longer in command insertion mode...
+    let l:ret = "\<Tab>"
+  else
+    " The next two lines obtain the substring "arg}" in "\cmd{arg}" (sans
+    " quotes). Recall that slice() takes index (0-based) positions, while
+    " column numbers start at 1. So even though s:startCol has the column
+    " position of '{', the return string starts at the next char ('a'). The
+    " same goes for charcol("."), which returns the col position  of '}'. In
+    " slice(), the end pos is *not* included. Thus, as an index, charcol(".")
+    " is the position to the right of '}', and hence the return string ends at
+    " that '}'. Assuming, of course, that the user pressed <Tab> after typing
+    " the argument to the command...
+    let l:col = charcol(".")
+    let l:line = slice(getline("."), s:startCol, l:col)
+
+    if l:line[-1:-1] == '}'
+      " If the last character of the slice'd subline ends with a '}', then
+      " user hit <Tab> after typing the command argument. So just place the
+      " cursor after the '}' that closes the command.
+      let l:ret = "\<Esc>la"
+    else
+      " Otherwise, return (i.e., simnulate that the user pressed; cf. below) a
+      " <Tab> character.
+      let l:ret = "\<Tab>"
+    endif
+  endif
+
+  " Clear the position variables.
+  let s:startCol = ""
+  let s:startLine = ""
+
+  " The feedkeys() simulates that the user actually pressed the keys in l:ret.
+  " This way, any maps associated with them are triggered.
+  call feedkeys(l:ret)
+  return ""
 endfunction
 
 " Here we restore -- or unmap, if they didn't previously exist -- the saved
