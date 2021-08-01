@@ -213,7 +213,7 @@ inoremap <buffer> <LocalLeader>= \equiv
 inoremap <buffer> <LocalLeader>- \cap
 inoremap <buffer> <LocalLeader>+ \cup
 inoremap <buffer> <LocalLeader>-- \bigcap
-inoremap <buffer> <LocalLeader>-+ \bigcup
+inoremap <buffer> <LocalLeader>++ \bigcup
 if exists('g:tex_seven_config')
       \ && has_key(g:tex_seven_config, 'diamond_tex')
       \ && g:tex_seven_config['diamond_tex'] == 0
