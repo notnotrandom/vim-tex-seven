@@ -594,7 +594,13 @@ function tex_seven#QueryKey(preview)
   " We start by obtaining the entire line where the expression like \ref{key}
   " or whatever shows up.
   let l:line = getline('.')
-  while 1
+
+  " If we reach 100 iterations before finding the start of \command[foo]{bar},
+  " then assume there is no such string on the current line. I.e., give up.
+  let l:count = 0
+  while l:count < 100
+    let l:count += 1
+
     if l:line[col('.') - 1] == '\' " Test if char in current cursor pos is '\'
       let l:startBackslashIdx = col('.') - 1
       let l:res = matchstr(l:line[ l:startBackslashIdx : ], g:tex_seven#matchCommand)
@@ -617,6 +623,13 @@ function tex_seven#QueryKey(preview)
       continue
     endif
   endwhile
+
+  " l:count == 100 is true, that means the command was not found. So revert
+  " the cursor to its original position, and we are done.
+  if l:count == 100
+    call setpos(".", [0, line("."), l:cursorColumn + 1, 0, l:cursorColumn + 1])
+    return
+  endif
 
   " Ok, so we now have the "command" part in \command[whatever]{else}, stored
   " in the variable l:keyword. The \ref \eqref and \include(only)? cases are
@@ -686,7 +699,7 @@ function tex_seven#QueryKey(preview)
     call setpos(".", [0, line("."), l:cursorColumn + 1, 0])
 
     call tex_seven#omni#QueryRefKey(refkey, a:preview)
-  else
+  elseif l:keyword =~ '.*cite'
     " This is the thorny case of \cite or \nocite. Suppose that this function
     " was called with the cursor somewhere on the expression "\cite[foo\
     " bar]{baz, xpto}". The code above (before the current if-then-else chain)
