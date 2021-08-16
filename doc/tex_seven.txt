@@ -99,7 +99,9 @@
 
     You set these, er, settings, by defining a |Dictionary| called
     `g:tex_seven_config` in your |vimrc| (or better yet, in
-    $VIMRUNTIME/ftplugin/tex.vim).
+    $VIMRUNTIME/ftplugin/tex.vim). In this latter file, you can add any
+    settings that are not overrides of things defined by TeX-7. (For such
+    overrides, use the after/ directory; cf. |tex_seven-tips|.)
 
     Example:
 
@@ -108,6 +110,28 @@
       \ 'compiler_opts'    : 'CompileTeX.sh',
       \ 'viewer'           : 'okular' ,
       \ 'viewer_images'    : 'gwenview' }
+
+    IMPORTANT #1: Do NOT set this |Dictionary| in
+    $VIMRUNTIME/after/ftplugin/tex.vim. This file is only sourced after TeX-7
+    has ran, and thus if you set, say, a custom |LocalLeader|, all of the
+    mappings will be set using the predefined value of |LocalLeader|.
+
+    IMPORTANT #2: If you put any custom settings in either
+    $VIMRUNTIME/ftplugin/tex.vim or $VIMRUNTIME/after/ftplugin/tex.vim, then
+    you are highly encouraged to ensure that neither of them are sourced more
+    than once. One way is to defined a sort of "include guards", like these:
+
+    " Put this at the start of $VIMRUNTIME/ftplugin/tex.vim.
+    if exists('b:init_ftplugin_tex')
+      finish
+    endif
+    let b:init_ftplugin_tex = 1
+
+    " And this at the start of $VIMRUNTIME/after/ftplugin/tex.vim.
+    if exists('b:init_after_ftplugin_tex')
+      finish
+    endif
+    let b:init_after_ftplugin_tex = 1
 
 ==============================================================================
 
