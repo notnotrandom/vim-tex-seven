@@ -499,21 +499,57 @@ function! ListBibTypesCompletions(ArgLead, CmdLine, CursorPos)
   return "generic\<nl>url"
 endfunction
 
-" For completion of math symbols, arrows, etc.
+" Brief: For completion of math symbols, arrows, etc.
+" Parameters: a:findstart and a:base, see :help complete-functions.
 function tex_seven#MathCompletion(findstart, base)
+  if g:tex_seven_config.debug | echom "find start: |" . a:findstart . "|" | endif
+  if g:tex_seven_config.debug | echom "base: |" . a:base . "|" | endif
+
   if a:findstart
+    " According to :help complete-functions, if the above if-clause matched,
+    " then a:findstart = 1. Thus, we have to find the pre-existing text (if
+    " any) to be used as a basis for completion. We start by obtaining the
+    " current line.
     let line = getline('.')
-    let start = col('.') - 1
-    while start > 0 && line[start - 1] != '\'
-          \ && line[start - 1] != ' '
-          \ && line[start - 1] != '$'
-          \ && line[start - 1] != '{'
-      if line[start] == '\' | return -2 | endif
-      let start -= 1
+
+    " Then, place on the l:start variable the (0-based) index of the cursor's
+    " current position.
+    let l:start = col('.') - 1
+
+    " Then, we go back (i.e., left-wise), until we find one of the characters
+    " that (in principle) show the start of the completion the user entered.
+    " We do this by checking if the character to the left of the current
+    " cursor position, which sits at index l:start - 1, is any of those. If
+    " not, we decrement l:start, and continue searching.
+    "   If, on the other hand, we find any of those terminating characters, or
+    " we reach the start of the line, then we break out of the loop.
+    while l:start > 0
+          \ && line[l:start - 1] != '\'
+          \ && line[l:start - 1] != ' '
+          \ && line[l:start - 1] != '$'
+          \ && line[l:start - 1] != '{'
+      " if line[start] == '\' | echom "oops" | endif
+      " if line[start] == '\' | return -2 | endif
+      let l:start -= 1
     endwhile
-    if line[start - 1] == '\' | let start -= 1 | endif
-    return start
+
+    " At this point, l:start contains the index of the first character of the
+    " completion basis, if there is one. If there is not one, then l:start
+    " continues with the index (0-based) of the cursor position. And it is
+    " this value that we return -- except for a small caveat, discussed next.
+
+    " If the character preceeding the fist character of the completion basis,
+    " is a backslash ('\'), then we decrement l:start once more, because ALL
+    " of the completion results INCLUDE the starting backslash (cf.
+    " autoload/tex_seven/omniMath.vim).
+    if line[l:start - 1] == '\' | let l:start -= 1 | endif
+
+    return l:start
   else
+    " The above else-clause matches when a:findstart = 0 (cf. :help
+    " complete-functions). Hence, we need to find and return the completion
+    " hypothesis that match a:base, if it is nonempty. (If a:base is empty,
+    " then we just return ALL possible completion hypothesis.)
     if a:base != ""
       if a:base == '\' | return g:tex_seven#omniMath#symbols | endif
 
@@ -525,6 +561,7 @@ function tex_seven#MathCompletion(findstart, base)
             \ '" || (has_key(v:val, "info") && v:val.info =~? "\\m' . a:base . '")')
       return compl
     else
+      " a:base is empty, so just return all possible completion hypothesis.
       return g:tex_seven#omniMath#symbols
     endif
   endif
