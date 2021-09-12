@@ -26,8 +26,8 @@
 "
 "************************************************************************
 
-let s:beginpat = '\m^\s*\\begin{\zs\w\+\ze}'
-let s:endpat = '\m^\s*\\end{\zs\w\+\ze}'
+let s:beginpat = '\m^\s*\\begin{\zs\w\+\*\=\ze}'
+let s:endpat = '\m^\s*\\end{\zs\w\+\*\=\ze}'
 
 let s:envSnippetsDict = {}
 
@@ -420,7 +420,7 @@ endfunction
 
 function tex_seven#environments#RenameEnvironment()
   let l:getEnv = tex_seven#environments#Get_LaTeX_environment()
-  if len(l:getEnv) != 3
+  if len(l:getEnv) != 3 || l:getEnv[0] == 'document'
     " There is no surrounding environment, and hence there is nothing to do
     " (other than warning the user).
     echohl WarningMsg | echo  "No surrounding environment found!" | echohl None
@@ -437,6 +437,11 @@ function tex_seven#environments#RenameEnvironment()
   if l:newEnvName == ""
     return
   endif
+
+  " The new environments' names may contain an asterisk; we need to escape it,
+  " for otherwise the calls to substitute() will not work.
+  let l:origEnvName = escape(l:origEnvName, "*")
+  let l:newEnvName = escape(l:newEnvName, "*")
 
   " Substitute the environment name in the \begin line.
   let l:line = getline(l:origEnvStartLineNum)
