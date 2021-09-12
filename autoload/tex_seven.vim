@@ -609,6 +609,15 @@ endfunction
 " preview (:pedit) window. Otherwise, uses :edit.
 " Return: none.
 function tex_seven#QueryKey(preview)
+  " First, check that the current buffer is saved. If not, warn the user to
+  " save it. This is needed, because otherwise some of functions invoked below
+  " will throw an error. [bufname() returns the :ls number of the current
+  " buffer.]
+  if getbufvar(bufname(), "&modified") == v:true
+    echohl WarningMsg | echo  "Please save the file before using gd|gf|gp."
+    return
+  endif
+
   " Array indexes starts at 0, but output of col() starts at 1.
   let l:cursorColumn = col('.') - 1
   let l:startBackslashIdx = ""
