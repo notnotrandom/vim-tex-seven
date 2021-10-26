@@ -1,141 +1,158 @@
-*tex_seven.txt* 
+*tex_seven.txt*	For Vim version 7.5	Last change: October 26, 2021
 
-                                      TeX-7                                  
+                          TeX-7
 
-                          A semi-automatic, minimalistic
-                                  LaTeX ftplugin                               
-                          that does not get in your way!
+              A semi-automatic, minimalistic
+                      LaTeX ftplugin
+              that does not get in your way!
 
 
-    Author: Óscar Pereira
-    Email: See https://randomwalk.eu/contacts
-    License: GPL
-    Version: 1.0
+Author: Óscar Pereira
+Email: See https://randomwalk.eu/contacts
+License: GPL
+Version: 1.0
 
-    TeX-7 is a ftplugin that aims to enhance the writing experience of high
-    quality documents with LaTeX and Vim. The goal of TeX-7 is to be simple
-    and Vimish, meaning that focus is on carefully thought-out key mappings
-    and features that are already present in a typical Vim installation. If
-    you need to write a thesis or research articles and insist on having
-    only one editor for all editing tasks, then TeX-7 is for you!
+  TeX-7 is a ftplugin that aims to enhance the writing experience of high
+  quality documents with LaTeX and Vim. The goal of TeX-7 is to be simple and
+  Vimish, meaning that focus is on carefully thought-out key mappings and
+  features that are already present in a typical Vim installation. If you need
+  to write a thesis or research articles and insist on having only one editor
+  for all editing tasks, then TeX-7 is for you!
 
-    The main features of TeX-7 are
-        * Powerful text-object for LaTeX environments 
-        * Omni-completion of BibTeX database entries and label references
-        * Omni-completion of mathematical symbols, and included files
-        * Preview of BibTeX database entries and label references
-        * Preview of \includegraphics (supported formats: JPG, PNG, or PDF)
-        * Filetype specific indentation (courtesy of Johannes Tanzler)
-        * No-hassle settings, relatively few mappings
-        * Supports distraction-free LaTeX "small compile", done when saving.
+  The main features of TeX-7 are:
+    * Powerful text-object for LaTeX environments
+    * Omni-completion of BibTeX database entries and label references
+    * Omni-completion of mathematical symbols, and included files
+    * Preview of BibTeX database entries and label references
+    * Preview of \includegraphics (supported formats: JPG, PNG, or PDF)
+    * Filetype specific indentation (courtesy of Johannes Tanzler)
+    * No-hassle settings, relatively few mappings
+    * Supports distraction-free LaTeX "small compile", done when saving.
 
-    Shoutouts & thanks
-        * Elias Toivanen, the original author of the TeX-9 plugin.
-
-==============================================================================
-
-*TeX-7* *tex_seven*
-
-    1.  Installation                                 |tex_seven-installation||
-    2.  Basics                                       |tex_seven-basics|
-    3.  Compilation and Multi-file                   |tex_seven-compile-mfile|
-    4.  Jumping                                      |tex_seven-jumping|
-    5.  Completion                                   |tex_seven-completion|
-    6.  Mappings                                     |tex_seven-mappings|
-    7.  Tips and tricks                              |tex_seven-tips|
+  Shoutouts & thanks
+    * Elias Toivanen, the original author of the TeX-9 plugin.
 
 ==============================================================================
 
-1.  Installation                                    *tex_seven-installation*
+Table of Contents                                 *tex_seven-toc*
 
-    To install TeX-7, I will assume you are a good citizen, and use something
-    like Tim Pope's Pathogen plugin, or something to that effect. In the
-    case of Pathogen, just clone this plugin into the bundle directory,
-    usually `~/.vim/bundle`, and run `:Helptags` afterwords.
+  1. Installation                                 |tex_seven-installation||
+  2. Basics                                       |tex_seven-basics|
+    2.1 Insert Mode                               |tex_seven-basics-insert_mode|
+    2.1 Normal Mode                               |tex_seven-basics-normal_mode|
+    2.1 Visual Mode                               |tex_seven-basics-visual_mode|
+  3. Compilation and Multi-file                   |tex_seven-compile-mfile|
+    3.1 Compilation                               |tex_seven-compile|
+    3.2 Multi-file Projects                       |tex_seven-mfile|
+  4. Jumping                                      |tex_seven-jumping|
+    4.1 Compilation                               |tex_seven-jumping-citations|
+    4.2 Labels and References                     |tex_seven-jumping-label_refs|
+    4.3 Includes                                  |tex_seven-jumping-includes|
+    4.4 Graphics                                  |tex_seven-jumping-graphics|
+  5. Completion                                   |tex_seven-completion|
+    5.1 Omni-Compilation                          |tex_seven-completion-omni|
+    5.2 Math-Compilation                          |tex_seven-completion-math|
+  6. Mappings                                     |tex_seven-mappings|
+    6.1 Insert Mode                               |tex_seven-mappings-insert_mode|
+    6.2 Normal Mode                               |tex_seven-mappings-normal_mode|
+    6.2 Visual Mode                               |tex_seven-mappings-visual_mode|
+  7. Tips and tricks                              |tex_seven-tips|
+    7.1 Override, extend and hack TeX-7           |tex_seven-tips-hack_extend|
+    7.2 Custom environment list/templates         |tex_seven-tips-custom_envs|
+    7.3 Spell checking                            |tex_seven-tips-spell_check|
 
-    Next, open up |vimrc| and ensure it contains the following line:
-    >
-        filetype plugin indent on
+==============================================================================
+
+1.  Installation                                  *tex_seven-installation*
+
+  To install TeX-7, I will assume you are a good citizen, and use something
+  like Tim Pope's Pathogen plugin, or something to that effect. In the
+  case of Pathogen, just clone this plugin into the bundle directory,
+  usually ~/.vim/bundle, and run `:Helptags` afterwords.
+
+  Next, open up |vimrc| and ensure it contains the following line:
+  >
+  filetype plugin indent on
 <
-    Strictly speaking, for basic usage you don't need to configure anything
-    else. However, you may find the following settings very useful in making
-    TeX-7 more convenient to use (well, except the first one, that is just to
-    disable the plugin).
+  Strictly speaking, for basic usage you don't need to configure anything
+  else. However, you may find the following settings very useful in making
+  TeX-7 more convenient to use (well, except the first one, that is just to
+  disable the plugin).
 
-    compiler : String
-        * Program used to compile LaTeX sources.
-        * Default: "make".
+  compiler : String
+      * Program used to compile LaTeX sources.
+      * Default: "make".
 
-    compiler_opts : String
-        * Options or parameters to be given when invoking the LaTeX compiler.
-        * Default: empty.
+  compiler_opts : String
+      * Options or parameters to be given when invoking the LaTeX compiler.
+      * Default: empty.
 
-    disable: Boolean
-        * TeX-7 is disabled temporarily.
-        * Default: 0 (TeX-7 is loaded).
+  disable: Boolean
+      * TeX-7 is disabled temporarily.
+      * Default: 0 (TeX-7 is loaded).
 
-    diamond_tex: Boolean
-        * TeX-9 originally mapped <LocalLeader>< to \leq, and <LocalLeader>>
-          to \geq. However, I find these LaTeX commands actually easy to type,
-          to I prefer to map <LocalLeader>< to \langle\rangle, and
-          <LocalLeader>> to <> (sometimes called diamond). Among other things,
-          the latter is useful when writing Beamer templates.
-        * Default: 1 (map <LocalLeader>> to <> and <LocalLeader>< to * \(lr)angle).
+  diamond_tex: Boolean
+      * TeX-9 originally mapped <LocalLeader>< to \leq, and <LocalLeader>>
+        to \geq. However, I find these LaTeX commands actually easy to type,
+        to I prefer to map <LocalLeader>< to \langle\rangle, and
+        <LocalLeader>> to <> (sometimes called diamond). Among other things,
+        the latter is useful when writing Beamer templates.
+      * Default: 1 (map <LocalLeader>> to <> and <LocalLeader>< to * \(lr)angle).
 
-    leader: String
-        *   Most TeX-7 mappings begin with this prefix.
-        *   Optional.
-        *   Default: ':'.
+  leader: String
+      *   Most TeX-7 mappings begin with this prefix.
+      *   Optional.
+      *   Default: ':'.
 
-    viewer: String
-        *   Application used for viewing PDF files.
-        *   Optional.
-        *   Default: empty.
+  viewer: String
+      *   Application used for viewing PDF files.
+      *   Optional.
+      *   Default: empty.
 
-    viewer_images: String
-        *   Application used for viewing JPG/PNG files.
-        *   Optional.
-        *   Default: empty.
+  viewer_images: String
+      *   Application used for viewing JPG/PNG files.
+      *   Optional.
+      *   Default: empty.
 
-    You set these, er, settings, by defining a |Dictionary| called
-    `g:tex_seven_config` in your |vimrc| (or better yet, in
-    $VIMRUNTIME/ftplugin/tex.vim). In this latter file, you can add any
-    settings that are not overrides of things defined by TeX-7. (For such
-    overrides, use the after/ directory; cf. |tex_seven-tips|.)
+  You set these, er, settings, by defining a |Dictionary| called
+  g:tex_seven_config in your |vimrc| (or better yet, in
+  $VIMRUNTIME/ftplugin/tex.vim). In this latter file, you can add any settings
+  that are not overrides of things defined by TeX-7. (For such overrides, use
+  the after/ directory; cf. |tex_seven-tips|.)
 
-    Example:
+  Example:
+>
+  let g:tex_seven_config = {
+    \ 'compiler'         : '/bin/bash',
+    \ 'compiler_opts'    : 'CompileTeX.sh',
+    \ 'viewer'           : 'okular' ,
+    \ 'viewer_images'    : 'gwenview' }
+<
+  IMPORTANT #1: Do NOT set this |Dictionary| in
+  $VIMRUNTIME/after/ftplugin/tex.vim. This file is only sourced after TeX-7
+  has ran, and thus if you set, say, a custom |LocalLeader|, all of the
+  mappings will be set using the predefined value of |LocalLeader|.
 
-    let g:tex_seven_config = {
-      \ 'compiler'         : '/bin/bash',
-      \ 'compiler_opts'    : 'CompileTeX.sh',
-      \ 'viewer'           : 'okular' ,
-      \ 'viewer_images'    : 'gwenview' }
+  IMPORTANT #2: If you put any custom settings in either
+  $VIMRUNTIME/ftplugin/tex.vim or $VIMRUNTIME/after/ftplugin/tex.vim, then
+  you are highly encouraged to ensure that neither of them are sourced more
+  than once. One way is to defined a sort of "include guards", like these:
+>
+  " Put this at the start of $VIMRUNTIME/ftplugin/tex.vim.
+  if exists('b:init_ftplugin_tex')
+    finish
+  endif
+  let b:init_ftplugin_tex = 1
 
-    IMPORTANT #1: Do NOT set this |Dictionary| in
-    $VIMRUNTIME/after/ftplugin/tex.vim. This file is only sourced after TeX-7
-    has ran, and thus if you set, say, a custom |LocalLeader|, all of the
-    mappings will be set using the predefined value of |LocalLeader|.
-
-    IMPORTANT #2: If you put any custom settings in either
-    $VIMRUNTIME/ftplugin/tex.vim or $VIMRUNTIME/after/ftplugin/tex.vim, then
-    you are highly encouraged to ensure that neither of them are sourced more
-    than once. One way is to defined a sort of "include guards", like these:
-
-    " Put this at the start of $VIMRUNTIME/ftplugin/tex.vim.
-    if exists('b:init_ftplugin_tex')
-      finish
-    endif
-    let b:init_ftplugin_tex = 1
-
-    " And this at the start of $VIMRUNTIME/after/ftplugin/tex.vim.
-    if exists('b:init_after_ftplugin_tex')
-      finish
-    endif
-    let b:init_after_ftplugin_tex = 1
-
+  " And this at the start of $VIMRUNTIME/after/ftplugin/tex.vim.
+  if exists('b:init_after_ftplugin_tex')
+    finish
+  endif
+  let b:init_after_ftplugin_tex = 1
+<
 ==============================================================================
 
-2.  Basics                                          *tex_seven-basics*
+2.  Basics                                        *tex_seven-basics*
 
     TeX-7 defines various mappings that speed up typesetting LaTeX code. Most
     of the mappings are prefixed with a leader referred below with the symbol
@@ -151,7 +168,7 @@
 
     Below is a short tutorial that should get you going in no time.
 
-2.1 Insert mode
+2.1 Insert mode                                   *tex_seven-basics-insert_mode*
 
     To insert an environment, press <LocalLeader>B. You're prompted for an
     environment name, then the following is inserted:
@@ -246,7 +263,7 @@
     default without user config and |maplocalleader| defined), then
     <Localleader><localleader> inserts a literal colon in the text.
 
-2.2 Normal mode
+2.2 Normal mode                                   *tex_seven-basics-normal_mode*
 
     Typing <LocalLeader>V should open the document in the PDF viewer
     configured in `g:tex_seven_config` (see above). If you didn't set
@@ -283,7 +300,7 @@
     positioned at the innermost environment, but you want to select,
     say, the outermost.
 
-2.3 Visual mode
+2.3 Visual mode                                   *tex_seven-basics-visual_mode*
 
     TeX-7 comes with a custom `environment operator' (see ||text-objects||).
     Press 'vie' or 'vae' in normal normal to highlight the current inner
@@ -301,9 +318,9 @@
 
 ==============================================================================
 
-3.  Compilation and Multi-file                      *tex_seven-compile-mfile*
+3.  Compilation and Multi-file                    *tex_seven-compile-mfile*
 
-3.1 Compilation
+3.1 Compilation                                   *tex_seven-compile*
 
     The last feature in the feature list at the beginning talks of a "small
     compile", meaning a one-time run of the LaTeX compilation program or
@@ -325,7 +342,7 @@
     that can just continue to work. He is only notified if errors occur,
     so that he can go fix them, before writing any more.
 
-3.2 Multi-file projects
+3.2 Multi-file Projects                           *tex_seven-mfile*
 
     In order to work with LaTeX projects containing multiple files, each file
     other than the main one (the one containing the "\documentclass" line)
@@ -342,7 +359,7 @@
 
 ==============================================================================
 
-4.  Jumping                                         *tex_seven-jumping*
+4.  Jumping                                       *tex_seven-jumping*
 
     All the stuff described here with [gp], also works with [gd], with the
     difference that in the latter case it does not open in a preview window.
@@ -355,7 +372,7 @@
     Furthermore, [gf] is an alias to [gd]. See section 4.3 below for the
     reason for this.
 
-4.1 Citations
+4.1 Citations                                     *tex_seven-jumping-citations*
 
     If you have a citation like `\cite[some note]{key}`, or `\nocite{key}`,
     then placing the cursor *anywhere*, even outside of the "key" part, and
@@ -372,14 +389,14 @@
     the curly brackets, "key1" is used. If the cursor is at the closing
     bracket '}', then "key2" is used.
 
-4.2 Labels and references
+4.2 Labels and References                         *tex_seven-jumping-label_refs*
 
     If you have a reference like `\ref{key}`, or `\eqref{key}`, then placing
     the cursor *anywhere*, even outside of the "key" part, and pressing [gp]
     will open a preview window showing the corresponding `\label{key}`
     statement.
 
-4.3 Includes
+4.3 Includes                                      *tex_seven-jumping-includes*
 
     If you have a line like `\include{filename}`, or `\includeonly{filename}`,
     then placing the cursor *anywhere*, even outside of the "filename" part,
@@ -392,7 +409,7 @@
     me). Of course, this also means that you can use [gf] to, say, jump from a
     \ref to the corresponding \label. Use whatever shortcut suits you best!
 
-4.4 Graphics
+4.4 Graphics                                      *tex_seven-jumping-graphics*
 
     If you have a line like `\includegraphics{graphicfilename}`, then placing
     the cursor *anywhere*, even outside of the "graphicfilename" part, and
@@ -404,7 +421,7 @@
 
 ==============================================================================
 
-5.  Completion                                      *tex_seven-completion*
+5.  Completion                                    *tex_seven-completion*
 
     Say you have the following text in a .tex file: "\ref{|}", with the cursor
     being in the position of '|' (in insert mode). If you press
@@ -422,7 +439,7 @@
     Note that as in the example above, all completion always takes place in
     insert mode. Also, | is used to denote the cursor's position.
 
-5.1 Omni-Completion
+5.1 Omni-Completion                               *tex_seven-completion-omni*
 
     The above introduction already covers the case of omni-completion for
     "\ref{"; completion for "\eqref{" works in the same way.
@@ -438,7 +455,7 @@
     that start with it are returned, just as was explained for the case of
     "\ref{sec:}" above.
 
-5.2 Math-Completion
+5.2 Math-Completion                               *tex_seven-completion-math*
 
     Type <LocalLeader>M to get a popup list of different maths symbols,
     together with their shape (e.g. "\alpha" corresponds to α). I have
@@ -461,7 +478,7 @@
 
 ==============================================================================
 
-6.  Mappings                                        *tex_seven-mappings*
+6.  Mappings                                      *tex_seven-mappings*
 
     As explained in |tex_seven-basics|, the symbol <LocalLeader> refers to the
     value of `g:tex_seven_config.leader`, or if this is not set, to the value
@@ -471,7 +488,7 @@
     Furthermore, keep in mind that these mappings can be customised; see
     |tex_seven-tips| to see an example.
 
-6.1 Insert mode
+6.1 Insert Mode                               *tex_seven-mappings-insert_mode*
 
     In the mappings below, whenever completion is available (e.g. for
     \ref), it is started. Cf. |tex_seven-completion| for details.
@@ -579,7 +596,7 @@
     <LocalLeader>< \leq
     <LocalLeader>> \geq
 
-6.2 Normal Mode
+6.2 Normal Mode                                   *tex_seven-mappings-normal_mode*
 
     See |tex_seven-basics| for the details of the functionality provided
     by the mappings below.
@@ -596,7 +613,7 @@
 
     :ww             Do a small compile (see |tex_seven-compile-mfile|)
 
-6.3 Visual Mode
+6.3 Visual Mode                                   *tex_seven-mappings-visual_mode*
 
     Besides the operator for selecting environments and inline
     mathematics (see |tex_seven-basics|), the following mappings allow
@@ -619,9 +636,9 @@
 
 ==============================================================================
 
-7.  Tips and tricks                                  *tex_seven-tips*
+7.  Tips and tricks                               *tex_seven-tips*
 
-7.1 Preferred way to override, extend and hack TeX-7
+7.1 Override, extend and hack TeX-7               *tex_seven-tips-hack_extend*
 
     Create a custom tex.vim file in the after/ directory, i.e.
     ~/.vim/after/ftplugin/tex.vim. Here you can redefine mappings and extend
@@ -659,7 +676,7 @@
       unlet g:maplocalleader
     endif
 
-7.2 Custom environment list/templates
+7.2 Custom environment list/templates             *tex_seven-tips-custom_envs*
 
     You can set a custom list of environment names for environment insertion
     (see |tex_seven-basics|). Copy the environment names file
@@ -679,7 +696,7 @@
 
     And of course, the file to copy is ftplugin/environments.snippets.
 
-7.3 Spell checking
+7.3 Spell checking                                *tex_seven-tips-spell_check*
 
     If you've enabled 'modeline', you may conveniently activate spell checking
     (among other settings) in your LaTeX documents, like so (example for
@@ -693,12 +710,6 @@
 
     for disabling spell checking of comments that otherwise get messed up
     pretty badly.
-
-7.4 Folding
-
-    With newer versions of Vim it's easy as >
-
-    let g:tex_fold_enabled = 1
 
 ==============================================================================
 
