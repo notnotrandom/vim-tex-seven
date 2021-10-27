@@ -451,9 +451,14 @@ Table of Contents                                 *tex_seven-toc*
     subfolders therein (but note that any files inside folders with names
     containing the string "build" are ignored).
 
-    In all the cases described here, if there is a prefix, then only matches
-    that start with it are returned, just as was explained for the case of
-    "\ref{sec:}" above.
+    In all the cases described here, if there is a base, then only matches
+    that contain that base string are returned, just as was explained for the
+    case of "\ref{sec:}" above. For example, suppose you hit <LocalLeader>A.
+    "\includeonly{|}" gets inserted, and completion entries shown. If you then
+    type "foo" (sans quotes), by default vim will show you the entries that
+    START WITH "foo". But if you then hit <LocalLeader>K, TeX-7 will show you
+    all the entries that CONTAIN the string "foo", even if not at the
+    beginning.
 
 5.2 Math-Completion                               *tex_seven-completion-math*
 
