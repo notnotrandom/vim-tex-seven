@@ -76,11 +76,11 @@ function tex_seven#omni#GetBibEntries()
   return s:bibEntryList
 endfunction
 
-" Brief: Omni-completion for \includegraphics{prefix}, where the prefix is
+" Brief: Omni-completion for \includegraphics{base}, where the base is
 " optional.
 " Returns: a list of .jpg, .pdf, or .png files, recursively searched under
 " s:path.
-function tex_seven#omni#GetGraphicsList(prefix = '')
+function tex_seven#omni#GetGraphicsList(base = '')
   let l:path = tex_seven#GetPath()
 
   " Find files. The -printf is to use relative paths. It also removes the
@@ -93,14 +93,14 @@ function tex_seven#omni#GetGraphicsList(prefix = '')
         \ "-iname \\*.pdf -printf \"%P\n\" -o " .
         \ "-iname \\*.png -printf \"%P\n\" " )
 
-  if a:prefix == ''
+  if a:base == ''
     return split(l:graphicFiles, "\n")
   else
-    return filter(split(l:graphicFiles, "\n"), 'v:val =~ "\\m^" . a:prefix')
+    return filter(split(l:graphicFiles, "\n"), 'v:val =~? "\\m" . a:base')
   endif
 endfunction
 
-function tex_seven#omni#GetLabels(prefix = '')
+function tex_seven#omni#GetLabels(base = '')
   let l:mainFile = tex_seven#GetMainFile()
 
   let l:labelsFound = []
@@ -123,7 +123,7 @@ function tex_seven#omni#GetLabels(prefix = '')
     " in the same line...
     let newlabel = matchstr(line,  '\m\\label{\zs\S\+\ze}')
     if newlabel != ""
-      if a:prefix == '' || newlabel =~ '\m^' . a:prefix
+      if a:base == '' || newlabel =~? '\m' . a:base
         call add(l:labelsFound, newlabel)
       endif
     endif
@@ -138,7 +138,7 @@ function tex_seven#omni#GetLabels(prefix = '')
     for l:line in l:fcontents
       let newlabel = matchstr(l:line,  '\m\\label{\zs\S\+\ze}')
       if newlabel != ""
-        if a:prefix == '' || newlabel =~ '\m^' . a:prefix
+        if a:base == '' || newlabel =~? '\m' . a:base
           call add(l:labelsFound, newlabel)
         endif
       endif
@@ -148,7 +148,7 @@ function tex_seven#omni#GetLabels(prefix = '')
   return l:labelsFound
 endfunction
 
-function tex_seven#omni#GetTeXFilesList(prefix = '')
+function tex_seven#omni#GetTeXFilesList(base = '')
   let l:path = tex_seven#GetPath()
 
   " Find files. The -printf is to use relative paths. It also removes the
@@ -161,10 +161,10 @@ function tex_seven#omni#GetTeXFilesList(prefix = '')
         \ "-path \\*build\\*/\\* -prune -o -iname \\*.tex " .
         \ "-printf \"%P\n\" | sed 's/\.tex$//'" )
 
-  if a:prefix == ''
+  if a:base == ''
     return split(l:texFiles, "\n")
   else
-    return filter(split(l:texFiles, "\n"), 'v:val =~ "\\m^" . a:prefix')
+    return filter(split(l:texFiles, "\n"), 'v:val =~? "\\m" . a:base')
   endif
 endfunction
 
@@ -230,7 +230,7 @@ function tex_seven#omni#OmniCompletions(base)
       if a:base == ""
         return tex_seven#omni#GetBibEntries()
       else
-        return filter(copy(tex_seven#omni#GetBibEntries()), 'v:val =~ "\\m^" . a:base')
+        return filter(copy(tex_seven#omni#GetBibEntries()), 'v:val =~? "\\m" . a:base')
       endif
     catch
       echoerr "Retrieving bib entries failed."
@@ -370,6 +370,6 @@ function tex_seven#omni#QueryRefKey(refkey, preview)
       endfor
     endfor
   else
-    echoerr "Pattern not found"
+    echoerr "Label " . a:refkey . " not found."
   endif
 endfunction

@@ -222,7 +222,7 @@ function tex_seven#EnvironmentOperator(mode)
     return "\<Esc>:".l:pos[1]."\<Enter>V".(l:pos[2]-l:pos[1])."j"
 endfunction
 
-function tex_seven#GetIncludedFilesList(prefix = '')
+function tex_seven#GetIncludedFilesList(base = '')
   call tex_seven#GetMainFile()
 
   let l:needToReadMainFile = "false"
@@ -257,10 +257,10 @@ function tex_seven#GetIncludedFilesList(prefix = '')
     let s:epochMainFileLastReadForIncludes = str2nr(system("date +%s"))
   endif
 
-  if a:prefix == ''
+  if a:base == ''
     return s:includedFilesList
   else
-    return filter(copy(s:includedFilesList), 'v:val =~ "\\m^" . a:prefix')
+    return filter(copy(s:includedFilesList), 'v:val =~? "\\m" . a:base')
   endif
 endfunction
 
