@@ -1,4 +1,4 @@
-*tex_seven.txt*	For Vim version 7.5	Last change: October 26, 2021
+*tex_seven.txt*	For Vim version 7.5	Last change: November 2, 2021
 
                           TeX-7
 
@@ -36,7 +36,7 @@ Version: 1.0
 
 Table of Contents                                 *tex_seven-toc*
 
-  1. Installation                                 |tex_seven-installation||
+  1. Installation                                 |tex_seven-installation|
   2. Basics                                       |tex_seven-basics|
     2.1 Insert Mode                               |tex_seven-basics-insert_mode|
     2.1 Normal Mode                               |tex_seven-basics-normal_mode|
@@ -156,12 +156,12 @@ Table of Contents                                 *tex_seven-toc*
 
     TeX-7 defines various mappings that speed up typesetting LaTeX code. Most
     of the mappings are prefixed with a leader referred below with the symbol
-    <LocalLeader>. If you have set `g:tex_seven_config.leader`, the
+    <LocalLeader>. If you have set "g:tex_seven_config.leader", the
     corresponding character is used. Otherwise, if it is set, |maplocalleader|
     is used. As a last resort, the leader defaults to colon (:).
 
-    Especially for multi-file projects, it is recommended to launch `(g)vim`
-    from the same folder where the main `.tex` file is located. While most
+    Especially for multi-file projects, it is recommended to launch "(g)vim"
+    from the same folder where the main ".tex" file is located. While most
     features should work fine even if you don't do this, it is the best
     strategy to avoid unforeseen problems with relative paths. Besides, it's
     the most natural thing to do anyway, so...
@@ -189,7 +189,7 @@ Table of Contents                                 *tex_seven-toc*
     a <Tab>, and contain the snippet to be inserted for that environment. Note
     that NO EMPTY lines are allowed, for otherwise it would be possible to
     detect where a snippet ended. This list of templates can also be
-    customised; again, cf. section 7.2.
+    customised; again, cf. |tex_seven-tips-custom_envs|.
 
     The template code can contain indented lines, with tabs or spaces; upon
     insertion, the :retab command is executed (only over the newly inserted
@@ -235,17 +235,17 @@ Table of Contents                                 *tex_seven-toc*
     using only <Tab> :-)
 
     Moving on, type <LocalLeader>C to insert a citation, i.e.
-    `\cite{citekey}`. You're prompted with a popup list of completions if the
+    "\cite{citekey}". You're prompted with a popup list of completions if the
     \bibliography{} (or \addbibresources{}) statement contains a valid BibTeX
-    file. Inserting references, `\ref{ref}`, works in a similar way. The
+    file. Inserting references, "\ref{ref}", works in a similar way. The
     corresponding mapping is <LocalLeader>R. Here are a few other mappings
     that work similarly:
 
-        * <LocalLeader>A inserts `\includeonly{}` and starts completion inside
+        * <LocalLeader>A inserts "\includeonly{}" and starts completion inside
           the brackets.
-        * <LocalLeader>E inserts `\eqref{}` and starts completion inside the
+        * <LocalLeader>E inserts "\eqref{}" and starts completion inside the
           brackets.
-        * <LocalLeader>Z inserts `\includegraphics{}` and starts completion
+        * <LocalLeader>Z inserts "\includegraphics{}" and starts completion
           inside the brackets. Supported graphic types: JPG, PDF, PNG.
 
     There are also some macros that work by double tapping a character on your
@@ -266,8 +266,8 @@ Table of Contents                                 *tex_seven-toc*
 2.2 Normal mode                                   *tex_seven-basics-normal_mode*
 
     Typing <LocalLeader>V should open the document in the PDF viewer
-    configured in `g:tex_seven_config` (see above). If you didn't set
-    `g:tex_seven_config.viewer`, an error message is shown.
+    configured in "g:tex_seven_config" (see above). If you didn't set
+    "g:tex_seven_config.viewer", an error message is shown.
 
     If you are using multi-file projects (see
     |tex_seven-compile-mfile|), then hitting <LocalLeader>gm will bring
@@ -280,9 +280,9 @@ Table of Contents                                 *tex_seven-toc*
     inside the environment (but *not* inside an inner nested environment, for
     that case it is that inner environment's name that gets replaced).
 
-    To go from from a `\label{` or `\cite{` to its corresponding definition,
+    To go from from a "\label{" or "\cite{" to its corresponding definition,
     place the cursor over them and hit either [gp] or [gd]: the first will
-    open the corresponding `\ref{` or bib entry in a preview window (mnemonic:
+    open the corresponding "\ref{" or bib entry in a preview window (mnemonic:
     go preview), and the second in a new buffer (using :edit; mnemonic: go to
     definition). Note that in the case of a preview window, the cursor WILL
     MOVE to that window. To close it, hit :q, as usual.
@@ -336,7 +336,7 @@ Table of Contents                                 *tex_seven-toc*
     in this task, this plugin defines a normal mode mapping :ww (note
     that the : is a literal colon, not the default value of <LocalLeader>),
     that saves the current file, and does a small compile of the LaTeX
-    project. So instead of writing (:w), the user can instead do a
+    project. So instead of writing (`:w`), the user can instead do a
     write-and-build, relatively seamlessly (:ww). This build is done in
     background, and if it succeeds, nothing more is said to the user,
     that can just continue to work. He is only notified if errors occur,
@@ -361,26 +361,32 @@ Table of Contents                                 *tex_seven-toc*
 
 4.  Jumping                                       *tex_seven-jumping*
 
-    All the stuff described here with [gp], also works with [gd], with the
-    difference that in the latter case it does not open in a preview window.
+    TeX-7 allows you to, for example, preview a bibliographic reference, by
+    placing the cursor somewhere over the "\cite{...}" command, and hit [gp]:
+    the corresponding BibTeX entry is then shown in a preview window. There
+    are many other possibilities, besides bibliographic references. All of
+    them are described in this section. Before that, an important note: all
+    the features described here using [gp], also work with [gd], with the
+    difference that in the latter case, no preview window is opened (i.e.,
+    `:edit` is used instead of `:pedit`).
 
-    (When using [gp], to close the preview window after having placed the
-    cursor in some other window, there is no need to back to the preview
-    window. Just hit [gb], which is an alias to :pclose.
-    When using [gd], to go back hit CTRL-o. All in normal mode.)
+    Also note that when using [gp], to close the preview window after having
+    placed the cursor in some other window, there is no need to go back to the
+    preview window. Just hit [gb], which is an alias to :pclose. When using
+    [gd], to go back hit CTRL-o. All in normal mode.
 
-    Furthermore, [gf] is an alias to [gd]. See section 4.3 below for the
-    reason for this.
+    Furthermore, [gf] is an alias to [gd]. See section
+    |tex_seven-jumping-includes| below for the reason for this.
 
 4.1 Citations                                     *tex_seven-jumping-citations*
 
-    If you have a citation like `\cite[some note]{key}`, or `\nocite{key}`,
+    If you have a citation like "\cite[some note]{key}", or "\nocite{key}",
     then placing the cursor *anywhere*, even outside of the "key" part, and
     pressing [gp] will open a preview window displaying the bib entry
     corresponding to that key.
 
-    If you have a citation like `\cite{key1, key2}`, or `\cite[some
-    note]{key1, key2}`, if you press [gp] when the cursor is over "key1", or
+    If you have a citation like "\cite{key1, key2}", or "\cite[some
+    note]{key1, key2}", if you press [gp] when the cursor is over "key1", or
     "key2", then the corresponding bib entry will be shown. If the cursor is
     *before* the first key, e.g. over the "\cite{" string, then the entry for
     that first key is shown (in this case "key1"). If the cursor is inside the
@@ -391,16 +397,17 @@ Table of Contents                                 *tex_seven-toc*
 
 4.2 Labels and References                         *tex_seven-jumping-label_refs*
 
-    If you have a reference like `\ref{key}`, or `\eqref{key}`, then placing
+    If you have a reference like "\ref{key}", or "\eqref{key}", then placing
     the cursor *anywhere*, even outside of the "key" part, and pressing [gp]
-    will open a preview window showing the corresponding `\label{key}`
+    will open a preview window showing the corresponding "\label{key}"
     statement.
 
 4.3 Includes                                      *tex_seven-jumping-includes*
 
-    If you have a line like `\include{filename}`, or `\includeonly{filename}`,
+    If you have a line like "\include{filename}", or "\includeonly{filename}",
     then placing the cursor *anywhere*, even outside of the "filename" part,
-    and pressing [gp] will show `filename` in  preview window.
+    and pressing [gp] will show the file named "filename" in the preview
+    window.
 
     As stated above, [gf] is an alias to [gd]. The reason for this is that by
     default, hitting [gf] when the cursor is over a file name/path makes vim
@@ -411,13 +418,13 @@ Table of Contents                                 *tex_seven-toc*
 
 4.4 Graphics                                      *tex_seven-jumping-graphics*
 
-    If you have a line like `\includegraphics{graphicfilename}`, then placing
+    If you have a line like "\includegraphics{graphicfilename}", then placing
     the cursor *anywhere*, even outside of the "graphicfilename" part, and
-    pressing [gd] or [gp] will open `graphicfilename` using the application
-    configured in `g:tex_seven_config.viewer` for PDF files, and
-    `g:tex_seven_config.viewer_images` for JPG or PNG files (see
-    |tex_seven-installation|). If you didn't set `g:tex_seven_config.viewer`,
-    and/or `g:tex_seven_config.viewer_images`, an error message is shown.
+    pressing [gd] or [gp] will open "graphicfilename" using the application
+    configured in "g:tex_seven_config.viewer" for PDF files, and
+    "g:tex_seven_config.viewer_images" for JPG or PNG files (see
+    |tex_seven-installation|). If you didn't set "g:tex_seven_config.viewer",
+    and/or "g:tex_seven_config.viewer_images", an error message is shown.
 
 ==============================================================================
 
@@ -426,8 +433,8 @@ Table of Contents                                 *tex_seven-toc*
     Say you have the following text in a .tex file: "\ref{|}", with the cursor
     being in the position of '|' (in insert mode). If you press
     <LocalLeader>K, `vim` will show you a popup, containing all keys
-    corresponding to `\label{key}` statements found in the main .tex file, and
-    any files `\include`'d therein, if any. Furthermore, if what is actually
+    corresponding to "\label{key}" statements found in the main .tex file, and
+    any files \include'd therein, if any. Furthermore, if what is actually
     in your .tex file is something like: "\ref{sec:|}", then the popup will
     show only label keys that start with the prefix "sec:" (sans quotes).
 
@@ -445,7 +452,7 @@ Table of Contents                                 *tex_seven-toc*
     "\ref{"; completion for "\eqref{" works in the same way.
 
     Completion for "\includeonly{" and "\includegraphics{" are similar, with
-    the difference that what is returned are list of files `\include`'d in the
+    the difference that what is returned are list of files \include'd in the
     main .tex file (if any), and graphic files, respectively. The graphic
     files are searched in the folder that contains the main .tex file, and any
     subfolders therein (but note that any files inside folders with names
@@ -486,7 +493,7 @@ Table of Contents                                 *tex_seven-toc*
 6.  Mappings                                      *tex_seven-mappings*
 
     As explained in |tex_seven-basics|, the symbol <LocalLeader> refers to the
-    value of `g:tex_seven_config.leader`, or if this is not set, to the value
+    value of "g:tex_seven_config.leader", or if this is not set, to the value
     of |maplocalleader|. If this is also unset, then the default value is
     colon ':'.
 
@@ -594,7 +601,7 @@ Table of Contents                                 *tex_seven-toc*
     <LocalLeader>< \langle  \rangle<Esc>F\hi
 
     The last two mappings above are as I preferr them. However, by
-    setting the config flag `diamond_tex` to 0 (see
+    setting the config flag "diamond_tex" to 0 (see
     |tex_seven-installation|), you can revert them to TeX-9's original
     mappings:
 
@@ -712,7 +719,7 @@ Table of Contents                                 *tex_seven-toc*
     Notice that newer versions of Vim provide an option >
 
     let g:tex_comment_nospell=1
-
+<
     for disabling spell checking of comments that otherwise get messed up
     pretty badly.
 
