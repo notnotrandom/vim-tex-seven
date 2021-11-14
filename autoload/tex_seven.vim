@@ -418,7 +418,7 @@ function tex_seven#InsertCommandExitArg()
       " cursor after the '}' that closes the command.
       let l:ret = "\<Esc>la"
     else
-      " Otherwise, return (i.e., simnulate that the user pressed; cf. below) a
+      " Otherwise, return (i.e., simulate that the user pressed; cf. below) a
       " <Tab> character.
       let l:ret = "\<Tab>"
     endif

@@ -76,8 +76,7 @@ Table of Contents                                 *tex_seven-toc*
 <
   Strictly speaking, for basic usage you don't need to configure anything
   else. However, you may find the following settings very useful in making
-  TeX-7 more convenient to use (well, except the first one, that is just to
-  disable the plugin).
+  TeX-7 more convenient to use.
 
   compiler : String
       * Program used to compile LaTeX sources.
@@ -139,26 +138,25 @@ Table of Contents                                 *tex_seven-toc*
   than once. One way is to defined a sort of "include guards", like these:
 >
   " Put this at the start of $VIMRUNTIME/ftplugin/tex.vim.
-  if exists('b:init_ftplugin_tex')
+  if exists('b:ftplugin_tex_init')
     finish
   endif
-  let b:init_ftplugin_tex = 1
+  let b:ftplugin_tex_init = 1
 
   " And this at the start of $VIMRUNTIME/after/ftplugin/tex.vim.
-  if exists('b:init_after_ftplugin_tex')
+  if exists('b:after_ftplugin_tex_init')
     finish
   endif
-  let b:init_after_ftplugin_tex = 1
+  let b:after_ftplugin_tex_init = 1
 <
 ==============================================================================
 
 2.  Basics                                        *tex_seven-basics*
 
     TeX-7 defines various mappings that speed up typesetting LaTeX code. Most
-    of the mappings are prefixed with a leader referred below with the symbol
-    <LocalLeader>. If you have set "g:tex_seven_config.leader", the
-    corresponding character is used. Otherwise, if it is set, |maplocalleader|
-    is used. As a last resort, the leader defaults to colon (:).
+    of the mappings are prefixed with |maplocalleader|, referred below with
+    the symbol <LocalLeader>. If you have set "g:tex_seven_config.leader", the
+    corresponding character is used. Otherwise, it defaults to colon (:).
 
     Especially for multi-file projects, it is recommended to launch "(g)vim"
     from the same folder where the main ".tex" file is located. While most
@@ -179,15 +177,15 @@ Table of Contents                                 *tex_seven-toc*
 
     <envname> is the supplied environment name; the cursor is left where the |
     is. The list of environments comes from file ftplugin/environments.txt.
-    This can be customised; cf. section 7.2.
+    This can be customised; cf. |tex_seven-tips-custom_envs|.
 
     Furthermore, by default the template for an environment is the one shown
-    above, but it can be customised for specific environments. This is file
-    ftplugin/environments.snippets. See the examples in that file, but the
-    syntax is simple: the word following the "snippet" keyword must be the
+    above, but it can be customised for specific environments. This is done in
+    file ftplugin/environments.snippets. See the examples in that file, but
+    the syntax is simple: the word following the "snippet" keyword must be the
     name of the environment to be customised. The other lines MUST start with
     a <Tab>, and contain the snippet to be inserted for that environment. Note
-    that NO EMPTY lines are allowed, for otherwise it would be possible to
+    that NO EMPTY lines are allowed, for otherwise it would not be possible to
     detect where a snippet ended. This list of templates can also be
     customised; again, cf. |tex_seven-tips-custom_envs|.
 
@@ -197,13 +195,13 @@ Table of Contents                                 *tex_seven-toc*
     developed with LaTeX environments in mind, there is nothing preventing its
     use for other constructs the user might use frequently.
 
-    To insert a command, press <LocalLeader><Space>. "\cmd{arg}" is inserted
-    (sans quotes), with the "cmd" part visually selected (select-mode, not
-    visual-mode). So just type the command name. Then just hit <Tab>, to move
-    to the "arg" part, which will be left visually selected (idem.), for you
-    type over. After that, hitting <Tab> once more will move the cursor to the
-    right of the now finished command (i.e., after the '}'), so you can
-    continue to type your LaTeX document.
+    To insert a command, press "<LocalLeader><Space>" (sans quotes).
+    "\cmd{arg}" is inserted (sans quotes), with the "cmd" part visually
+    selected (select-mode, not visual-mode). So just type the command name.
+    Then just hit <Tab>, to move to the "arg" part, which will be left
+    visually selected (idem.), for you to type over. After that, hitting <Tab>
+    once more will move the cursor to the right of the now finished command
+    (i.e., after the '}'), so you can continue to type your LaTeX document.
 
     Nested commands will also work, but in this scenario, the cursor will be
     left after the innermost '}'. For example, if you use this feature to
@@ -226,14 +224,6 @@ Table of Contents                                 *tex_seven-toc*
     for <C-c>. So long story short, this works as you would expect, without
     surprises.
 
-    Well, EXCEPT for possibly one thing: suppose you insert a command like
-    "\foo{bar}", and after typing "bar", instead of hitting <Tab>, you use the
-    <Right> key to go past the last "}", and continue to type. Hitting <Tab>
-    then will bring the cursor back to the right of the previous "}" -- and
-    then clear the mappings. This is hard to detect without adding massive
-    state code, to keep track of the cursor position, so best to get used to
-    using only <Tab> :-)
-
     Moving on, type <LocalLeader>C to insert a citation, i.e.
     "\cite{citekey}". You're prompted with a popup list of completions if the
     \bibliography{} (or \addbibresources{}) statement contains a valid BibTeX
@@ -248,6 +238,11 @@ Table of Contents                                 *tex_seven-toc*
         * <LocalLeader>Z inserts "\includegraphics{}" and starts completion
           inside the brackets. Supported graphic types: JPG, PDF, PNG.
 
+    You can also some write, in the completion space, some string (say "foo"),
+    and hit <LocalLeader>K. This will filter the original list of completions,
+    to show you only those that contain the string "foo". See
+    |tex_seven-completion| for more details.
+
     There are also some macros that work by double tapping a character on your
     keyboard (super convenient for subscripts and superscripts!).
 
@@ -258,10 +253,10 @@ Table of Contents                                 *tex_seven-toc*
 
     Furthermore, pressing <LocalLeader>" inserts "LaTeX quotes", i.e.,
     ``''. Also works for single quotes. And by defaut, hitting
-    <LocalLeader> twice (i.e. <Localleader><localleader>) inserts that
+    <LocalLeader> twice (i.e. <Localleader><Localleader>) inserts that
     character itself. E.g., if <LocalLeader> is set to colon (:) (the
-    default without user config and |maplocalleader| defined), then
-    <Localleader><localleader> inserts a literal colon in the text.
+    default without user config defined), then <Localleader><Localleader>
+    inserts a literal colon in the text.
 
 2.2 Normal mode                                   *tex_seven-basics-normal_mode*
 
@@ -278,7 +273,7 @@ Table of Contents                                 *tex_seven-toc*
     \end lines of that enclosing environment. This works if the cursor is
     placed anywhere on the \begin line, anywhere on the \end line, or anywhere
     inside the environment (but *not* inside an inner nested environment, for
-    that case it is that inner environment's name that gets replaced).
+    in that case it is that inner environment's name that gets replaced).
 
     To go from from a "\label{" or "\cite{" to its corresponding definition,
     place the cursor over them and hit either [gp] or [gd]: the first will
@@ -372,8 +367,9 @@ Table of Contents                                 *tex_seven-toc*
 
     Also note that when using [gp], to close the preview window after having
     placed the cursor in some other window, there is no need to go back to the
-    preview window. Just hit [gb], which is an alias to :pclose. When using
-    [gd], to go back hit CTRL-o. All in normal mode.
+    preview window. Just hit [gb], which is an alias to :pclose (mnemonic: Go
+    Back to when there was no preview window opened). When using [gd], to go
+    back hit CTRL-o. All in normal mode.
 
     Furthermore, [gf] is an alias to [gd]. See section
     |tex_seven-jumping-includes| below for the reason for this.
