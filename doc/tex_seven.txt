@@ -303,7 +303,7 @@ Table of Contents                                 *tex_seven-toc*
     environment respectively. Replace 'v' with another operator to achieve
     yanking, changing or deleting etc. For example, typing 'dae' makes it
     trivial to move figures and tables around in the document. Delete the
-    environment, find a new location and paste it back to the buffer!
+    environment, find a new location and paste it back on the buffer!
 
     Additionally, there are similar operators for inline math, i.e., math
     delimited by dollar signs ($). For example, if you have $x = 1$, then
@@ -439,8 +439,9 @@ Table of Contents                                 *tex_seven-toc*
     paraphernalia, creatively named "math-completion". Both are described in
     the following sections.
 
-    Note that as in the example above, all completion always takes place in
-    insert mode. Also, | is used to denote the cursor's position.
+    Note that as in the example above, all completion scenarios described
+    below always takes place in insert mode. Also, | is used to denote the
+    cursor's position.
 
 5.1 Omni-Completion                               *tex_seven-completion-omni*
 
@@ -461,7 +462,8 @@ Table of Contents                                 *tex_seven-toc*
     type "foo" (sans quotes), by default vim will show you the entries that
     START WITH "foo". But if you then hit <LocalLeader>K, TeX-7 will show you
     all the entries that CONTAIN the string "foo", even if not at the
-    beginning.
+    beginning. However, the text "foo" that you typed is deleted. Vim does
+    this because the matching entries might not all *begin with* that string.
 
 5.2 Math-Completion                               *tex_seven-completion-math*
 
@@ -504,14 +506,14 @@ Table of Contents                                 *tex_seven-toc*
     <LocalLeader><LocalLeader> <LocalLeader>
     <LocalLeader>'             LaTeX's inverted single commas `'
     <LocalLeader>"             LaTeX's inverted double commas ``''
-    <LocalLeader>A             Insert an \includeonly, and start completion
-    <LocalLeader>B             Insert an environment (prompts for a name)
-    <LocalLeader>C             Insert a \cite, and start completion
-    <LocalLeader>E             Insert an \eqref (equation reference), and start completion
+    <LocalLeader>A             Insert \includeonly{}, and start completion
+    <LocalLeader>B             Insert environment (prompts for a name)
+    <LocalLeader>C             Insert \cite{}, and start completion
+    <LocalLeader>E             Insert \eqref{} (equation reference), and start completion
     <LocalLeader>K             Start regular (non-math) completion
     <LocalLeader>M             Start math completion
-    <LocalLeader>R             Insert a \ref, and start completion
-    <LocalLeader>Z             Insert an \includeonly reference
+    <LocalLeader>R             Insert \ref{}, and start completion
+    <LocalLeader>Z             Insert \includegraphics{} reference
 
     Greek
 
@@ -596,7 +598,7 @@ Table of Contents                                 *tex_seven-toc*
     <LocalLeader>> <><Left>
     <LocalLeader>< \langle  \rangle<Esc>F\hi
 
-    The last two mappings above are as I preferr them. However, by
+    The last two mappings above are as I prefer them. However, by
     setting the config flag "diamond_tex" to 0 (see
     |tex_seven-installation|), you can revert them to TeX-9's original
     mappings:
@@ -606,13 +608,18 @@ Table of Contents                                 *tex_seven-toc*
 
 6.2 Normal Mode                                   *tex_seven-mappings-normal_mode*
 
-    See |tex_seven-basics| for the details of the functionality provided
+    See |tex_seven-jumping| for the details of the functionality provided
     by the mappings below.
 
     gb              Go back from preview window (alias to :pclose)
     gd              Go from \ref to the corresponding \label declaration, or similar
+    gf              Go to, say, an \include{file}, or similar
     gm              Go back to main file
-    gp              Same as gd, but open a preview window
+    gp              Same as gd/gf, but show on a preview window, if applicable
+                    (obviously this does not apply when, say, displaying an image file)
+
+    See |tex_seven-basics-normal_mode| for the details of the functionality
+    provided by the mappings below.
 
     <LocalLeader>B  Go to \begin above
     <LocalLeader>E  Go to \end below
@@ -624,8 +631,8 @@ Table of Contents                                 *tex_seven-toc*
 6.3 Visual Mode                                   *tex_seven-mappings-visual_mode*
 
     Besides the operator for selecting environments and inline
-    mathematics (see |tex_seven-basics|), the following mappings allow
-    you to quickly change the style of already existing text.
+    mathematics (see |tex_seven-basics-visual_mode|), the following mappings
+    allow you to quickly change the style of already existing text.
 
     vmap <buffer><expr> <LocalLeader>bf tex_seven#ChangeFontStyle('bf')
     vmap <buffer><expr> <LocalLeader>it tex_seven#ChangeFontStyle('it')
@@ -658,7 +665,7 @@ Table of Contents                                 *tex_seven-toc*
     again. As an example, here is my ~/.vim/after/ftplugin/tex.vim:
 
     " First, reset <LocalLeader>. Note that this will run *after* TeX-7, and hence
-    " that variable g:tex_seven_config.leader will be set.
+    " the variable g:tex_seven_config.leader will be set.
     if exists('g:maplocalleader')
       let s:maplocalleader_saved = g:maplocalleader
     endif
@@ -688,9 +695,9 @@ Table of Contents                                 *tex_seven-toc*
 
     You can set a custom list of environment names for environment insertion
     (see |tex_seven-basics|). Copy the environment names file
-    (ftplugin/environments.txt) to ~/.vim/after/ftplugin/ (see 7.1 above), and
-    customise it to suit your needs. Then, in ~/.vim/after/ftplugin/tex.vim,
-    insert:
+    (ftplugin/environments.txt) to ~/.vim/after/ftplugin/ (see
+    |tex_seven-tips-hack_extend|), and customise it to suit your needs. Then,
+    in ~/.vim/after/ftplugin/tex.vim, insert:
 
     let b:env_list = fnameescape(expand('<sfile>:h') . '/environments.txt')
 
