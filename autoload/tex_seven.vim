@@ -34,13 +34,27 @@ let g:tex_seven#bibtexSourcesFilePattern = '\m^\\\(bibliography\|addbibresources
 " Self-explanatory.
 let g:tex_seven#emptyOrCommentLinesPattern = '\m^\s*\(%\|$\)'
 
-" Last timestamp (UNIX epoch) of when s:includedFilesList was updated.
-let s:epochMainFileLastReadForIncludes = ""
-
 " Matches lines like:
 " \include{chapter1}
 " in .tex files. When used with matchstr(), it returns chapter1.
 let g:tex_seven#includedFilePattern = '\m^\\include{\zs\S\+\ze}'
+
+let g:tex_seven#labelCommandPattern = '\m\\label{\zs\S\+\ze}'
+
+" Matches \somecmd{foo} or \somecmd[bar]{foo}. When used with matchstr(),
+" returns "somecmd", sans quotes.
+let g:tex_seven#matchCommand = '\m^\\\zs[A-Za-z0-9]\+\ze\(\[.\+\]\)\?{'
+
+" Same as g:tex_seven#matchCommand regexp above, but matches the "foo" part,
+" sans quotes.
+let g:tex_seven#matchCommandArg = '\m\\[A-Za-z0-9]\+\(\[.\+\]\)\?{\zs\S\+\ze}'
+
+" Matches a modeline like:
+" % mainfile: ../main.tex
+let g:tex_seven#modelinePattern = '\m^\s*%\s*mainfile:\s*\zs\S\+\ze'
+
+" Last timestamp (UNIX epoch) of when s:includedFilesList was updated.
+let s:epochMainFileLastReadForIncludes = ""
 
 " List of files \include'd in the main .tex file.
 let s:includedFilesList = []
@@ -54,19 +68,6 @@ let s:mainFile = ""
 let s:mappings_are_saved_b = v:false
 let s:mappings_i = []
 let s:mappings_s = []
-
-" Matches \somecmd{foo} or \somecmd[bar]{foo}. When used with matchstr(),
-" returns "somecmd", sans quotes.
-let g:tex_seven#matchCommand = '\m^\\\zs[A-Za-z0-9]\+\ze\(\[.\+\]\)\?{'
-
-" Same as g:tex_seven#matchCommand regexp above, but matches the "foo" part,
-" sans quotes.
-let g:tex_seven#matchCommandArg = '\m\\[A-Za-z0-9]\+\(\[.\+\]\)\?{\zs\S\+\ze}'
-
-
-" Matches a modeline like:
-" % mainfile: ../main.tex
-let g:tex_seven#modelinePattern = '\m^\s*%\s*mainfile:\s*\zs\S\+\ze'
 
 " This variable is set when s:mainFile is set. Is is the full path of
 " s:mainFile.tex, without the name. I.e., if the full path of s:mainFile is
@@ -262,6 +263,13 @@ function tex_seven#GetIncludedFilesList(base = '')
   else
     return filter(copy(s:includedFilesList), 'v:val =~? "\\m" . a:base')
   endif
+endfunction
+
+function tex_seven#GetIncludedFilesListProperFNames()
+  let l:path = tex_seven#GetPath()
+  let l:fnamesList = tex_seven#GetIncludedFilesList()
+  return map(l:fnamesList, "l:path . v:val . '.tex'")
+  " return l:fnamesList
 endfunction
 
 " Brief: Allow external scripts to retrieve that value of
