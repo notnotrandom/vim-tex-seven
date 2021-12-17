@@ -80,7 +80,7 @@ setlocal completefunc=tex_seven#MathCompletion
 " *****************************************************************
 
 call tex_seven#AddBuffer()
-call tex_seven#omni#RetrieveAllLabels()
+" call tex_seven#omni#UpdateFilesLabelsDict()
 
 """ Mappings
 

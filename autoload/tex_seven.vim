@@ -154,6 +154,7 @@ function tex_seven#DiscoverMainFile()
       " Which is the correct main file, according to the modeline.
       let s:mainFile = fnamemodify(expand('%:p:h') . '/' . l:mainfile, ':p')
       let s:path = fnamemodify(s:mainFile, ':p:h') . '/'
+      call tex_seven#omni#SetupFilesLabelsDict({})
       return
     endif
   endfor
@@ -189,13 +190,27 @@ function tex_seven#DiscoverMainFile()
       call add(s:includedFilesList, l:aux)
       continue
     endif
+
+    " And continuing on the same vein, also search for \label's, since we are
+    " reading the entire file anyway...
+    let l:labels = []
+
+    " The "let newlabel = ..." line matches once per line; but there is no
+    " point in having two \label's in the same line...
+    let newlabel = matchstr(line, g:tex_seven#labelCommandPattern)
+    if newlabel != ""
+      call add(l:labels, newlabel)
+    endif
   endfor
 
   " If the current buffer indeed turned out to be the main one, then there is
   " nothing else to do (other than updating the time it was last read, which
-  " is just now).
+  " is just now; and set up the Dict used for omni completion of \ref, etc).
   if s:mainFile != ""
     let s:epochMainFileLastReadForIncludes = str2nr(system("date +%s"))
+    call tex_seven#omni#SetupFilesLabelsDict(
+          \ { s:mainFile : { 'last_read_epoch' : s:epochMainFileLastReadForIncludes,
+          \                  'labels' : l:labels }} )
     return
   endif
 

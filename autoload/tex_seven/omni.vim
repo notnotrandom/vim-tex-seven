@@ -35,7 +35,7 @@ let s:bibEntryList = []
 let s:bibtexEntryKeyPattern = '\m^@\a\+{\zs\S\+\ze,'
 
 " The keys are proper filenames (i.e. that exist to the OS).
-let s:filesDict = {}
+let s:fileLabelsDict = {}
 
 let s:epochSourceFileLastRead = ""
 
@@ -108,120 +108,30 @@ endfunction
 
 function tex_seven#omni#GetLabels()
   if s:labelList == []
-    call tex_seven#omni#RetrieveAllLabels()
+    let l:needToRegenerateLabelList = "true"
   else
-    let l:needToRegenerateLabelList = "false"
+    let l:needToRegenerateLabelList = tex_seven#omni#UpdateFilesLabelsDict()
+  endif
 
-    " First, check if the s:mainFile has been changed. If so, the list
-    " \include'd files might have also change, so deal with that first...
-    let l:mainFileDirty = tex_seven#omni#ParseMainFileForIncludesAndLabels("true")
-
-    if l:mainFileDirty == "true"
-      " l:mainFile has been modified after it was last read.
-      let l:includedFilesList = tex_seven#GetIncludedFilesListProperFNames()
-
-      for l:k in keys(s:filesDict)
-        if count(l:includedFilesList, l:k) == 0
-          " An \include'd file was removed.
-          call remove(s:filesDict, l:k)
-        elseif count(l:includedFilesList, l:k) == 1
-          " An \include that continues to exist. Remove it from the list, to
-          " be able to detect files newly included (see below).
-          call remove(l:includedFilesList, index(l:includedFilesList, l:k))
-        elseif count(l:includedFilesList, l:k) > 1
-          throw "FileIncludedMoreThanOnce"
-        endif
-      endfor
-
-      " Now iterate over what's left of l:includedFilesList, to see what files
-      " have been newly \include's.
-      for l:i in l:includedFilesList
-        let s:filesDict[l:i] = { 'last_read_epoch' : '', 'labels' : [] }
-      endfor
-    endif " if l:mainFileDirty == "true"
-
-    " Now we need to check if there are any files -- other than s:mainFile --
-    " that are also dirty.
-    let l:mainFile = tex_seven#GetMainFile()
-    for fname in keys(s:filesDict)
-      if fname ==# l:mainFile
-        continue
-      endif
-
-      " See if file is dirty.
-      let l:dirty = "false"
-
-      if s:filesDict[fname]['last_read_epoch'] == ''
-        " File is new, so we have to read it (i.e., it is 'dirty').
-        let l:dirty = "true"
-      else
-        let l:epochFileLastModified = str2nr(system("stat --format %Y " . fname))
-        if l:epochFileLastModified > s:filesDict[fname]['last_read_epoch']
-          let l:dirty = "true"
-        endif
-      endif
-
-      " Now, if it turned out that the file was indeed dirty, re-read its
-      " \label's again.
-      if l:dirty ==# "true"
-        let l:needToRegenerateLabelList = "true"
-        let s:filesDict[fname]['labels'] = []
-
-        for line in tex_seven#GetLinesListFromFile(fname)
-          if line =~ g:tex_seven#emptyOrCommentLinesPattern
-            continue " Skip comments or empty lines.
-          endif
-
-          if line =~ g:tex_seven#emptyOrCommentLinesPattern
-            continue " Skip comments or empty lines.
-          endif
-
-          let newlabel = matchstr(line, g:tex_seven#labelCommandPattern)
-          if newlabel != ""
-            call add(s:filesDict[fname]['labels'], newlabel)
-          endif
-        endfor " line in tex_seven#GetLinesListFromFile(fname)
-      endif " if l:dirty ==# "true"
-    endfor " fname in keys(s:filesDict)
-  endif " s:labelList == []
-
-  if l:needToRegenerateLabelList == "true"
+  if l:needToRegenerateLabelList ==# "true"
     let s:labelList = []
-    for value in values(s:filesDict)
+    for value in values(s:fileLabelsDict)
       let s:labelList = s:labelList + value['labels']
     endfor
   endif
   return s:labelList
 endfunction
 
-" Brief: Creates:
-" let s:filesDict[l:mainFile] = { 'last_read_epoch' : '', 'labels' : [] }
-" Also updates the \include's files list.
-"
-" The mainFile will be read if check_timestamps is false, or if
-" check_timestamps is true and the main file was modified after the last time
-" it was read.
-"
-" Return: "true" if l:mainFile has actually been read. "false" otherwise.
-function tex_seven#omni#ParseMainFileForIncludesAndLabels(check_timestamps = 'false')
+" Brief: Reads the main file, to retrieve the new list of \include'd files.
+" And since it is reading the main file, it also retrieves the \label's
+" therein (updating s:fileLabelsDict accordingly).
+" Return: none.
+function tex_seven#omni#UpdateIncludedFilesList()
   let l:mainFile = tex_seven#GetMainFile()
-
-  if a:check_timestamps ==# 'true'
-    " In this scenario, we only actually parse l:mainFile is it has been
-    " modified after it was last read.
-    let l:epochMainFileLastModified = str2nr(system("stat --format %Y " . l:mainFile))
-
-    " XXX check that the requires entries in s:filesDict do in fact exist!
-    if l:epochMainFileLastModified <= s:filesDict[l:mainFile]['last_read_epoch']
-      " Do not need to re-read l:mainFile, so just return.
-      return "false"
-    endif
-  endif
 
   " Since we are going to read s:mainFile anyway, also check (and update) the \include's.
   let l:includedFilesList = []
-
-  let s:filesDict[l:mainFile] = { 'last_read_epoch' : '', 'labels' : [] }
+  let l:labels = []
 
   for line in tex_seven#GetLinesListFromFile(l:mainFile)
     if line =~ g:tex_seven#emptyOrCommentLinesPattern
@@ -238,43 +148,112 @@ function tex_seven#omni#ParseMainFileForIncludesAndLabels(check_timestamps = 'fa
     " in the same line...
     let newlabel = matchstr(line, g:tex_seven#labelCommandPattern)
     if newlabel != ""
-      call add(s:filesDict[l:mainFile]['labels'], newlabel)
+      call add(l:labels, newlabel)
     endif
   endfor
 
+  let s:fileLabelsDict[l:mainFile] = { 'last_read_epoch' : '', 'labels' : l:labels }
+
   let l:timestamp = str2nr(system("date +%s"))
-  let s:filesDict[l:mainFile]['last_read_epoch'] = l:timestamp
+  let s:fileLabelsDict[l:mainFile]['last_read_epoch'] = l:timestamp
   call tex_seven#SetEpochMainFileLastReadForIncludes(l:timestamp)
 
   call tex_seven#SetIncludedFilesList(l:includedFilesList)
+  let l:includedFilesList = tex_seven#GetIncludedFilesListProperFNames()
 
-  return "true"
+  " Now make sure the keys in s:fileLabelsDict equals the list of \include'd
+  " files (plus the main file).
+  for l:k in keys(s:fileLabelsDict)
+    if l:k ==# l:mainFile | continue | endif
+
+    if count(l:includedFilesList, l:k) == 0
+      " An \include'd file was removed.
+      call remove(s:fileLabelsDict, l:k)
+    elseif count(l:includedFilesList, l:k) == 1
+      " An \include that continues to exist. Remove it from the list, to
+      " be able to detect files newly included (see below).
+      call remove(l:includedFilesList, index(l:includedFilesList, l:k))
+    elseif count(l:includedFilesList, l:k) > 1
+      throw "FileIncludedMoreThanOnce"
+    endif
+  endfor " l:k in keys(s:fileLabelsDict)
+
+  " Now iterate over what's left of l:includedFilesList, to see what files
+  " have been newly \include's.
+  for l:i in l:includedFilesList
+    let s:fileLabelsDict[l:i] = { 'last_read_epoch' : '', 'labels' : [] }
+  endfor
 endfunction
 
-" Brief: Scans all included files for \labels. Sets s:labelList and
-" s:filesDict.
-" Return: void.
-function tex_seven#omni#RetrieveAllLabels()
-  let s:labelList = []
-  let s:filesDict = {}
+" This function should only be called from tex_seven#DiscoverMainFile().
+function tex_seven#omni#SetupFilesLabelsDict(basedict)
+  " The dictionary provided should contain only a (filled) entry for the main
+  " file.
+  if a:basedict == {}
+    " This happens when the user opened a file that isn't the main one.
+    let s:fileLabelsDict =  { tex_seven#GetMainFile() : { 'last_read_epoch' : '',
+                                                        \ 'labels' : [] } }
+  else
+    let s:fileLabelsDict = deepcopy(a:basedict)
+  endif
 
-  call tex_seven#omni#ParseMainFileForIncludesAndLabels()
-
-  " Now search the included files.
+  " Now search the included files, and add (empty) entries for them in
+  " s:fileLabelsDict.
   for l:fname in tex_seven#GetIncludedFilesListProperFNames()
     let l:fcontents =
           \ tex_seven#GetLinesListFromFile(l:fname)
-    let s:filesDict[l:fname] = { 'last_read_epoch' : '', 'labels' : [] }
-
-    for l:line in l:fcontents
-      let newlabel = matchstr(l:line, g:tex_seven#labelCommandPattern)
-      if newlabel != ""
-        call add(s:labelList, newlabel)
-        call add(s:filesDict[l:fname]['labels'], newlabel)
-      endif
-    endfor
-    let s:filesDict[l:fname]['last_read_epoch'] = str2nr(system("date +%s"))
+    let s:fileLabelsDict[l:fname] = { 'last_read_epoch' : '', 'labels' : [] }
   endfor
+
+  " Now fill those empty entries.
+  call tex_seven#omni#UpdateFilesLabelsDict()
+endfunction
+
+" Brief: Updates (or fills, if empty), the file information in
+" s:fileLabelsDict. Tacitly assumes that the keys in that Dict still
+" correspond to the \include'd files.
+" Return: "true" if there dirty files found. "false" otherwise.
+function tex_seven#omni#UpdateFilesLabelsDict()
+  let l:dirtFound = "false"
+
+  for fname in keys(s:fileLabelsDict)
+    " See if file is dirty.
+    let l:dirty = "false"
+
+    if s:fileLabelsDict[fname]['last_read_epoch'] == ''
+      " File is new, so we have to read it (i.e., it is 'dirty').
+      let l:dirty = "true"
+    else
+      let l:epochFileLastModified = str2nr(system("stat --format %Y " . fname))
+      if l:epochFileLastModified > s:fileLabelsDict[fname]['last_read_epoch']
+        let l:dirty = "true"
+      endif
+    endif
+
+    " Now, if it turned out that the file was indeed dirty, re-read its
+    " \label's again.
+    if l:dirty ==# "true"
+      if l:dirtFound ==# "false" | let l:dirtFound = "true" | endif
+
+      let s:fileLabelsDict[fname]['labels'] = []
+
+      for line in tex_seven#GetLinesListFromFile(fname)
+        if line =~ g:tex_seven#emptyOrCommentLinesPattern
+          continue " Skip comments or empty lines.
+        endif
+
+        let newlabel = matchstr(line, g:tex_seven#labelCommandPattern)
+        if newlabel != ""
+          call add(s:fileLabelsDict[fname]['labels'], newlabel)
+        endif
+      endfor " line in tex_seven#GetLinesListFromFile(fname)
+
+      " Update the timestamp of when the file was last read (i.e. just now).
+      let s:fileLabelsDict[fname]['last_read_epoch'] = str2nr(system("date +%s"))
+    endif " if l:dirty ==# "true"
+  endfor " fname in keys(s:fileLabelsDict)
+
+  return l:dirtFound
 endfunction
 
 function tex_seven#omni#GetTeXFilesList(base = '')
