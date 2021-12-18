@@ -82,11 +82,11 @@ endfunction
 " returns immediately, and with an exit code of -1...
 function CloseHandler(channel)
   return
-endfunc
+endfunction
 
 function ExitHandler(job, exitStatus)
   let s:compilationIsRunning = 0
   if a:exitStatus != 0
     echohl WarningMsg | echo  "LaTeX compilation FAILED!" | echohl None
   endif
-endfunc
+endfunction

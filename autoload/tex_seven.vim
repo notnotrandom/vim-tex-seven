@@ -162,6 +162,11 @@ function tex_seven#DiscoverMainFile()
   " Control reaches this point if no modeline has been found, neither in the
   " first three lines, nor in the last three lines. So iterate over the entire
   " file, to see if we are the main file or not.
+
+  " And since we will be going over the entire file, we also collect \label's
+  " (among other things). The \label's found are kept in the l:labels variable.
+  let l:labels = []
+
   for line in getline(1, line('$'))
     if line =~ g:tex_seven#emptyOrCommentLinesPattern
       continue " Skip comments or empty lines.
@@ -191,12 +196,9 @@ function tex_seven#DiscoverMainFile()
       continue
     endif
 
-    " And continuing on the same vein, also search for \label's, since we are
-    " reading the entire file anyway...
-    let l:labels = []
-
-    " The "let newlabel = ..." line matches once per line; but there is no
-    " point in having two \label's in the same line...
+    " As explained above, we are also on the lookout for \label's. The 'let
+    " newlabel = ...' line matches once per line; but there is no point in
+    " having two \label's in the same line...
     let newlabel = matchstr(line, g:tex_seven#labelCommandPattern)
     if newlabel != ""
       call add(l:labels, newlabel)
@@ -757,7 +759,7 @@ function tex_seven#QueryKey(preview)
     " Reset cursor to its original position.
     call setpos(".", [0, line("."), l:cursorColumn + 1, 0])
 
-    echo "Viewing the image file...\r"
+    echo "TeX-7: Viewing the image file...\r"
     call system(l:viewer . " " . shellescape(l:graphicFilename) . " &")
   elseif l:keyword =~ '.*ref'
     let refkey = matchstr(l:line[ l:startBackslashIdx : ], g:tex_seven#matchCommandArg)

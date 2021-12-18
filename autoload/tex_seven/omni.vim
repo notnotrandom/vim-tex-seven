@@ -183,6 +183,7 @@ function tex_seven#omni#UpdateIncludedFilesList()
   for l:i in l:includedFilesList
     let s:fileLabelsDict[l:i] = { 'last_read_epoch' : '', 'labels' : [] }
   endfor
+  echo "TeX-7: \include'd file list refreshed."
 endfunction
 
 " This function should only be called from tex_seven#DiscoverMainFile().
