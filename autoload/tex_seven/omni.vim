@@ -417,12 +417,20 @@ endfunction
 " --- Label retrieval and update ---
 "
 function tex_seven#omni#RetrieveAllLabels()
-  " echom "ral: inc files: " . string(tex_seven#GetIncludedFilesListProperFNames())
-  let l:job_list = [ "/usr/bin/perl", s:labelScriptPath ] + [ tex_seven#GetMainFile() ]
+  let l:mainFile = ""
+
+  " If there is no main file, e.g. if we are reading a .cls style file, then
+  " finding \label's makes no sense...
+  try
+    let l:mainFile = tex_seven#GetMainFile()
+  catch /^MainFileIsNotSet$/
+    return
+  endtry
+
+  let l:job_list = [ "/usr/bin/perl", s:labelScriptPath ] + [ l:mainFile ]
         \ + tex_seven#GetIncludedFilesListProperFNames()
 
   let l:job = job_start(l:job_list, {'close_cb': 'HandleText' })
-        " \  'exit_cb': 'ExitHandler' })
 endfunction
 
 function HandleText(channel) abort
