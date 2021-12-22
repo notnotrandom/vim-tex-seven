@@ -41,6 +41,8 @@ let s:epochSourceFileLastRead = ""
 
 let s:labelList = []
 
+let s:labelScriptPath = fnameescape(expand('<sfile>:h') . "/../../scripts/labels.pl")
+
 " Brief:
 " Throws: SourcesFileNotReadable
 function tex_seven#omni#GetBibEntries()
@@ -107,6 +109,7 @@ function tex_seven#omni#GetGraphicsList(base = '')
 endfunction
 
 function tex_seven#omni#GetLabels()
+  echom "path: " . s:labelScriptPath
   if s:labelList == []
     let l:needToRegenerateLabelList = "true"
   else
@@ -118,96 +121,21 @@ function tex_seven#omni#GetLabels()
     for value in values(s:fileLabelsDict)
       let s:labelList = s:labelList + value['labels']
     endfor
+    call sort(s:labelList) " Sort in-place.
   endif
   return s:labelList
 endfunction
 
-" Brief: Reads the main file, to retrieve the new list of \include'd files.
-" And since it is reading the main file, it also retrieves the \label's
-" therein (updating s:fileLabelsDict accordingly).
-" Return: none.
 function tex_seven#omni#UpdateIncludedFilesList()
-  let l:mainFile = tex_seven#GetMainFile()
+  let s:fileLabelsDict = {}
+  let s:labelList = []
 
-  " Since we are going to read s:mainFile anyway, also check (and update) the \include's.
-  let l:includedFilesList = []
-  let l:labels = []
+  " This will call tex_seven#GetIncludedFilesListProperFNames(), which will
+  " re-read s:mainFile if necessary, obtain a new list of \include'd files,
+  " and (re-)setup s:fileLabelsDict.
+  call tex_seven#omni#RetrieveAllLabels()
 
-  for line in tex_seven#GetLinesListFromFile(l:mainFile)
-    if line =~ g:tex_seven#emptyOrCommentLinesPattern
-      continue " Skip comments or empty lines.
-    endif
-
-    let included_file = matchstr(line, g:tex_seven#includedFilePattern)
-    if included_file != ""
-      call add(l:includedFilesList, included_file)
-      continue " I don't expect for there to be \label's anywhere near \include's...
-    endif
-
-    " This matches once per line; but there is no point in having two \label's
-    " in the same line...
-    let newlabel = matchstr(line, g:tex_seven#labelCommandPattern)
-    if newlabel != ""
-      call add(l:labels, newlabel)
-    endif
-  endfor
-
-  let s:fileLabelsDict[l:mainFile] = { 'last_read_epoch' : '', 'labels' : l:labels }
-
-  let l:timestamp = str2nr(system("date +%s"))
-  let s:fileLabelsDict[l:mainFile]['last_read_epoch'] = l:timestamp
-  call tex_seven#SetEpochMainFileLastReadForIncludes(l:timestamp)
-
-  call tex_seven#SetIncludedFilesList(l:includedFilesList)
-  let l:includedFilesList = tex_seven#GetIncludedFilesListProperFNames()
-
-  " Now make sure the keys in s:fileLabelsDict equals the list of \include'd
-  " files (plus the main file).
-  for l:k in keys(s:fileLabelsDict)
-    if l:k ==# l:mainFile | continue | endif
-
-    if count(l:includedFilesList, l:k) == 0
-      " An \include'd file was removed.
-      call remove(s:fileLabelsDict, l:k)
-    elseif count(l:includedFilesList, l:k) == 1
-      " An \include that continues to exist. Remove it from the list, to
-      " be able to detect files newly included (see below).
-      call remove(l:includedFilesList, index(l:includedFilesList, l:k))
-    elseif count(l:includedFilesList, l:k) > 1
-      throw "FileIncludedMoreThanOnce"
-    endif
-  endfor " l:k in keys(s:fileLabelsDict)
-
-  " Now iterate over what's left of l:includedFilesList, to see what files
-  " have been newly \include's.
-  for l:i in l:includedFilesList
-    let s:fileLabelsDict[l:i] = { 'last_read_epoch' : '', 'labels' : [] }
-  endfor
   echo "TeX-7: \include'd file list refreshed."
-endfunction
-
-" This function should only be called from tex_seven#DiscoverMainFile().
-function tex_seven#omni#SetupFilesLabelsDict(basedict)
-  " The dictionary provided should contain only a (filled) entry for the main
-  " file.
-  if a:basedict == {}
-    " This happens when the user opened a file that isn't the main one.
-    let s:fileLabelsDict =  { tex_seven#GetMainFile() : { 'last_read_epoch' : '',
-                                                        \ 'labels' : [] } }
-  else
-    let s:fileLabelsDict = deepcopy(a:basedict)
-  endif
-
-  " Now search the included files, and add (empty) entries for them in
-  " s:fileLabelsDict.
-  for l:fname in tex_seven#GetIncludedFilesListProperFNames()
-    let l:fcontents =
-          \ tex_seven#GetLinesListFromFile(l:fname)
-    let s:fileLabelsDict[l:fname] = { 'last_read_epoch' : '', 'labels' : [] }
-  endfor
-
-  " Now fill those empty entries.
-  call tex_seven#omni#UpdateFilesLabelsDict()
 endfunction
 
 " Brief: Updates (or fills, if empty), the file information in
@@ -483,4 +411,35 @@ function tex_seven#omni#QueryRefKey(refkey, preview)
   else
     echoerr "Label " . a:refkey . " not found."
   endif
+endfunction
+
+"
+" --- Label retrieval and update ---
+"
+function tex_seven#omni#RetrieveAllLabels()
+  " echom "ral: inc files: " . string(tex_seven#GetIncludedFilesListProperFNames())
+  let l:job_list = [ "/usr/bin/perl", s:labelScriptPath ] + [ tex_seven#GetMainFile() ]
+        \ + tex_seven#GetIncludedFilesListProperFNames()
+
+  let l:job = job_start(l:job_list, {'close_cb': 'HandleText' })
+        " \  'exit_cb': 'ExitHandler' })
+endfunction
+
+function HandleText(channel) abort
+  let l:text = ""
+  while ch_status(a:channel, {'part': 'out'}) == 'buffered'
+    let l:text .= ch_read(a:channel)
+  endwhile
+  call tex_seven#omni#SetupFilesLabelsDict(l:text)
+endfunction
+
+function tex_seven#omni#SetupFilesLabelsDict(dict_json)
+  let l:decoded_json = ""
+  try
+    let l:decoded_json = json_decode(a:dict_json)
+  catch
+    echoerr "Caught exception when decoding JSON."
+  endtry
+
+  let s:fileLabelsDict = deepcopy(l:decoded_json)
 endfunction

@@ -83,6 +83,8 @@ let s:sourcesFile = ""
 " Here, if we do NOT find a main file, we just continue, for it is possible
 " that the main file does not exist yet.
 function tex_seven#AddBuffer()
+  " call tex_seven#omni#RetrieveAllLabels()
+  " let job = job_start(["/usr/bin/perl", "/home/oscar/foo.pl"],
   if s:mainFile == ""
     call tex_seven#DiscoverMainFile()
   endif
@@ -154,7 +156,7 @@ function tex_seven#DiscoverMainFile()
       " Which is the correct main file, according to the modeline.
       let s:mainFile = fnamemodify(expand('%:p:h') . '/' . l:mainfile, ':p')
       let s:path = fnamemodify(s:mainFile, ':p:h') . '/'
-      call tex_seven#omni#SetupFilesLabelsDict({})
+      " call tex_seven#omni#SetupFilesLabelsDict({})
       return
     endif
   endfor
@@ -162,10 +164,6 @@ function tex_seven#DiscoverMainFile()
   " Control reaches this point if no modeline has been found, neither in the
   " first three lines, nor in the last three lines. So iterate over the entire
   " file, to see if we are the main file or not.
-
-  " And since we will be going over the entire file, we also collect \label's
-  " (among other things). The \label's found are kept in the l:labels variable.
-  let l:labels = []
 
   for line in getline(1, line('$'))
     if line =~ g:tex_seven#emptyOrCommentLinesPattern
@@ -195,25 +193,13 @@ function tex_seven#DiscoverMainFile()
       call add(s:includedFilesList, l:aux)
       continue
     endif
-
-    " As explained above, we are also on the lookout for \label's. The 'let
-    " newlabel = ...' line matches once per line; but there is no point in
-    " having two \label's in the same line...
-    let newlabel = matchstr(line, g:tex_seven#labelCommandPattern)
-    if newlabel != ""
-      call add(l:labels, newlabel)
-    endif
   endfor
 
   " If the current buffer indeed turned out to be the main one, then there is
   " nothing else to do (other than updating the time it was last read, which
-  " is just now; and set up the Dict used for omni completion of \ref, etc).
+  " is just now).
   if s:mainFile != ""
     let s:epochMainFileLastReadForIncludes = str2nr(system("date +%s"))
-    call tex_seven#omni#SetupFilesLabelsDict(
-          \ { s:mainFile : { 'last_read_epoch' : s:epochMainFileLastReadForIncludes,
-          \                  'labels' : l:labels }} )
-    return
   endif
 
   " If control reaches here, then we have not found the main .tex file. This
@@ -285,8 +271,7 @@ endfunction
 function tex_seven#GetIncludedFilesListProperFNames()
   let l:path = tex_seven#GetPath()
   let l:fnamesList = tex_seven#GetIncludedFilesList()
-  return map(l:fnamesList, "l:path . v:val . '.tex'")
-  " return l:fnamesList
+  return map(copy(l:fnamesList), "l:path . v:val . '.tex'")
 endfunction
 
 " Brief: Allow external scripts to retrieve that value of
