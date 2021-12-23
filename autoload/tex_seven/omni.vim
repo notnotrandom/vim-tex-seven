@@ -34,14 +34,30 @@ let s:bibEntryList = []
 " sans quotes.
 let s:bibtexEntryKeyPattern = '\m^@\a\+{\zs\S\+\ze,'
 
-" The keys are proper filenames (i.e. that exist to the OS).
+" The keys are proper filenames (i.e. that exist to the OS). For each key, its
+" value is another dict, like so: { 'last_read_epoch' => '', 'labels' => [] }.
 let s:fileLabelsDict = {}
 
 let s:epochSourceFileLastRead = ""
 
 let s:labelList = []
 
+" Perl script that is used to initially parse (in the background) the main
+" file, as well as any \include'd files, for \label's.
 let s:labelScriptPath = fnameescape(expand('<sfile>:h') . "/../../scripts/labels.pl")
+
+" Brief: Callback on closure of the Perl script execution process. Basically
+" read its output from the communication channel, until there is no more data,
+" and then send that data to tex_seven#omni#SetupFilesLabelsDict().
+"
+" Return: None.
+function HandleText(channel) abort
+  let l:text = ""
+  while ch_status(a:channel, {'part': 'out'}) == 'buffered'
+    let l:text .= ch_read(a:channel)
+  endwhile
+  call tex_seven#omni#SetupFilesLabelsDict(l:text)
+endfunction
 
 " Brief:
 " Throws: SourcesFileNotReadable
@@ -109,7 +125,6 @@ function tex_seven#omni#GetGraphicsList(base = '')
 endfunction
 
 function tex_seven#omni#GetLabels()
-  echom "path: " . s:labelScriptPath
   if s:labelList == []
     let l:needToRegenerateLabelList = "true"
   else
@@ -124,65 +139,6 @@ function tex_seven#omni#GetLabels()
     call sort(s:labelList) " Sort in-place.
   endif
   return s:labelList
-endfunction
-
-function tex_seven#omni#UpdateIncludedFilesList()
-  let s:fileLabelsDict = {}
-  let s:labelList = []
-
-  " This will call tex_seven#GetIncludedFilesListProperFNames(), which will
-  " re-read s:mainFile if necessary, obtain a new list of \include'd files,
-  " and (re-)setup s:fileLabelsDict.
-  call tex_seven#omni#RetrieveAllLabels()
-
-  echo "TeX-7: \include'd file list refreshed."
-endfunction
-
-" Brief: Updates (or fills, if empty), the file information in
-" s:fileLabelsDict. Tacitly assumes that the keys in that Dict still
-" correspond to the \include'd files.
-" Return: "true" if there dirty files found. "false" otherwise.
-function tex_seven#omni#UpdateFilesLabelsDict()
-  let l:dirtFound = "false"
-
-  for fname in keys(s:fileLabelsDict)
-    " See if file is dirty.
-    let l:dirty = "false"
-
-    if s:fileLabelsDict[fname]['last_read_epoch'] == ''
-      " File is new, so we have to read it (i.e., it is 'dirty').
-      let l:dirty = "true"
-    else
-      let l:epochFileLastModified = str2nr(system("stat --format %Y " . fname))
-      if l:epochFileLastModified > s:fileLabelsDict[fname]['last_read_epoch']
-        let l:dirty = "true"
-      endif
-    endif
-
-    " Now, if it turned out that the file was indeed dirty, re-read its
-    " \label's again.
-    if l:dirty ==# "true"
-      if l:dirtFound ==# "false" | let l:dirtFound = "true" | endif
-
-      let s:fileLabelsDict[fname]['labels'] = []
-
-      for line in tex_seven#GetLinesListFromFile(fname)
-        if line =~ g:tex_seven#emptyOrCommentLinesPattern
-          continue " Skip comments or empty lines.
-        endif
-
-        let newlabel = matchstr(line, g:tex_seven#labelCommandPattern)
-        if newlabel != ""
-          call add(s:fileLabelsDict[fname]['labels'], newlabel)
-        endif
-      endfor " line in tex_seven#GetLinesListFromFile(fname)
-
-      " Update the timestamp of when the file was last read (i.e. just now).
-      let s:fileLabelsDict[fname]['last_read_epoch'] = str2nr(system("date +%s"))
-    endif " if l:dirty ==# "true"
-  endfor " fname in keys(s:fileLabelsDict)
-
-  return l:dirtFound
 endfunction
 
 function tex_seven#omni#GetTeXFilesList(base = '')
@@ -203,38 +159,6 @@ function tex_seven#omni#GetTeXFilesList(base = '')
   else
     return filter(split(l:texFiles, "\n"), 'v:val =~? "\\m" . a:base')
   endif
-endfunction
-
-function tex_seven#omni#QueryBibKey(citekey, preview)
-  let l:sourcesFile = tex_seven#GetSourcesFile()
-  if l:sourcesFile == ""
-    throw "BibSourceFileNotFound"
-  endif
-
-  " To preview, or not to preview.
-  let l:to_p_or_not_to_p = 'p'
-  if a:preview == 0 | let l:to_p_or_not_to_p = '' | endif
-
-  " :edit or :pedit the bib sources file, and search for a:citekey.
-  execute l:to_p_or_not_to_p . 'edit +/' . a:citekey . ' ' . l:sourcesFile
-  " The redraw command is needed to avoid a "Press here to continue" message
-  " from being shown...
-  redraw
-  " Center the line the cursor is at in the older (original) buffer.
-  execute 'normal! zz'
-  " If opening a preview window, then move the cursor there (^Wp). It will be
-  " placed on the line containing a:citekey; the zt positions the window so
-  " that that line is shown near the top of the preview window.
-  if a:preview == 1 | execute 'normal! pzt' | endif
-endfunction
-
-function tex_seven#omni#QueryIncKey(inckey, preview)
-  " To preview, or not to preview.
-  let l:to_p_or_not_to_p = 'p'
-  if a:preview == 0 | let l:to_p_or_not_to_p = '' | endif
-
-  execute l:to_p_or_not_to_p . 'edit ' . a:inckey . '.tex'
-  if a:preview == 1 | execute 'normal! p' | endif
 endfunction
 
 " For completion of say, \cite{}, the cursor is on '}'. Also remember that
@@ -303,6 +227,38 @@ function tex_seven#omni#OmniCompletions(base)
   endif
 
   return []
+endfunction
+
+function tex_seven#omni#QueryBibKey(citekey, preview)
+  let l:sourcesFile = tex_seven#GetSourcesFile()
+  if l:sourcesFile == ""
+    throw "BibSourceFileNotFound"
+  endif
+
+  " To preview, or not to preview.
+  let l:to_p_or_not_to_p = 'p'
+  if a:preview == 0 | let l:to_p_or_not_to_p = '' | endif
+
+  " :edit or :pedit the bib sources file, and search for a:citekey.
+  execute l:to_p_or_not_to_p . 'edit +/' . a:citekey . ' ' . l:sourcesFile
+  " The redraw command is needed to avoid a "Press here to continue" message
+  " from being shown...
+  redraw
+  " Center the line the cursor is at in the older (original) buffer.
+  execute 'normal! zz'
+  " If opening a preview window, then move the cursor there (^Wp). It will be
+  " placed on the line containing a:citekey; the zt positions the window so
+  " that that line is shown near the top of the preview window.
+  if a:preview == 1 | execute 'normal! pzt' | endif
+endfunction
+
+function tex_seven#omni#QueryIncKey(inckey, preview)
+  " To preview, or not to preview.
+  let l:to_p_or_not_to_p = 'p'
+  if a:preview == 0 | let l:to_p_or_not_to_p = '' | endif
+
+  execute l:to_p_or_not_to_p . 'edit ' . a:inckey . '.tex'
+  if a:preview == 1 | execute 'normal! p' | endif
 endfunction
 
 function tex_seven#omni#QueryRefKey(refkey, preview)
@@ -413,9 +369,12 @@ function tex_seven#omni#QueryRefKey(refkey, preview)
   endif
 endfunction
 
+" Brief: Runs the Perl script (in the background) to retrieve the \label's in
+" the main file, and in \include'd files, if any. Those \label's are returned
+" in a JSON structure equal to that of s:fileLabelsDict. See the documentation
+" of the closure callback, HandleText(), for more information.
 "
-" --- Label retrieval and update ---
-"
+" Return: None.
 function tex_seven#omni#RetrieveAllLabels()
   let l:mainFile = ""
 
@@ -430,17 +389,13 @@ function tex_seven#omni#RetrieveAllLabels()
   let l:job_list = [ "/usr/bin/perl", s:labelScriptPath ] + [ l:mainFile ]
         \ + tex_seven#GetIncludedFilesListProperFNames()
 
-  let l:job = job_start(l:job_list, {'close_cb': 'HandleText' })
+  let l:job = job_start(l:job_list, { 'close_cb': 'HandleText' })
 endfunction
 
-function HandleText(channel) abort
-  let l:text = ""
-  while ch_status(a:channel, {'part': 'out'}) == 'buffered'
-    let l:text .= ch_read(a:channel)
-  endwhile
-  call tex_seven#omni#SetupFilesLabelsDict(l:text)
-endfunction
-
+" Brief: Receive in JSON format the dict containing the \label's retrieved by
+" the Perl script, decode it, and store it in s:fileLabelsDict.
+"
+" Return: None.
 function tex_seven#omni#SetupFilesLabelsDict(dict_json)
   let l:decoded_json = ""
   try
@@ -450,4 +405,86 @@ function tex_seven#omni#SetupFilesLabelsDict(dict_json)
   endtry
 
   let s:fileLabelsDict = deepcopy(l:decoded_json)
+endfunction
+
+" Brief: Updates (or fills, if empty), the file information in
+" s:fileLabelsDict. Tacitly assumes that the keys in that Dict still
+" correspond to the \include'd files.
+" Return: "true" if there dirty files found. "false" otherwise.
+function tex_seven#omni#UpdateFilesLabelsDict()
+  let l:dirtFound = "false"
+
+  for fname in keys(s:fileLabelsDict)
+    " See if file is dirty.
+    let l:dirty = "false"
+
+    if s:fileLabelsDict[fname]['last_read_epoch'] == ''
+      " File is new, so we have to read it (i.e., it is 'dirty').
+      let l:dirty = "true"
+    else
+      let l:epochFileLastModified = str2nr(system("stat --format %Y " . fname))
+      if l:epochFileLastModified > s:fileLabelsDict[fname]['last_read_epoch']
+        let l:dirty = "true"
+      endif
+    endif
+
+    " Now, if it turned out that the file was indeed dirty, re-read its
+    " \label's again.
+    if l:dirty ==# "true"
+      if l:dirtFound ==# "false" | let l:dirtFound = "true" | endif
+
+      let s:fileLabelsDict[fname]['labels'] = []
+
+      for line in tex_seven#GetLinesListFromFile(fname)
+        if line =~ g:tex_seven#emptyOrCommentLinesPattern
+          continue " Skip comments or empty lines.
+        endif
+
+        let newlabel = matchstr(line, g:tex_seven#labelCommandPattern)
+        if newlabel != ""
+          call add(s:fileLabelsDict[fname]['labels'], newlabel)
+        endif
+      endfor " line in tex_seven#GetLinesListFromFile(fname)
+
+      " Update the timestamp of when the current file was last read (i.e. just now).
+      let s:fileLabelsDict[fname]['last_read_epoch'] = str2nr(system("date +%s"))
+    endif " if l:dirty ==# "true"
+  endfor " fname in keys(s:fileLabelsDict)
+
+  return l:dirtFound
+endfunction
+
+" Brief: This function is nmapped (by default to the <F5> key) in
+" ftplugin/tex_seven.vim. Its purpose is for the user to call it, after
+" changing the list of \include'd files.
+"
+" The rationale is as follows: when running
+" tex_seven#omni#RetrieveAllLabels(), the list of \include'd files is
+" refreshed, and then the search for \label's is done both on the main file,
+" and on \include'd files, if any. But the list of \include'd files does not
+" change very often. So when looking for \label's during omni-completion, for
+" efficiency's sake, we just assume that that list remain the same (cf.
+" tex_seven#omni#UpdateFilesLabelsDict(), which is called from
+" tex_seven#omni#GetLabels()). The purpose of this function is for the user,
+" after changing the list of \include'd files, to be able to force an update
+" of the list of \include'd files, and then to go find \label's in them. The
+" simplest way of achieving the latter task, is simply to call
+" tex_seven#omni#RetrieveAllLabels(), in which the retrieval process runs in
+" the background, to search everything (main file plus \include'd) for \label
+" commands.
+"
+function tex_seven#omni#UpdateIncludedFilesList()
+  let s:fileLabelsDict = {}
+  let s:labelList = []
+
+  " This will call tex_seven#GetIncludedFilesListProperFNames(), which will
+  " re-read s:mainFile if necessary, obtain a new list of \include'd files,
+  " and (re-)setup s:fileLabelsDict.
+  call tex_seven#omni#RetrieveAllLabels()
+
+  " The advantage of having this separate function for the user to call --
+  " instead of, for instance, mapping tex_seven#omni#RetrieveAllLabels() to
+  " <F5> -- is that we can show a message afterwords, but show no message when
+  " that is called initially (cf. ftplugin/tex_seven.vim).
+  echo "TeX-7: \include'd file list refreshed."
 endfunction

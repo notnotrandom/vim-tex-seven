@@ -226,6 +226,13 @@ function tex_seven#EnvironmentOperator(mode)
     return "\<Esc>:".l:pos[1]."\<Enter>V".(l:pos[2]-l:pos[1])."j"
 endfunction
 
+" Brief: Parse the main file, and return the list of \include'd files. Note
+" that what is returned is what would go into a \include{} command, and not
+" the full paths of those files -- for this, see
+" tex_seven#GetIncludedFilesListProperFNames().
+"
+" Return: A list containing \include'd files, filtered to match to a:base, if
+" provided (this is used by omni-completion).
 function tex_seven#GetIncludedFilesList(base = '')
   call tex_seven#GetMainFile()
 
@@ -268,6 +275,9 @@ function tex_seven#GetIncludedFilesList(base = '')
   endif
 endfunction
 
+" Brief: Calls tex_seven#GetIncludedFilesList(), and returns a copy of
+" s:includedFilesList, but containing the full paths of those \include'd
+" files.
 function tex_seven#GetIncludedFilesListProperFNames()
   let l:path = tex_seven#GetPath()
   let l:fnamesList = tex_seven#GetIncludedFilesList()
