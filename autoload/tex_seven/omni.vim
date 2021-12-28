@@ -401,8 +401,12 @@ function tex_seven#omni#SetupFilesLabelsDict(dict_json)
   try
     let l:decoded_json = json_decode(a:dict_json)
   catch
-    echoerr "Caught exception when decoding JSON."
   endtry
+
+  if type(l:decoded_json) != v:t_dict
+    echoerr "JSON did not decode correctly (check output of external script)."
+    return
+  endif
 
   let s:fileLabelsDict = deepcopy(l:decoded_json)
 endfunction

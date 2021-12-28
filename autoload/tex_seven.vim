@@ -83,8 +83,6 @@ let s:sourcesFile = ""
 " Here, if we do NOT find a main file, we just continue, for it is possible
 " that the main file does not exist yet.
 function tex_seven#AddBuffer()
-  " call tex_seven#omni#RetrieveAllLabels()
-  " let job = job_start(["/usr/bin/perl", "/home/oscar/foo.pl"],
   if s:mainFile == ""
     call tex_seven#DiscoverMainFile()
   endif
