@@ -404,7 +404,9 @@ function tex_seven#omni#SetupFilesLabelsDict(dict_json)
   endtry
 
   if type(l:decoded_json) != v:t_dict
-    echoerr "JSON did not decode correctly (check output of external script)."
+    echohl WarningMsg |
+          \ echo "JSON did not decode correctly (check output of external script)."
+          \ | echohl None
     return
   endif
 
