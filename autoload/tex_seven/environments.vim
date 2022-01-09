@@ -26,8 +26,8 @@
 "
 "************************************************************************
 
-let s:beginpat = '\m^\s*\\begin{\zs\w\+\*\=\ze}'
-let s:endpat = '\m^\s*\\end{\zs\w\+\*\=\ze}'
+let s:beginpat = '\m.*\\begin{\zs\w\+\*\=\ze}'
+let s:endpat = '\m^.*\\end{\zs\w\+\*\=\ze}'
 
 let s:envSnippetsDict = {}
 
