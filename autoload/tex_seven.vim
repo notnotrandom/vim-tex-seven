@@ -254,15 +254,20 @@ function tex_seven#GetIncludedFilesList(base = '')
   if l:needToReadMainFile == "true"
     let s:includedFilesList = []
 
-    for line in tex_seven#GetLinesListFromFile(s:mainFile)
-      if line =~ g:tex_seven#emptyOrCommentLinesPattern
-        continue " Skip comments or empty lines.
-      endif
-      let included_file = matchstr(line, g:tex_seven#includedFilePattern)
-      if included_file != ""
-        call add(s:includedFilesList, included_file)
-      endif
-    endfor
+    try
+      for line in tex_seven#GetLinesListFromFile(s:mainFile)
+        if line =~ g:tex_seven#emptyOrCommentLinesPattern
+          continue " Skip comments or empty lines.
+        endif
+        let included_file = matchstr(line, g:tex_seven#includedFilePattern)
+        if included_file != ""
+          call add(s:includedFilesList, included_file)
+        endif
+      endfor
+    catch /^FileIsNotReadable$/
+      echoerr "Main file is set(" . s:mainFile . ") but not readable!"
+      return []
+    endtry
     let s:epochMainFileLastReadForIncludes = str2nr(system("date +%s"))
   endif
 
