@@ -386,8 +386,19 @@ function tex_seven#omni#RetrieveAllLabels()
     return
   endtry
 
+  let l:inc_files_list = []
+  try
+    let l:inc_files_list = tex_seven#GetIncludedFilesListProperFNames()
+  catch /^MainFileIsNotReadable$/
+    echoerr "Main file could not be read (could a modeline be wrong?)."
+    return
+  catch
+    echoerr "Could not retrieve list of \include'd files."
+    return
+  endtry
+
   let l:job_list = [ "/usr/bin/perl", s:labelScriptPath ] + [ l:mainFile ]
-        \ + tex_seven#GetIncludedFilesListProperFNames()
+        \ + l:inc_files_list
 
   let l:job = job_start(l:job_list, { 'close_cb': 'HandleText' })
 endfunction

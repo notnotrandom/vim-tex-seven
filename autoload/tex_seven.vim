@@ -231,6 +231,7 @@ endfunction
 "
 " Return: A list containing \include'd files, filtered to match to a:base, if
 " provided (this is used by omni-completion).
+" Throw: MainFileIsNotReadable, if the main file could not be read.
 function tex_seven#GetIncludedFilesList(base = '')
   call tex_seven#GetMainFile()
 
@@ -265,8 +266,7 @@ function tex_seven#GetIncludedFilesList(base = '')
         endif
       endfor
     catch /^FileIsNotReadable$/
-      echoerr "Main file is set(" . s:mainFile . ") but not readable!"
-      return []
+      throw "MainFileIsNotReadable"
     endtry
     let s:epochMainFileLastReadForIncludes = str2nr(system("date +%s"))
   endif
