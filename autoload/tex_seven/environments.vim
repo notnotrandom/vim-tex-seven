@@ -22,11 +22,11 @@
 "    along with this program. If not, see <http://www.gnu.org/licenses/>.
 "
 "    Copyright Elias Toivanen, 2011-2014
-"    Copyright Óscar Pereira, 2020-2021
+"    Copyright Óscar Pereira, 2020-2022
 "
 "************************************************************************
 
-let s:beginpat = '\m.*\\begin{\zs\w\+\*\=\ze}'
+let s:beginpat = '\m^.*\\begin{\zs\w\+\*\=\ze}'
 let s:endpat = '\m^.*\\end{\zs\w\+\*\=\ze}'
 
 let s:envSnippetsDict = {}
