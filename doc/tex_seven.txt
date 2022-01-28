@@ -1,4 +1,4 @@
-*tex_seven.txt*	For Vim version 7.5	Last change: November 2, 2021
+*tex_seven.txt*	For Vim version 7.5	Last change: January 28, 2022
 
                           TeX-7
 
@@ -10,7 +10,6 @@
 Author: Óscar Pereira
 Email: See https://randomwalk.eu/contacts
 License: GPL
-Version: 1.0
 
   TeX-7 is a ftplugin that aims to enhance the writing experience of high
   quality documents with LaTeX and Vim. The goal of TeX-7 is to be simple and
@@ -273,7 +272,9 @@ Table of Contents                                 *tex_seven-toc*
     \end lines of that enclosing environment. This works if the cursor is
     placed anywhere on the \begin line, anywhere on the \end line, or anywhere
     inside the environment (but *not* inside an inner nested environment, for
-    in that case it is that inner environment's name that gets replaced).
+    in that case it is that inner environment's name that gets replaced). It
+    also works when either the \begin or the \end statements are not at the
+    start of their respective lines.
 
     To go from from a "\label{" or "\cite{" to its corresponding definition,
     place the cursor over them and hit either [gp] or [gd]: the first will

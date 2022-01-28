@@ -1,7 +1,6 @@
 " LaTeX filetype plugin
 " Languages:    Vimscript
 " Maintainer:   Óscar Pereira
-" Version:      0.2
 " License:      GPL
 
 "************************************************************************
