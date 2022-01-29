@@ -67,6 +67,10 @@ let s:mainFile = ""
 let s:mappings_are_saved_b = v:false
 let s:mappings_i = []
 let s:mappings_s = []
+let s:mappings_v = []
+
+let s:old_default_register = ""
+let s:old_default_register_type = ""
 
 " This variable is set when s:mainFile is set. Is is the full path of
 " s:mainFile.tex, without the name. I.e., if the full path of s:mainFile is
@@ -360,9 +364,16 @@ function tex_seven#InsertCommand()
   " work).
   if s:mappings_are_saved_b == v:false
     let s:mappings_i = tex_seven#SaveBufferMappings(['<Tab>', '<Esc>', '<C-c>'], 'i')
-    let s:mappings_s = tex_seven#SaveBufferMappings(['<BS>, <Esc>', '<C-c>'], 's')
+    let s:mappings_s = tex_seven#SaveBufferMappings(['<BS>', '<Esc>', '<C-c>'], 's')
+    let s:mappings_v = tex_seven#SaveBufferMappings(['p', 'P'], 'v')
     let s:mappings_are_saved_b = v:true
   endif
+
+  " Either the name of command, or its argument, might come from something the
+  " user has yanked. So save it (otherwise it is overwritten when the user
+  " replaces the text in select-mode).
+  let s:old_default_register = getreg("\"")
+  let s:old_default_register_type = getregtype("\"")
 
   " This <BS> map is here because if the user, having a visually selected
   " placeholder (select mode), hits backspace, the placeholder text is
@@ -370,6 +381,9 @@ function tex_seven#InsertCommand()
   " backspace to actually delete the previous char, and then go to insert
   " mode.
   snoremap <buffer> <BS> <BS>i
+
+  vnoremap <buffer> p pa
+  vnoremap <buffer> P Pa
 
   inoremap <buffer><expr> <Esc> tex_seven#InsertCommandUnmapTab()
   snoremap <buffer><expr> <Esc> tex_seven#InsertCommandUnmapTab()
@@ -387,6 +401,12 @@ endfunction
 " finished typing up said argument, he can press Tab to exit the finished
 " command; see below comment.
 function tex_seven#InsertCommandGoToArg()
+
+  " We get here when the visually selected "cmd", in "\cmd{arg}", has been
+  " replaced with some other text, by the user. So the contents of the "
+  " register now contain "cmd". The following line restores its old contents
+  " (text yanked by the user), if any.
+  call setreg("\"", s:old_default_register, s:old_default_register_type)
 
   " See tex_seven#InsertCommandExitArg() for the use of these two s:
   " variables. charcol(".") is the column of the '{' in \foo{bar}. So in this
@@ -461,9 +481,15 @@ endfunction
 function tex_seven#InsertCommandUnmapTab()
   call tex_seven#RestoreBufferMappings(s:mappings_i)
   call tex_seven#RestoreBufferMappings(s:mappings_s)
+  call tex_seven#RestoreBufferMappings(s:mappings_v)
+
+  " Also restore whatever the user had yanked, before starting the insertion
+  " of the current command, if anything.
+  call setreg("\"", s:old_default_register, s:old_default_register_type)
 
   let s:mappings_i = []
   let s:mappings_s = []
+  let s:mappings_v = []
   let s:mappings_are_saved_b = v:false
 
   return "\<Esc>"
