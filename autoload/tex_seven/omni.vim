@@ -140,6 +140,54 @@ function tex_seven#omni#GetLabels()
   return s:labelList
 endfunction
 
+function tex_seven#omni#GetLabelsNoScript(base = '')
+  let l:mainFile = tex_seven#GetMainFile()
+
+  let l:labelsFound = []
+
+  " Since we need to read s:mainFile anayway, also check (and update) the \include's.
+  let l:includedFilesList = []
+
+  for line in tex_seven#GetLinesListFromFile(l:mainFile)
+    if line =~ g:tex_seven#emptyOrCommentLinesPattern
+      continue " Skip comments or empty lines.
+    endif
+
+    let included_file = matchstr(line, g:tex_seven#includedFilePattern)
+    if included_file != ""
+      call add(l:includedFilesList, included_file)
+      continue " I don't expect for there to be \label's anywhere near \include's...
+    endif
+
+    " This matches once per line; but there is no point in having two \label's
+    " in the same line...
+    let newlabel = matchstr(line,  '\m\\label{\zs\S\+\ze}')
+    if newlabel != ""
+      if a:base == '' || newlabel =~? '\m' . a:base
+        call add(l:labelsFound, newlabel)
+      endif
+    endif
+  endfor
+  call tex_seven#SetEpochMainFileLastReadForIncludes(str2nr(system("date +%s")))
+  call tex_seven#SetIncludedFilesList(l:includedFilesList)
+
+  " Now search the included files.
+  for l:fname in tex_seven#GetIncludedFilesList()
+    let l:fcontents =
+          \ tex_seven#GetLinesListFromFile(tex_seven#GetPath() . l:fname . '.tex')
+    for l:line in l:fcontents
+      let newlabel = matchstr(l:line,  '\m\\label{\zs\S\+\ze}')
+      if newlabel != ""
+        if a:base == '' || newlabel =~? '\m' . a:base
+          call add(l:labelsFound, newlabel)
+        endif
+      endif
+    endfor
+  endfor
+
+  return sort(l:labelsFound) " Sort in-place.
+endfunction
+
 function tex_seven#omni#GetTeXFilesList(base = '')
   let l:path = tex_seven#GetPath()
 
@@ -213,10 +261,17 @@ function tex_seven#omni#OmniCompletions(base)
     endtry
   elseif l:keyword =~ '.*ref'
     try
-      if a:base == ""
-        return tex_seven#omni#GetLabels()
+      if has_key(g:tex_seven_config, 'label_retrieval_use_script')
+            \ && g:tex_seven_config['label_retrieval_use_script'] == 1
+
+        if a:base == ""
+          return tex_seven#omni#GetLabels()
+        else
+          return filter(copy(tex_seven#omni#GetLabels()), 'v:val =~? "\\m" . a:base')
+        endif
       else
-        return filter(copy(tex_seven#omni#GetLabels()), 'v:val =~? "\\m" . a:base')
+        " Not using external script for \label retrieval.
+        return tex_seven#omni#GetLabelsNoScript(a:base)
       endif
     catch
       echoerr "Retrieving \\labels failed."
@@ -225,7 +280,7 @@ function tex_seven#omni#OmniCompletions(base)
     return []
   endif
 
-  return []
+  return [] " Just in case one of the conditions above fails without returning anything...
 endfunction
 
 function tex_seven#omni#QueryBibKey(citekey, preview)

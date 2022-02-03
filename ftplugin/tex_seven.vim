@@ -43,15 +43,16 @@ let b:init_tex_seven = 1
 " ************************ Common Settings ************************
 " Defaults.
 let s:tex_seven_config = {
-      \    'debug'            : 0,
-      \    'compiler'         : 'make',
-      \    'compiler_opts'    : '',
-      \    'diamond_tex'      : 1,
-      \    'disable'          : 0,
-      \    'leader'           : ':',
-      \    'verbose'          : 0,
-      \    'viewer'           : '' ,
-      \    'viewer_images'    : '' ,
+      \    'debug'                      : 0,
+      \    'compiler'                   : 'make',
+      \    'compiler_opts'              : '',
+      \    'diamond_tex'                : 1,
+      \    'disable'                    : 0,
+      \    'label_retrieval_use_script' : 0,
+      \    'leader'                     : ':',
+      \    'verbose'                    : 0,
+      \    'viewer'                     : '' ,
+      \    'viewer_images'              : '' ,
       \}
 
 if exists('g:tex_seven_config')
