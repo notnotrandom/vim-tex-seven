@@ -19,13 +19,13 @@ License: GPL
   for all editing tasks, then TeX-7 is for you!
 
   The main features of TeX-7 are:
-    * Powerful text-object for LaTeX environments
-    * Omni-completion of BibTeX database entries and label references
-    * Omni-completion of mathematical symbols, and included files
-    * Preview of BibTeX database entries and label references
-    * Preview of \includegraphics (supported formats: JPG, PNG, or PDF)
-    * Filetype specific indentation (courtesy of Johannes Tanzler)
-    * No-hassle settings, relatively few mappings
+    * Powerful text-object for LaTeX environments;
+    * Omni-completion of BibTeX database entries and label references;
+    * Omni-completion of mathematical symbols, and included files;
+    * Preview of BibTeX database entries and label references;
+    * Preview of \includegraphics (supported formats: JPG, PNG, or PDF);
+    * Filetype specific indentation (courtesy of Johannes Tanzler);
+    * No-hassle settings, relatively few mappings;
     * Supports distraction-free LaTeX "small compile", done when saving.
 
   Shoutouts & thanks
@@ -97,6 +97,11 @@ Table of Contents                                 *tex_seven-toc*
         the latter is useful when writing Beamer templates.
       * Default: 1 (map <LocalLeader>> to <> and <LocalLeader>< to * \(lr)angle).
 
+  label_retrieval_use_script: Boolean
+      *   Set whether \label retrieval will be done using vimscript only, or
+          using an external Perl script (see below for requirements).
+      *   Default: 0 (retrieves \label's using vimscript only).
+
   leader: String
       *   Most TeX-7 mappings begin with this prefix.
       *   Optional.
@@ -121,10 +126,11 @@ Table of Contents                                 *tex_seven-toc*
   Example:
 >
   let g:tex_seven_config = {
-    \ 'compiler'         : '/bin/bash',
-    \ 'compiler_opts'    : 'CompileTeX.sh',
-    \ 'viewer'           : 'okular' ,
-    \ 'viewer_images'    : 'gwenview' }
+    \ 'compiler'                   : '/bin/bash',
+    \ 'compiler_opts'              : 'CompileTeX.sh',
+    \ 'label_retrieval_use_script' : 1,
+    \ 'viewer'                     : 'okular' ,
+    \ 'viewer_images'              : 'gwenview' }
 <
   IMPORTANT #1: Do NOT set this |Dictionary| in
   $VIMRUNTIME/after/ftplugin/tex.vim. This file is only sourced after TeX-7
@@ -147,6 +153,9 @@ Table of Contents                                 *tex_seven-toc*
     finish
   endif
   let b:after_ftplugin_tex_init = 1
+
+  IMPORTANT #3: To use the Perl script for \label retrieval, the perl-json
+  module is required (in addition to Perl itself).
 <
 ==============================================================================
 
@@ -443,6 +452,18 @@ Table of Contents                                 *tex_seven-toc*
     Note that as in the example above, all completion scenarios described
     below always takes place in insert mode. Also, | is used to denote the
     cursor's position.
+
+    PERL SCRIPT FOR LABELS. Retrieval of \label statements, by default, is
+    done using pure vimscript -- but the algorithm is rather naïve. For one
+    thing, all the .tex files have to be parsed each time completion is
+    triggered. This is fine for small documents, but for larger projects, it
+    can be more convenient to use an external Perl script (this is done
+    setting label_retrieval_use_script to 1, in the configuration dictionary).
+    When this is set, when opening a file, the external script is launched in
+    the background, to retrieve all \label statements, across all project
+    .tex files. Thus, triggered completion will be a quicker process. (Recall
+    that this external script requires that Perl be installed, together with
+    the perl-json module, as stated in |tex_seven-installation|).
 
 5.1 Omni-Completion                               *tex_seven-completion-omni*
 
