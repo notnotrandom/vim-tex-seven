@@ -382,8 +382,9 @@ function tex_seven#InsertCommand()
   " mode.
   snoremap <buffer> <BS> <BS>i
 
-  vnoremap <buffer> p pa
-  vnoremap <buffer> P Pa
+  " Select mode only! (vnoremap works for both select and visual mode.)
+  xnoremap <buffer> p pa
+  xnoremap <buffer> P Pa
 
   inoremap <buffer><expr> <Esc> tex_seven#InsertCommandUnmapTab()
   snoremap <buffer><expr> <Esc> tex_seven#InsertCommandUnmapTab()
