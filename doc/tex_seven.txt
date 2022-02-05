@@ -232,6 +232,11 @@ Table of Contents                                 *tex_seven-toc*
     for <C-c>. So long story short, this works as you would expect, without
     surprises.
 
+    And if for either the "cmd" part, or the "arg" part, you want to paste
+    some text you have previously yanked/cut/etc, you can do that, by pressing
+    <C-o>, which will take you to visual mode, where you can then hit p or P.
+    Then, just hit <Tab>, to continue normally.
+
     Moving on, type <LocalLeader>C to insert a citation, i.e.
     "\cite{citekey}". You're prompted with a popup list of completions if the
     \bibliography{} (or \addbibresources{}) statement contains a valid BibTeX
