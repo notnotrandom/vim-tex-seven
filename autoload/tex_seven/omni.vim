@@ -288,7 +288,16 @@ function tex_seven#omni#QueryBibFile(bibkey, preview)
   let l:to_p_or_not_to_p = 'p'
   if a:preview == 0 | let l:to_p_or_not_to_p = '' | endif
 
-  execute l:to_p_or_not_to_p . 'edit ' . a:bibkey . '.bib'
+  if a:bibkey =~ '\m\.\w\+$'
+    " If the argument filename has an extension, don't appened one. This is
+    " the case with \addbibresources{}.
+    execute l:to_p_or_not_to_p . 'edit ' . a:bibkey
+  else
+    " If the argument filename does not have an extension, then appened
+    " '.bib'. This is the case with \bibliography{}.
+    execute l:to_p_or_not_to_p . 'edit ' . a:bibkey . '.bib'
+  endif
+
   if a:preview == 1 | execute 'normal! p' | endif
 endfunction
 
