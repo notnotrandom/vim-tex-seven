@@ -283,6 +283,15 @@ function tex_seven#omni#OmniCompletions(base)
   return [] " Just in case one of the conditions above fails without returning anything...
 endfunction
 
+function tex_seven#omni#QueryBibFile(bibkey, preview)
+  " To preview, or not to preview.
+  let l:to_p_or_not_to_p = 'p'
+  if a:preview == 0 | let l:to_p_or_not_to_p = '' | endif
+
+  execute l:to_p_or_not_to_p . 'edit ' . a:bibkey . '.bib'
+  if a:preview == 1 | execute 'normal! p' | endif
+endfunction
+
 function tex_seven#omni#QueryBibKey(citekey, preview)
   let l:sourcesFile = tex_seven#GetSourcesFile()
   if l:sourcesFile == ""

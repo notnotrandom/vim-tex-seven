@@ -704,6 +704,7 @@ function tex_seven#QueryKey(preview)
         continue
       elseif l:res !~ '\m\(eq\)\?ref' &&
             \ l:res !~ '\m\(no\)\?cite.\?' &&
+            \ l:res !~ '\m\(bibliography\|addbibresources\)\?' &&
             \ l:res !~ '\minclude\(graphics\|only\)\?' && l:res !~ '\minput'
         echoerr "Pattern not found: " . l:res . "."
         return
@@ -748,6 +749,15 @@ function tex_seven#QueryKey(preview)
     call setpos(".", [0, line("."), l:cursorColumn + 1, 0])
 
     call tex_seven#omni#QueryIncKey(inckey, a:preview)
+  elseif l:keyword == 'bibliography' || l:keyword == 'addbibresources'
+    let bibkey = matchstr(l:line[ l:startBackslashIdx : ], g:tex_seven#bibtexSourcesFilePattern)
+    if bibkey == "" | throw "EmptyTeXCommandArg" | endif
+
+    " Before opening a new window, set the cursor in the current window, to
+    " its original position.
+    call setpos(".", [0, line("."), l:cursorColumn + 1, 0])
+
+    call tex_seven#omni#QueryBibFile(bibkey, a:preview)
   elseif l:keyword == 'includegraphics'
     " Important: this only functions if in the .tex, the argument of
     " \includegraphics includes the extension! E.g. \includegraphics{fname.ext}
