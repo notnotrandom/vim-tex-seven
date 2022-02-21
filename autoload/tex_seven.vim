@@ -968,7 +968,9 @@ function tex_seven#SetSourcesFile()
   let s:epochMainFileLastReadForIncludes = str2nr(system("date +%s"))
 endfunction
 
-" TODO rethink this function...
+" Brief: Receive a keyword -- e.g., '\includeonly{' -- and start
+" omni-completion. That is, add the closing '}', place the cursor inside the
+" curly brackets, and show menu with completion options.
 function tex_seven#SmartInsert(keyword)
   if a:keyword == '\includeonly{' && expand('%:p') != tex_seven#GetMainFile()
     echohl WarningMsg |
