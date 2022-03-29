@@ -620,7 +620,8 @@ function tex_seven#MathCompletion(findstart, base)
   return []
 endfunction
 
-" For completion of \ref's, \cite's, etc.
+" For completion of \ref's, \cite's, etc. Run ":help complete-functions" to
+" understand how this function is invoked.
 function tex_seven#OmniCompletion(findstart, base)
   if a:findstart
     let l:cursorCurrIdx = col('.') - 1
@@ -654,8 +655,8 @@ endfunction
 " - open filename.tex.
 " - idem.
 " - open filename.(jpg|pdf|png).
-" Param: preview. Boolean (0 or 1). If true, shows the target file in a
-" preview (:pedit) window. Otherwise, uses :edit.
+" Param: preview. Boolean (0 or 1). (Used only with .tex files.) If true,
+" shows the target file in a preview (:pedit) window. Otherwise, uses :edit.
 " Return: none.
 function tex_seven#QueryKey(preview)
   " First, check that the current buffer is saved. If not, warn the user to
@@ -979,6 +980,8 @@ function tex_seven#SmartInsert(keyword)
   return a:keyword."}\<Esc>i"
 endfunction
 
+" Brief: Open PDF viewer and show the PDF document corresponding to the
+" current LaTeX project. Caughs up an error if there is no PDF viewer set.
 function tex_seven#ViewDocument()
   try
     call tex_seven#GetMainFile()

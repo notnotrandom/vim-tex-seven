@@ -208,9 +208,17 @@ function tex_seven#omni#GetTeXFilesList(base = '')
   endif
 endfunction
 
-" For completion of say, \cite{}, the cursor is on '}'. Also remember that
-" col() starts at 1, but lists (arrays) start at zero!
+" Brief: Say you have \cite{foo}, with the cursor on '}', when the user
+" triggers completion (i.e., hits  ^X^O). This function retrieves all the
+" bibliographic keys, and returns a completion list with only the keys that
+" contain the string "foo".
+"   This function is not limited to \cite, of course: \ref, \include, etc also
+"   work.
+"
+" (Also remember col() starts at 1, but lists (arrays) start at zero!)
 function tex_seven#omni#OmniCompletions(base)
+
+ " First, determine the keyword (i.e., cite, ref, or whatever...)
   let l:cursorColumn = col('.') - 1
   let l:keyword = ""
   let l:line = getline('.')[: l:cursorColumn - 1] " Unlike Python, this includes the last index!
