@@ -337,7 +337,8 @@ function tex_seven#omni#QueryIncKey(inckey, preview)
   let l:to_p_or_not_to_p = 'p'
   if a:preview == 0 | let l:to_p_or_not_to_p = '' | endif
 
-  execute l:to_p_or_not_to_p . 'edit ' . a:inckey . '.tex'
+  execute l:to_p_or_not_to_p . 'edit ' . tex_seven#GetPath()
+        \ . '/' . a:inckey . '.tex'
   if a:preview == 1 | execute 'normal! p' | endif
 endfunction
 
