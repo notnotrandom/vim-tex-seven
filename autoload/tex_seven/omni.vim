@@ -124,10 +124,15 @@ function tex_seven#omni#GetGraphicsList(base = '')
 endfunction
 
 function tex_seven#omni#GetLabels()
+  " The user requested \labels, so first of all, check if there are any new
+  " ones.
+  let l:needToRegenerateLabelList = tex_seven#omni#UpdateFilesLabelsDict()
+
+  " If the list of labels for the user has not been generated yet, then we
+  " must do so, regardless of what tex_seven#omni#UpdateFilesLabelsDict()
+  " says.
   if s:labelList == []
     let l:needToRegenerateLabelList = "true"
-  else
-    let l:needToRegenerateLabelList = tex_seven#omni#UpdateFilesLabelsDict()
   endif
 
   if l:needToRegenerateLabelList ==# "true"
