@@ -3,7 +3,8 @@ snippet figure
 		% \includegraphics{} requires \usepackage{graphicx}
 		\centering
 		\includegraphics[scale=1.0]{graphic.jpg}
-		\caption{text}\label{fig:label}
+		\caption{text}
+		\label{fig:label}
 	\end{figure}
 snippet subfigure
 	% NOTA BENE! Required setup:
@@ -16,15 +17,18 @@ snippet subfigure
 			\centering
 			\includegraphics[scale=0.5]{graphicfile1}
 			\captionsetup{width=0.95\linewidth}
-			\caption{text}\label{fig:somelabel1}
+			\caption{text}
+			\label{fig:somelabel1}
 		\end{subfigure}%
 		\begin{subfigure}{0.5\textwidth}
 			\centering
 			\includegraphics[scale=0.5]{graphicfile2}
 			\captionsetup{width=0.95\linewidth}
-			\caption{text}\label{fig:somelabel2}
+			\caption{text}
+			\label{fig:somelabel2}
 		\end{subfigure}
-		\caption{text}\label{fig:somelabel}
+		\caption{text}
+		\label{fig:somelabel}
 	\end{figure}
 snippet subtable
 	% NOTA BENE:
@@ -42,7 +46,8 @@ snippet subtable
 				d & e & f
 			\end{tabular}
 			\captionsetup{width=0.95\linewidth}
-			\caption{text}\label{tab:somelabel1}
+			\caption{text}
+			\label{tab:somelabel1}
 		\end{subfigure}%
 		\begin{subfigure}{0.5\textwidth}
 			\centering
@@ -52,7 +57,8 @@ snippet subtable
 				a & b & c
 			\end{tabular}
 			\captionsetup{width=0.95\linewidth}
-			\caption{text}\label{tab:somelabel2}
+			\caption{text}
+			\label{tab:somelabel2}
 		\end{subfigure}
 		\caption{text}\label{tab:somelabel}
 	\end{figure}
@@ -64,7 +70,8 @@ snippet table
 			foo & bar & baz \\
 			\hline
 		\end{tabular}
-		\caption{text}\label{tab:label}
+		\caption{text}
+		\label{tab:label}
 	\end{table}
 snippet wrapfigure
 	\begin{wrapfigure}{L}{0.3\textwidth}
@@ -72,5 +79,6 @@ snippet wrapfigure
 		% \includegraphics{} requires \usepackage{graphicx}
 		\centering
 		\includegraphics[scale=1.0]{graphic.jpg}
-		\caption{text}\label{fig:label}
+		\caption{text}
+		\label{fig:label}
 	\end{wrapfigure}
