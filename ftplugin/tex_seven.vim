@@ -74,6 +74,7 @@ let b:env_snippets = fnameescape(expand('<sfile>:h') . '/environments.snippets')
 
 " Completion.
 setlocal completeopt=longest,menuone
+" setlocal completeopt=menuone
 setlocal fo=tcq
 setlocal omnifunc=tex_seven#OmniCompletion
 setlocal completefunc=tex_seven#MathCompletion

@@ -28,7 +28,7 @@
 " Matches lines like:
 " \bibliography{bibfilename} or \addbibresources{bibfilename}
 " in .tex files. When used with matchstr(), it returns bibfilename.
-let g:tex_seven#bibtexSourcesFilePattern = '\m^\\\(bibliography\|addbibresources\){\zs\S\+\ze}'
+let g:tex_seven#bibtexSourcesFilePattern = '\m^\s*\\\(bibliography\|addbibresources\){\zs\S\+\ze}'
 
 " Self-explanatory.
 let g:tex_seven#emptyOrCommentLinesPattern = '\m^\s*\(%\|$\)'
