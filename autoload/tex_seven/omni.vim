@@ -68,7 +68,9 @@ function tex_seven#omni#GetBibEntries()
     " We have not previously read s:sourcesFile. If s:sourcesFile is empty,
     " that means no bibliography file was found (and hence, could have been
     " read before). So just return an empty list of bib entries...
-    if l:sourcesFile == "" | return [] | endif
+    if l:sourcesFile == ""
+      throw "BibSourceFileNotFound"
+    endif
 
     " Otherwise, we need to read the sources file, so:
     let l:needToReadSourcesFile = "true"
@@ -251,6 +253,8 @@ function tex_seven#omni#OmniCompletions(base)
       else
         return filter(copy(tex_seven#omni#GetBibEntries()), 'v:val =~? "\\m" . a:base')
       endif
+    catch /^BibSourceFileNotFound$/
+      echoerr "Bib source file not found..."
     catch
       echoerr "Retrieving bib entries failed."
     endtry
