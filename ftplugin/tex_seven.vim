@@ -136,7 +136,7 @@ xnoremap <buffer>       <Leader>up di\text{}<Left><C-R>"
 
 inoremap <buffer> <LocalLeader><LocalLeader> <LocalLeader>
 inoremap <buffer> <LocalLeader>" ``''<Left><Left>
-inoremap <buffer> <LocalLeader>' `'<Left><Left>
+inoremap <buffer> <LocalLeader>' `'<Left>
 
 inoremap <buffer><expr>  <LocalLeader><Space> tex_seven#InsertCommand()
 inoremap <buffer><expr>  <LocalLeader>A tex_seven#SmartInsert('\includeonly{')
