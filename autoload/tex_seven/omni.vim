@@ -276,7 +276,7 @@ function tex_seven#omni#OmniCompletions(base)
     catch
       echoerr "Retrieving \\include'd files' list failed."
     endtry
-  elseif l:keyword =~ '.*ref'
+  elseif l:keyword =~ '.*ref' || l:keyword == 'label'
     try
       if has_key(g:tex_seven_config, 'label_retrieval_use_script')
             \ && g:tex_seven_config['label_retrieval_use_script'] == 1

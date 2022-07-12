@@ -475,7 +475,14 @@ Table of Contents                                 *tex_seven-toc*
 5.1 Omni-Completion                               *tex_seven-completion-omni*
 
     The above introduction already covers the case of omni-completion for
-    "\ref{"; completion for "\eqref{" works in the same way.
+    "\ref{"; completion for "\eqref{" works in the same way. Completion for
+    "\label{" is also done: it returns the list of existing \label's (i.e., it
+    returns the same thing as for "\ref{" and "\eqref{"). The rationale for
+    the omni-completion of \label statements is that one might want to create
+    a new label using as a prefix the name of an existing label. For example,
+    for sections inside chapters, I prefix the label of the section with the
+    label of the chapter. This avoids label clashes for situations where, for
+    example, more than one chapter has a section named "Introduction".
 
     Completion for "\includeonly{" and "\includegraphics{" are similar, with
     the difference that what is returned are list of files \include'd in the
