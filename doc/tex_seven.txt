@@ -1,4 +1,4 @@
-*tex_seven.txt*	For Vim version 7.5	Last change: January 28, 2022
+*tex_seven.txt*	For Vim version 7.5	Last change: July 15, 2022
 
                           TeX-7
 
@@ -8,7 +8,7 @@
 
 
 Author: Óscar Pereira
-Email: See https://randomwalk.eu/contacts
+Email: See https://randomwalk.eu/contact
 License: GPL
 
   TeX-7 is a ftplugin that aims to enhance the writing experience of high
@@ -482,7 +482,7 @@ Table of Contents                                 *tex_seven-toc*
     a new label using as a prefix the name of an existing label. For example,
     for sections inside chapters, I prefix the label of the section with the
     label of the chapter. This avoids label clashes for situations where, for
-    example, more than one chapter has a section named "Introduction".
+    instance, more than one chapter has a section named "Introduction".
 
     Completion for "\includeonly{" and "\includegraphics{" are similar, with
     the difference that what is returned are list of files \include'd in the
