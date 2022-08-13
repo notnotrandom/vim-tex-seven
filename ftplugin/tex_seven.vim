@@ -122,6 +122,18 @@ onoremap <buffer><silent> am :<C-U>normal vam<CR>
 xnoremap <buffer>         im v?\$<CR>lv/\$<CR>h
 onoremap <buffer><silent> im :<C-U>normal vim<CR>
 
+" Operators for selecting in/outside of {curly brackets}.
+xnoremap <buffer>         ii i}
+onoremap <buffer><silent> ii :<C-U>normal vii<CR>
+xnoremap <buffer>         aa a}
+onoremap <buffer><silent> aa :<C-U>normal vaa<CR>
+
+" Operators for selecting in/outside of {square brackets}.
+xnoremap <buffer>         io i]
+onoremap <buffer><silent> io :<C-U>normal vio<CR>
+xnoremap <buffer>         ao a]
+onoremap <buffer><silent> ao :<C-U>normal vao<CR>
+
 " As these are visual mode mappings, they interfere with other usages of
 " visual mode, notoriously the snippets plugin. Using <Leader> hopefully
 " minimises the problem...

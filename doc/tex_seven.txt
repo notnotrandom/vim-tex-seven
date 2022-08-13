@@ -11,7 +11,7 @@ Author: Óscar Pereira
 Email: See https://randomwalk.eu/contact
 License: GPL
 
-  TeX-7 is a ftplugin that aims to enhance the writing experience of high
+  TeX-7 is an ftplugin that aims to enhance the writing experience of high
   quality documents with LaTeX and Vim. The goal of TeX-7 is to be simple and
   Vimish, meaning that focus is on carefully thought-out key mappings and
   features that are already present in a typical Vim installation. If you need
