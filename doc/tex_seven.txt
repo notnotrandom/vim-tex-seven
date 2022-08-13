@@ -694,8 +694,8 @@ Table of Contents                                 *tex_seven-toc*
     Create a custom tex.vim file in the after/ directory, i.e.
     ~/.vim/after/ftplugin/tex.vim. Here you can redefine mappings and extend
     TeX-7's functionality with your own ideas. If you come up with something
-    sweet, kindly drop me a line :-) (email address available at
-    https://randomwalk.eu).
+    sweet, kindly drop me a line :-) (email address available at link at the
+    start of this file).
 
     Notice that to redefine mappings, you need need to set <LocalLeader>
     again. As an example, here is my ~/.vim/after/ftplugin/tex.vim:
@@ -745,7 +745,8 @@ Table of Contents                                 *tex_seven-toc*
 
     let b:env_snippets = fnameescape(expand('<sfile>:h') . '/environments.snippets')
 
-    And of course, the file to copy is ftplugin/environments.snippets.
+    And of course, the file to copy (and modify) is
+    ftplugin/environments.snippets.
 
 7.3 Spell checking                                *tex_seven-tips-spell_check*
 
