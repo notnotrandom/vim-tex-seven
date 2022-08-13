@@ -328,6 +328,12 @@ Table of Contents                                 *tex_seven-toc*
     will visually select all of it, including the delimiters. Hitting 'vim'
     does the same, but excludes the delimiters. And on for 'dam', 'dim', etc.
 
+    And finally, given the ubiquity of curly (and even square) braces in
+    LaTeX, there are operators these as well: 'ii'/'aa' for inner/outer curly
+    braces, and 'io'/'ao' for inner/outer square braces. So for example, 'vii'
+    selects the content inside curly braces, while 'dao' selects the content
+    inside square brackets, as well as the brackets themselves.
+
 ==============================================================================
 
 3.  Compilation and Multi-file                    *tex_seven-compile-mfile*
