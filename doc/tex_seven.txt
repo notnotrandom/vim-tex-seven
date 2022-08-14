@@ -330,8 +330,8 @@ Table of Contents                                 *tex_seven-toc*
 
     And finally, given the ubiquity of curly (and even square) braces in
     LaTeX, there are operators these as well: 'ii'/'aa' for inner/outer curly
-    braces, and 'io'/'ao' for inner/outer square braces. So for example, 'vii'
-    selects the content inside curly braces, while 'dao' selects the content
+    braces, and 'is'/'as' for inner/outer square braces. So for example, 'vii'
+    selects the content inside curly braces, while 'vas' selects the content
     inside square brackets, as well as the brackets themselves.
 
 ==============================================================================
