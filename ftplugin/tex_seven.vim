@@ -129,10 +129,10 @@ xnoremap <buffer>         aa a}
 onoremap <buffer><silent> aa :<C-U>normal vaa<CR>
 
 " Operators for selecting in/outside of {square brackets}.
-xnoremap <buffer>         io i]
-onoremap <buffer><silent> io :<C-U>normal vio<CR>
-xnoremap <buffer>         ao a]
-onoremap <buffer><silent> ao :<C-U>normal vao<CR>
+xnoremap <buffer>         is i]
+onoremap <buffer><silent> is :<C-U>normal vio<CR>
+xnoremap <buffer>         as a]
+onoremap <buffer><silent> as :<C-U>normal vao<CR>
 
 " As these are visual mode mappings, they interfere with other usages of
 " visual mode, notoriously the snippets plugin. Using <Leader> hopefully
