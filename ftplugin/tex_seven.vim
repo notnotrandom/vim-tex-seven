@@ -103,6 +103,12 @@ nnoremap <buffer><silent> gd :call tex_seven#QueryKey(0)<CR>
 nnoremap <buffer><silent> gf :call tex_seven#QueryKey(0)<CR>
 nnoremap <buffer><silent> gp :call tex_seven#QueryKey(1)<CR>
 
+" loc. cit. map. Say you have inserted \cite{Some:Author|}, using TeX-7
+" completion. The cursor will be left where the bar is. This map will insert
+" squre brackets, where you can then insert a specific location within that
+" reference, placing the cursor inside those brackets: \cite[|]{Some:Author}
+nnoremap <buffer><silent> lc F{i[]<C-o><Left>
+
 " Small compile. Note that the map trigger here is :ww, and NOT
 " <LocalLeader>ww !!
 command WaB :call tex_seven#build#WriteAndBuild()
