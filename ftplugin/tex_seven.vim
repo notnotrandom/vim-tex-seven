@@ -107,7 +107,8 @@ nnoremap <buffer><silent> gp :call tex_seven#QueryKey(1)<CR>
 " completion. The cursor will be left where the bar is. This map will insert
 " squre brackets, where you can then insert a specific location within that
 " reference, placing the cursor inside those brackets: \cite[|]{Some:Author}
-nnoremap <buffer><silent> lc F{i[]<C-o><Left>
+" (The question mark is used because I think I ran out of characters...)
+inoremap <buffer><silent> <LocalLeader>? <C-o>F{[]<C-o><Left>
 
 " Small compile. Note that the map trigger here is :ww, and NOT
 " <LocalLeader>ww !!
@@ -243,9 +244,8 @@ if exists('g:tex_seven_config')
   inoremap <buffer> <LocalLeader>> \geq
 else
   inoremap <buffer> <LocalLeader>> <><Left>
-  " <LocalLeader>< is mapped as an enlarged delimiter, below.
+  inoremap <buffer> <LocalLeader>< \langle  \rangle<Esc>F\hi
 endif
-inoremap <buffer> <LocalLeader>~ \widetilde{}<Left>
 inoremap <buffer> <LocalLeader>^ \widehat{}<Left>
 inoremap <buffer> <LocalLeader>_ \overline{}<Left>
 inoremap <buffer> <LocalLeader>. \cdot<Space>
@@ -259,13 +259,6 @@ inoremap <buffer> <LocalLeader>» \rangle
 inoremap <buffer> <LocalLeader>( \left(  \right)<Esc>F(la
 inoremap <buffer> <LocalLeader>[ \left[  \right]<Esc>F[la
 inoremap <buffer> <LocalLeader>{ \left\{  \right\}<Esc>F{la
-" If the user did not explicitly disable the 'diamond_tex' setting, also map
-" <LocalLeader>< to an enlarged delimiter.
-if ! (exists('g:tex_seven_config')
-      \ && has_key(g:tex_seven_config, 'diamond_tex')
-      \ && g:tex_seven_config['diamond_tex'] == 1 )
-  inoremap <buffer> <LocalLeader>< \langle  \rangle<Esc>F\hi
-endif
 
 " Neat insertion of various LaTeX constructs by tapping keys.
 inoremap <buffer><expr> _ tex_seven#IsLeft('_') ? '{}<Left>' : '_'
