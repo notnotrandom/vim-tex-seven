@@ -49,7 +49,7 @@ let s:tex_seven_config = {
       \    'diamond_tex'                : 1,
       \    'disable'                    : 0,
       \    'label_retrieval_use_script' : 0,
-      \    'leader'                     : ':',
+      \    'leader'                     : ',',
       \    'verbose'                    : 0,
       \    'viewer'                     : '' ,
       \    'viewer_images'              : '' ,
