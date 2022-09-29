@@ -157,12 +157,12 @@ inoremap <buffer> <LocalLeader><LocalLeader> <LocalLeader>
 inoremap <buffer> <LocalLeader>" ``''<Left><Left>
 inoremap <buffer> <LocalLeader>' `'<Left>
 
-inoremap <buffer><expr>  <LocalLeader><Space> tex_seven#InsertCommand()
-inoremap <buffer><expr>  <LocalLeader>A tex_seven#SmartInsert('\includeonly{')
+inoremap <buffer><expr>   <LocalLeader>: tex_seven#InsertCommand()
+inoremap <buffer><expr>   <LocalLeader>A tex_seven#SmartInsert('\includeonly{')
 inoremap <buffer><silent> <LocalLeader>B <C-r>=tex_seven#environments#InsertEnvironment()<CR>
-inoremap <buffer><expr>  <LocalLeader>C tex_seven#SmartInsert('\cite{')
-inoremap <buffer><expr>  <LocalLeader>E tex_seven#SmartInsert('\eqref{')
-inoremap <buffer> <LocalLeader>K 
+inoremap <buffer><expr>   <LocalLeader>C tex_seven#SmartInsert('\cite{')
+inoremap <buffer><expr>   <LocalLeader>E tex_seven#SmartInsert('\eqref{')
+inoremap <buffer>         <LocalLeader>K 
 
 " Start mathmode completion.
 inoremap <buffer> <LocalLeader>M 
