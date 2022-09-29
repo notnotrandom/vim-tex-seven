@@ -108,7 +108,7 @@ nnoremap <buffer><silent> gp :call tex_seven#QueryKey(1)<CR>
 " squre brackets, where you can then insert a specific location within that
 " reference, placing the cursor inside those brackets: \cite[|]{Some:Author}
 " (The question mark is used because I think I ran out of characters...)
-inoremap <buffer><silent> <LocalLeader>? <C-o>F{[]<C-o><Left>
+inoremap <buffer><silent> <LocalLeader>? <Esc>F{i[]<C-o><Left>
 
 " Small compile. Note that the map trigger here is :ww, and NOT
 " <LocalLeader>ww !!
