@@ -49,7 +49,7 @@ let s:tex_seven_config = {
       \    'diamond_tex'                : 1,
       \    'disable'                    : 0,
       \    'label_retrieval_use_script' : 0,
-      \    'leader'                     : ':',
+      \    'leader'                     : ',',
       \    'verbose'                    : 0,
       \    'viewer'                     : '' ,
       \    'viewer_images'              : '' ,
@@ -107,7 +107,8 @@ nnoremap <buffer><silent> gp :call tex_seven#QueryKey(1)<CR>
 " completion. The cursor will be left where the bar is. This map will insert
 " squre brackets, where you can then insert a specific location within that
 " reference, placing the cursor inside those brackets: \cite[|]{Some:Author}
-nnoremap <buffer><silent> lc F{i[]<C-o><Left>
+" (The question mark is used because I think I ran out of characters...)
+inoremap <buffer><silent> <LocalLeader>? <Esc>F{i[]<C-o><Left>
 
 " Small compile. Note that the map trigger here is :ww, and NOT
 " <LocalLeader>ww !!
@@ -156,12 +157,12 @@ inoremap <buffer> <LocalLeader><LocalLeader> <LocalLeader>
 inoremap <buffer> <LocalLeader>" ``''<Left><Left>
 inoremap <buffer> <LocalLeader>' `'<Left>
 
-inoremap <buffer><expr>  <LocalLeader><Space> tex_seven#InsertCommand()
-inoremap <buffer><expr>  <LocalLeader>A tex_seven#SmartInsert('\includeonly{')
+inoremap <buffer><expr>   <LocalLeader>: tex_seven#InsertCommand()
+inoremap <buffer><expr>   <LocalLeader>A tex_seven#SmartInsert('\includeonly{')
 inoremap <buffer><silent> <LocalLeader>B <C-r>=tex_seven#environments#InsertEnvironment()<CR>
-inoremap <buffer><expr>  <LocalLeader>C tex_seven#SmartInsert('\cite{')
-inoremap <buffer><expr>  <LocalLeader>E tex_seven#SmartInsert('\eqref{')
-inoremap <buffer> <LocalLeader>K 
+inoremap <buffer><expr>   <LocalLeader>C tex_seven#SmartInsert('\cite{')
+inoremap <buffer><expr>   <LocalLeader>E tex_seven#SmartInsert('\eqref{')
+inoremap <buffer>         <LocalLeader>K 
 
 " Start mathmode completion.
 inoremap <buffer> <LocalLeader>M 
@@ -243,9 +244,8 @@ if exists('g:tex_seven_config')
   inoremap <buffer> <LocalLeader>> \geq
 else
   inoremap <buffer> <LocalLeader>> <><Left>
-  " <LocalLeader>< is mapped as an enlarged delimiter, below.
+  inoremap <buffer> <LocalLeader>< \langle  \rangle<Esc>F\hi
 endif
-inoremap <buffer> <LocalLeader>~ \widetilde{}<Left>
 inoremap <buffer> <LocalLeader>^ \widehat{}<Left>
 inoremap <buffer> <LocalLeader>_ \overline{}<Left>
 inoremap <buffer> <LocalLeader>. \cdot<Space>
@@ -259,13 +259,6 @@ inoremap <buffer> <LocalLeader>» \rangle
 inoremap <buffer> <LocalLeader>( \left(  \right)<Esc>F(la
 inoremap <buffer> <LocalLeader>[ \left[  \right]<Esc>F[la
 inoremap <buffer> <LocalLeader>{ \left\{  \right\}<Esc>F{la
-" If the user did not explicitly disable the 'diamond_tex' setting, also map
-" <LocalLeader>< to an enlarged delimiter.
-if ! (exists('g:tex_seven_config')
-      \ && has_key(g:tex_seven_config, 'diamond_tex')
-      \ && g:tex_seven_config['diamond_tex'] == 1 )
-  inoremap <buffer> <LocalLeader>< \langle  \rangle<Esc>F\hi
-endif
 
 " Neat insertion of various LaTeX constructs by tapping keys.
 inoremap <buffer><expr> _ tex_seven#IsLeft('_') ? '{}<Left>' : '_'

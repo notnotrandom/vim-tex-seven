@@ -105,7 +105,7 @@ Table of Contents                                 *tex_seven-toc*
   leader: String
       *   Most TeX-7 mappings begin with this prefix.
       *   Optional.
-      *   Default: ':'.
+      *   Default: ','.
 
   viewer: String
       *   Application used for viewing PDF files.
@@ -164,7 +164,7 @@ Table of Contents                                 *tex_seven-toc*
     TeX-7 defines various mappings that speed up typesetting LaTeX code. Most
     of the mappings are prefixed with |maplocalleader|, referred below with
     the symbol <LocalLeader>. If you have set "g:tex_seven_config.leader", the
-    corresponding character is used. Otherwise, it defaults to colon (:).
+    corresponding character is used. Otherwise, it defaults to comma (,).
 
     Especially for multi-file projects, it is recommended to launch "(g)vim"
     from the same folder where the main ".tex" file is located. While most
@@ -258,8 +258,17 @@ Table of Contents                                 *tex_seven-toc*
     to show you only those that contain the string "foo". See
     |tex_seven-completion| for more details.
 
-    There are also some macros that work by double tapping a character on your
-    keyboard (super convenient for subscripts and superscripts!).
+    Before moving on, let's go back to <LocalLeader>C for a moment, It often
+    happens that, when inserting a reference, you also want to indicate a
+    specific location within it (e.g., a page number). This is done with an
+    optional argument to the \cite command, e.g., \cite[p.\ 1]{foo}. But
+    hitting <LocalLeader>C will leave you with \cite{foo|} (the | is the
+    cursor). Not to worry: hit <LocalLeader>? (without leaving insert mode),
+    and you will go from \cite{foo|} to \cite[|]{foo}.
+
+    Moving on, there are also some macros that work by double tapping a
+    character on your keyboard (super convenient for subscripts and
+    superscripts!).
 
         ^^ -> ^{}
         __ -> _{}
@@ -269,9 +278,13 @@ Table of Contents                                 *tex_seven-toc*
     Furthermore, pressing <LocalLeader>" inserts "LaTeX quotes", i.e.,
     ``''. Also works for single quotes. And by defaut, hitting
     <LocalLeader> twice (i.e. <Localleader><Localleader>) inserts that
-    character itself. E.g., if <LocalLeader> is set to colon (:) (the
+    character itself. E.g., if <LocalLeader> is set to comma (,) (the
     default without user config defined), then <Localleader><Localleader>
-    inserts a literal colon in the text.
+    inserts a literal comma in the text.
+
+    There are plenty of other insert mode mappings; the ones described here
+    are just the ones that required some explanation. See
+    |tex_seven-mappings-insert_mode|.
 
 2.2 Normal mode                                   *tex_seven-basics-normal_mode*
 
@@ -548,6 +561,7 @@ Table of Contents                                 *tex_seven-toc*
     <LocalLeader><LocalLeader> <LocalLeader>
     <LocalLeader>'             LaTeX's inverted single commas `'
     <LocalLeader>"             LaTeX's inverted double commas ``''
+    <LocalLeader>?             Go from \cite{foo|} to \cite[|]{foo}
     <LocalLeader>A             Insert \includeonly{}, and start completion
     <LocalLeader>B             Insert environment (prompts for a name)
     <LocalLeader>C             Insert \cite{}, and start completion
