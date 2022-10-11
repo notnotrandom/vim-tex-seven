@@ -38,6 +38,9 @@ my %res;
 
 foreach (@ARGV) {
   my $fname = $_;
+  unless (-e $fname && -r $fname) {
+    next;
+  }
   my $content = path($fname)->slurp_utf8;
   my @labels = $content =~ m/\\label\{(\S+)\}/g;
   
