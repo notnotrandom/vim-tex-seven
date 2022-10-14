@@ -157,7 +157,7 @@ inoremap <buffer> <LocalLeader><LocalLeader> <LocalLeader>
 inoremap <buffer> <LocalLeader>" ``''<Left><Left>
 inoremap <buffer> <LocalLeader>' `'<Left>
 
-inoremap <buffer><expr>   <LocalLeader>: tex_seven#InsertCommand()
+inoremap <buffer><expr>   <LocalLeader>. tex_seven#InsertCommand()
 inoremap <buffer><expr>   <LocalLeader>A tex_seven#SmartInsert('\includeonly{')
 inoremap <buffer><silent> <LocalLeader>B <C-r>=tex_seven#environments#InsertEnvironment()<CR>
 inoremap <buffer><expr>   <LocalLeader>C tex_seven#SmartInsert('\cite{')
@@ -248,7 +248,6 @@ else
 endif
 inoremap <buffer> <LocalLeader>^ \widehat{}<Left>
 inoremap <buffer> <LocalLeader>_ \overline{}<Left>
-inoremap <buffer> <LocalLeader>. \cdot<Space>
 inoremap <buffer> <LocalLeader><CR> \nonumber\\<CR>
 
 " For angle brackets.

@@ -643,7 +643,6 @@ Table of Contents                                 *tex_seven-toc*
     <LocalLeader>~     \widetilde{}<Left>
     <LocalLeader>^     \widehat{}<Left>
     <LocalLeader>_     \overline{}<Left>
-    <LocalLeader>.     \cdot<Space>
     <LocalLeader><CR>  \nonumber\\<CR>
     <LocalLeader>«     \langle
     <LocalLeader>»     \rangle
@@ -735,9 +734,9 @@ Table of Contents                                 *tex_seven-toc*
     inoremap <buffer> <LocalLeader>_0 \emptyset
     inoremap <buffer> <LocalLeader>0 \varnothing
 
-    " I find this easier to insert commands in .tex files (something I do often).
-    inoremap <buffer><expr> ,, tex_seven#InsertCommand()
-    inoremap <buffer> <LocalLeader>,, ,,
+    " I find this easier to insert environments in .tex files (something I do often).
+    inoremap <buffer><silent> ;; <C-r>=tex_seven#environments#InsertEnvironment()<CR>
+    inoremap <buffer> <LocalLeader>;; ;;
 
     " And lastly, revert <LocalLeader> to its previous setting, if any.
     if exists('s:maplocalleader_saved')
