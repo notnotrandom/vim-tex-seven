@@ -34,7 +34,7 @@ endif
 if exists('b:init_tex_seven')
   let g:maplocalleader = g:tex_seven_config.leader
 else
-  let g:maplocalleader = ":"
+  let g:maplocalleader = ","
 endif
 
 " This map is here to allow one to return from the .bib file to the main
