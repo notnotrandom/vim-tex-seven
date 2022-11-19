@@ -759,12 +759,13 @@ Table of Contents                                 *tex_seven-toc*
     Environment name completion will now use your name list, rather than
     TeX-7's default list.
 
-    The same trick can be used to add or customise an environment template.
-    Just add your new snippet (or your modified version of an existing
-    snippet) into file ~/.vim/after/ftplugin/environments.snippets. And then,
-    add the following to ~/.vim/after/ftplugin/tex.vim:
+    A similar trick can be used to add or customise environment templates.
+    First, add the following to ~/.vim/after/ftplugin/tex.vim:
 
     let b:env_snippets = fnameescape(expand('<sfile>:h') . '/environments.snippets')
+
+    Then just add your new snippet (or your modified version of an existing
+    snippet) into file ~/.vim/after/ftplugin/environments.snippets.
 
     Do keep note of the difference: your local environments.txt file must
     contain the *entire* list of environment names that you want to use,
@@ -773,6 +774,14 @@ Table of Contents                                 *tex_seven-toc*
     are still available to use. If the same template (snippet) is found in
     both files, your local version is used -- indeed, this is how you modify
     an environment template.
+
+    This is also to the user's advantage when updating TeX-7: on the one hand,
+    the plugin's environment.txt file can be merged with your local version
+    with a simple merge (after all, it is only one word lines); on the other
+    hand, the plugin's environment.snippets file can be safely ignored:
+    your customisations will still be used, but any new snippets the plugin's
+    environment.snippets now provides will also be available. The user gets
+    the best of both worlds.
 
 7.3 Spell checking                                *tex_seven-tips-spell_check*
 
