@@ -70,7 +70,7 @@ endif
 let g:maplocalleader = g:tex_seven_config.leader
 
 let b:env_list = fnameescape(expand('<sfile>:h') . '/environments.txt')
-let b:env_snippets = fnameescape(expand('<sfile>:h') . '/environments.snippets')
+let b:env_snippets_default = fnameescape(expand('<sfile>:h') . '/environments.snippets')
 
 " Completion.
 setlocal completeopt=longest,menuone

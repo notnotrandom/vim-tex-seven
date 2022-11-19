@@ -177,10 +177,26 @@ endfunction
 function tex_seven#environments#GetEnvironmentSnippet(envname)
   if len(s:envSnippetsDict) == 0
     try
-      call tex_seven#environments#SlurpSnippetFile()
+      call tex_seven#environments#SlurpSnippetFile(b:env_snippets_default)
     catch
-      echoerr "Caught exception when slurping snippets file."
+      echoerr "Caught exception when slurping snippets (default) file."
     endtry
+
+    " Now try to get user modified snippets, if provided.
+    " XXX: this is not the most efficient way of doing this... if it becomes
+    " a performance problem, I'll look into it...
+    let l:user_snips_file_exists = v:false
+    try
+      let l:user_snips_file_exists = filereadable(b:env_snippets)
+    catch
+    endtry
+    if l:user_snips_file_exists == v:true
+      try
+        call tex_seven#environments#SlurpSnippetFile(b:env_snippets)
+      catch
+        echoerr "Caught exception when slurping (user provided) snippets file."
+      endtry
+    endif
   endif
 
   if has_key(s:envSnippetsDict, a:envname)
@@ -411,6 +427,7 @@ function! ListEnvCompletions(ArgLead, CmdLine, CursorPos)
   if filereadable(b:env_list)
     let s:joinedEnvironmentsList =
           \ join(tex_seven#GetLinesListFromFile(b:env_list), "\<nl>")
+
     return s:joinedEnvironmentsList
   else
     return ""
@@ -457,11 +474,11 @@ function tex_seven#environments#RenameEnvironment()
   call setline(l:origEnvEndLineNum, l:newEndLine)
 endfunction
 
-function tex_seven#environments#SlurpSnippetFile()
+function tex_seven#environments#SlurpSnippetFile(fname)
   let l:currentSnippetKey = ""
   let l:snippetLinesList = []
 
-  for line in tex_seven#GetLinesListFromFile(b:env_snippets)
+  for line in tex_seven#GetLinesListFromFile(a:fname)
     if line =~ s:snippetEmptyLinePattern
       throw "EmptyLineOnSnippetFile"
     elseif line =~ s:snippetCommentLinePattern
@@ -471,12 +488,13 @@ function tex_seven#environments#SlurpSnippetFile()
     let l:aux = matchstr(line, s:snippetDeclarationLinePattern)
     if l:aux != ""
       " We found a "snippet trigger" line. So first, check to see if we have
-      " found that trigger before. If so, throw up error, has multiple snips
+      " found that trigger before. If so, throw up error, as multiple snips
       " are not supported.
-      if has_key(s:envSnippetsDict, l:aux) == v:true
-        throw "DuplicateSnippetKeyFound"
-        return
-      endif
+      " if has_key(s:envSnippetsDict, l:aux) == v:true
+      "   throw "DuplicateSnippetKeyFound"
+      "   return
+      " endif
+      " XXX user provided snippet overrides
 
       " Next, if we had previously found a trigger, then the new trigger marks
       " the end of the previous trigger's expansion.
