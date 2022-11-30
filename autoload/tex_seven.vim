@@ -980,6 +980,17 @@ function tex_seven#SmartInsert(keyword)
   return a:keyword."}\<Esc>i"
 endfunction
 
+" Brief: First, replace ''. with .'' (for dots, commas, colons, and question
+" and exclamation marks). Then replace '. with .' (idem). Works even when the
+" punctuation mark ends the line. Because some say this looks neater...
+function tex_seven#SwapQuotesPunctuation()
+  let l:winsave = winsaveview()
+  %s/''\(\.\|,\|:\|?\|!\)\(\s\|$\)/\1''\2/ge
+
+  %s/'\(\.\|,\|:\|?\|!\)\(\s\|$\)/\1'\2/ge
+  call winrestview(l:winsave)
+endfunction
+
 " Brief: Open PDF viewer and show the PDF document corresponding to the
 " current LaTeX project. Caughs up an error if there is no PDF viewer set.
 function tex_seven#ViewDocument()

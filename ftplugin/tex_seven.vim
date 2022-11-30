@@ -265,6 +265,9 @@ inoremap <buffer><expr> ^ tex_seven#IsLeft('^') ? '{}<Left>' : '^'
 inoremap <buffer><expr> = tex_seven#IsLeft('=') ? '<BS>&=' : '='
 inoremap <buffer><expr> ~ tex_seven#IsLeft('~') ? '<BS>\approx' : '~'
 
+" See the description of the called function in autoload/tex_seven.vim.
+command SwapQuotesPunctuation :call tex_seven#SwapQuotesPunctuation()
+
 " Lastly, revert <LocalLeader> to its previous setting, if any.
 if exists('s:maplocalleader_saved')
   let g:maplocalleader = s:maplocalleader_saved

@@ -59,6 +59,7 @@ Table of Contents                                 *tex_seven-toc*
     7.1 Override, extend and hack TeX-7           |tex_seven-tips-hack_extend|
     7.2 Custom environment list/templates         |tex_seven-tips-custom_envs|
     7.3 Spell checking                            |tex_seven-tips-spell_check|
+    7.4 Pedantic Styling                          |tex_seven-tips-pedantic_styling|
 
 ==============================================================================
 
@@ -362,15 +363,14 @@ Table of Contents                                 *tex_seven-toc*
 
     Now, as any LaTeX user knows (and as novice users quickly find out),
     LaTeX's error messages can be notoriously hard to interpret correctly...
-    So what one usually does is save and build often, so that if any errors do
-    occur, then the user likely can pinpoint the change that caused it. To aid
-    in this task, this plugin defines a normal mode mapping :ww (note
-    that the : is a literal colon, not the default value of <LocalLeader>),
-    that saves the current file, and does a small compile of the LaTeX
-    project. So instead of writing (`:w`), the user can instead do a
-    write-and-build, relatively seamlessly (:ww). This build is done in
-    background, and if it succeeds, nothing more is said to the user,
-    that can just continue to work. He is only notified if errors occur,
+    and this might be putting it mildly! So what one usually does is save and
+    build often, so that if any errors do occur, then the user likely can
+    pinpoint the change that caused it. To aid in this task, this plugin
+    defines a normal mode mapping :ww, that saves the current file, and does a
+    small compile of the LaTeX project. So instead of writing (`:w`), the user
+    can instead do a write-and-build, relatively seamlessly (`:ww`). This build
+    is done in background, and if it succeeds, nothing more is said to the
+    user, that can just continue to work. He is only notified if errors occur,
     so that he can go fix them, before writing any more.
 
 3.2 Multi-file Projects                           *tex_seven-mfile*
@@ -789,14 +789,25 @@ Table of Contents                                 *tex_seven-toc*
     (among other settings) in your LaTeX documents, like so (example for
     anglophones):
 >
-    % vim:tw=66 sw=2 ft=tex spell spelllang=en
+    % vim: spell spelllang=en
 <
+
     Notice that newer versions of Vim provide an option >
 
     let g:tex_comment_nospell=1
 <
     for disabling spell checking of comments that otherwise get messed up
     pretty badly.
+
+7.4 Pedantic Styling                               *tex_seven-tips-pedantic_styling*
+
+    Some people think that closing quotation marks, whether double or single,
+    should always come AFTER any punctuation marks. However, this is annoying
+    to do while is writing... Hence, the plugin provides the
+    `:SwapQuotesPunctuation` command, that does, well, just that: replaces `''.`
+    with `.''` (for dots, commas, colons, and question and exclamation marks).
+    Then it replaces `'.` with `.'` (idem). Works even when the punctuation mark
+    ends the line.
 
 ==============================================================================
 
