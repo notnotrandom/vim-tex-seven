@@ -44,7 +44,7 @@ Table of Contents                                 *tex_seven-toc*
     3.1 Compilation                               |tex_seven-compile|
     3.2 Multi-file Projects                       |tex_seven-mfile|
   4. Jumping                                      |tex_seven-jumping|
-    4.1 Compilation                               |tex_seven-jumping-citations|
+    4.1 Citations                                 |tex_seven-jumping-citations|
     4.2 Labels and References                     |tex_seven-jumping-label_refs|
     4.3 Includes                                  |tex_seven-jumping-includes|
     4.4 Graphics                                  |tex_seven-jumping-graphics|
