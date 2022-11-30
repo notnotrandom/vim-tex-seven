@@ -142,14 +142,14 @@ xnoremap <buffer>         as a]
 onoremap <buffer><silent> as :<C-U>normal vas<CR>
 
 " As these are visual mode mappings, they interfere with other usages of
-" visual mode, notoriously the snippets plugin. Using <Leader> hopefully
+" visual mode, notoriously the snippets plugin. Using <LocalLeader> hopefully
 " minimises the problem...
-xnoremap <buffer><expr> <Leader>bf tex_seven#ChangeFontStyle('bf')
-xnoremap <buffer><expr> <Leader>it tex_seven#ChangeFontStyle('it')
-xnoremap <buffer><expr> <Leader>rm tex_seven#ChangeFontStyle('rm')
-xnoremap <buffer><expr> <Leader>sf tex_seven#ChangeFontStyle('sf')
-xnoremap <buffer><expr> <Leader>tt tex_seven#ChangeFontStyle('tt')
-xnoremap <buffer>       <Leader>up di\text{}<Left><C-R>"
+xnoremap <buffer><expr> <LocalLeader>bf tex_seven#ChangeFontStyle('bf')
+xnoremap <buffer><expr> <LocalLeader>it tex_seven#ChangeFontStyle('it')
+xnoremap <buffer><expr> <LocalLeader>rm tex_seven#ChangeFontStyle('rm')
+xnoremap <buffer><expr> <LocalLeader>sf tex_seven#ChangeFontStyle('sf')
+xnoremap <buffer><expr> <LocalLeader>tt tex_seven#ChangeFontStyle('tt')
+xnoremap <buffer>       <LocalLeader>up di\text{}<Left><C-R>"
 
 " Insert mode mappings.
 
