@@ -264,8 +264,9 @@ Table of Contents                                 *tex_seven-toc*
     specific location within it (e.g., a page number). This is done with an
     optional argument to the \cite command, e.g., \cite[p.\ 1]{foo}. But
     hitting <LocalLeader>C will leave you with \cite{foo|} (the | is the
-    cursor). Not to worry: hit <LocalLeader>? (without leaving insert mode),
-    and you will go from \cite{foo|} to \cite[|]{foo}.
+    cursor). Not to worry: hit <LocalLeader>? (in insert or normal mode, no
+    matter), and you will be left in insert mode, with the cursor at the
+    proper place to insert a specific location: \cite[|]{foo}.
 
     Moving on, there are also some macros that work by double tapping a
     character on your keyboard (super convenient for subscripts and

@@ -105,10 +105,15 @@ nnoremap <buffer><silent> gp :call tex_seven#QueryKey(1)<CR>
 
 " loc. cit. map. Say you have inserted \cite{Some:Author|}, using TeX-7
 " completion. The cursor will be left where the bar is. This map will insert
-" squre brackets, where you can then insert a specific location within that
+" square brackets, where you can then insert a specific location within that
 " reference, placing the cursor inside those brackets: \cite[|]{Some:Author}
 " (The question mark is used because I think I ran out of characters...)
 inoremap <buffer><silent> <LocalLeader>? <Esc>F{i[]<C-o><Left>
+
+" Does the same thing as the previous map, but for *normal mode*. I.e., you
+" have inserted \cite{Some:Author}, went back to normal mode, and only then
+" realised that you need to give a specific location for that reference.
+nnoremap <buffer><silent> <LocalLeader>? F{i[]<C-o><Left>
 
 " Small compile. Note that the map trigger here is :ww, and NOT
 " <LocalLeader>ww !!
