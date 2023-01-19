@@ -29,14 +29,34 @@
 " of the compilation job.
 let s:compilationIsRunning = 0
 
-let s:compiler = ''
-let s:compiler_opts = ''
+let s:compiler_cmd = []
+let s:compiler_cmd_double = []
+
+function tex_seven#build#CheckCompilerIsSet()
+  " If there is already a compiler set, then do nothing more.
+  if s:compiler_cmd != []
+    return
+  endif
+
+  " Otherwise, check settings to see if there is a compiler defined. If so,
+  " also check for compiler options.
+  if has_key(g:tex_seven_config, 'compiler_cmd')
+        \ && g:tex_seven_config.compiler_cmd != []
+    let s:compiler_cmd = g:tex_seven_config.compiler_cmd
+    if has_key(g:tex_seven_config, 'compiler_cmd_double')
+        \ && g:tex_seven_config.compiler_cmd_double != []
+      let s:compiler_cmd_double = g:tex_seven_config.compiler_cmd_double
+    endif
+  else
+    throw "CompilerNotDefined"
+  endif
+endfunction
 
 " Brief: Build the TeX project in background.
-function tex_seven#build#WriteAndBuild()
+function tex_seven#build#WriteAndBuild(double_build = 0)
   write
   try
-    call tex_seven#build#CheckCompilerAndOptions()
+    call tex_seven#build#CheckCompilerIsSet()
   catch /^CompilerNotDefined$/
     echoerr "Cannot compile document, as there is no compiler set!"
     return
@@ -53,28 +73,37 @@ function tex_seven#build#WriteAndBuild()
   " Change to directory that contains the main .tex file, attempt to build the
   " project (background), and cd back (just ot be sure).
 	execute 'lcd' tex_seven#GetPath()
-  let job = job_start(["/bin/bash", "CompileTeX.sh"],
-        \ {'close_cb': 'CloseHandler' ,
-        \  'exit_cb': 'ExitHandler' })
-  let s:compilationIsRunning = 1
-	lcd -
-endfunction
 
-function tex_seven#build#CheckCompilerAndOptions()
-  " If there is already a compiler set, then do nothing more.
-  if s:compiler != ''
-    return
-  endif
+  if a:double_build == 0
+    let job = job_start(s:compiler_cmd,
+          \ {'close_cb': 'CloseHandler' , 'exit_cb': 'ExitHandler' })
+    let s:compilationIsRunning = 1
+    lcd -
+  else " Double build.
+    if s:compiler_cmd_double != []
+      " There is a command for double compilation.
+      let job = job_start(s:compiler_cmd_double,
+            \ {'close_cb': 'CloseHandler' , 'exit_cb': 'ExitHandler' })
+      let s:compilationIsRunning = 1
+      lcd -
+    else " There is no command for double compilation, so do two single compiles.
+      let job = job_start(s:compiler_cmd,
+            \ {'close_cb': 'CloseHandler' , 'exit_cb': 'ExitHandler' })
+      let s:compilationIsRunning = 1
 
-  " Otherwise, check settings to see if there is a compiler defined. If so,
-  " also check for compiler options.
-  if has_key(g:tex_seven_config, 'compiler')
-    let s:compiler = g:tex_seven_config.compiler
-    if has_key(g:tex_seven_config, 'compiler_opts')
-      let s:compiler_opts = g:tex_seven_config.compiler_opts
+      " Wait for the previous job to finish...
+      let job_status = job_status(job)
+      while job_status == "run"
+        sleep 100m
+        let job_status = job_status(job)
+      endwhile
+
+      " Previous job finished, so now do second compile.
+      let job = job_start(s:compiler_cmd,
+            \ {'close_cb': 'CloseHandler' , 'exit_cb': 'ExitHandler' })
+      let s:compilationIsRunning = 1
+      lcd -
     endif
-  else
-    throw "CompilerNotDefined"
   endif
 endfunction
 

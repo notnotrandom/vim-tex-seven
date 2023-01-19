@@ -44,8 +44,8 @@ let b:init_tex_seven = 1
 " Defaults.
 let s:tex_seven_config = {
       \    'debug'                      : 0,
-      \    'compiler'                   : 'make',
-      \    'compiler_opts'              : '',
+      \    'compiler_cmd'               : [],
+      \    'compiler_cmd_double'        : [],
       \    'diamond_tex'                : 1,
       \    'disable'                    : 0,
       \    'label_retrieval_use_script' : 0,
@@ -118,7 +118,9 @@ nnoremap <buffer><silent> <LocalLeader>? F{i[]<C-o><Left>
 " Small compile. Note that the map trigger here is :ww, and NOT
 " <LocalLeader>ww !!
 command WaB :call tex_seven#build#WriteAndBuild()
+command WaD :call tex_seven#build#WriteAndBuild(1) " Double compile.
 nnoremap <buffer> :ww :WaB
+nnoremap <buffer> :w2 :WaD
 
 " Visual mode and operator mappings.
 
