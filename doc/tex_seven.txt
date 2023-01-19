@@ -1,4 +1,4 @@
-*tex_seven.txt*	For Vim version 7.5	Last change: July 15, 2022
+*tex_seven.txt*	For Vim version 7.5	Last change: January 19, 2023
 
                           TeX-7
 
@@ -49,8 +49,8 @@ Table of Contents                                 *tex_seven-toc*
     4.3 Includes                                  |tex_seven-jumping-includes|
     4.4 Graphics                                  |tex_seven-jumping-graphics|
   5. Completion                                   |tex_seven-completion|
-    5.1 Omni-Compilation                          |tex_seven-completion-omni|
-    5.2 Math-Compilation                          |tex_seven-completion-math|
+    5.1 Omni-Completion                           |tex_seven-completion-omni|
+    5.2 Math-Completion                           |tex_seven-completion-math|
   6. Mappings                                     |tex_seven-mappings|
     6.1 Insert Mode                               |tex_seven-mappings-insert_mode|
     6.2 Normal Mode                               |tex_seven-mappings-normal_mode|
@@ -78,13 +78,13 @@ Table of Contents                                 *tex_seven-toc*
   else. However, you may find the following settings very useful in making
   TeX-7 more convenient to use.
 
-  compiler : String
-      * Program used to compile LaTeX sources.
-      * Default: "make".
-
-  compiler_opts : String
-      * Options or parameters to be given when invoking the LaTeX compiler.
+  compiler_cmd : Array of Strings
+      * Command used to compile LaTeX sources (see example below).
       * Default: empty.
+
+  compiler_cmd_double : Array of Strings
+      * Command to do two compilations.
+      * Default: empty (but see |tex_seven-compile|).
 
   disable: Boolean
       * TeX-7 is disabled temporarily.
@@ -127,8 +127,7 @@ Table of Contents                                 *tex_seven-toc*
   Example:
 >
   let g:tex_seven_config = {
-    \ 'compiler'                   : '/bin/bash',
-    \ 'compiler_opts'              : 'CompileTeX.sh',
+    \ 'compiler_cmd'               : [ "/bin/bash", "CompileTeX.sh" ],
     \ 'label_retrieval_use_script' : 1,
     \ 'viewer'                     : 'okular' ,
     \ 'viewer_images'              : 'gwenview' }
@@ -367,12 +366,19 @@ Table of Contents                                 *tex_seven-toc*
     and this might be putting it mildly! So what one usually does is save and
     build often, so that if any errors do occur, then the user likely can
     pinpoint the change that caused it. To aid in this task, this plugin
-    defines a normal mode mapping :ww, that saves the current file, and does a
-    small compile of the LaTeX project. So instead of writing (`:w`), the user
-    can instead do a write-and-build, relatively seamlessly (`:ww`). This build
-    is done in background, and if it succeeds, nothing more is said to the
-    user, that can just continue to work. He is only notified if errors occur,
-    so that he can go fix them, before writing any more.
+    defines a normal mode mapping `:ww`, that saves the current file, and does
+    a small compile of the LaTeX project. So instead of writing (`:w`), the
+    user can instead do a write-and-build, relatively seamlessly (`:ww`). This
+    build is done in background, and if it succeeds, nothing more is said to
+    the user, that can just continue to work. He is only notified if errors
+    occur, so that he can go fix them, before writing any more.
+
+    Moreover, it also happens with some frequency that two compile runs are
+    required for some change to take effect (e.g. updates to the table of
+    contents, \ref'rencing new \label's, etc.). For this, the plugin provides
+    the normal mode mapping `:w2`. The command actually used is the one
+    supplied by the `compiler_cmd_double` config option. If no such command is
+    supplied, then the one in `compiler_cmd` is used twice.
 
 3.2 Multi-file Projects                           *tex_seven-mfile*
 
