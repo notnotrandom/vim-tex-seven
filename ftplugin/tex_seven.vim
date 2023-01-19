@@ -21,7 +21,7 @@
 "    along with this program. If not, see <http://www.gnu.org/licenses/>.
 "
 "    Copyright Elias Toivanen, 2011-2014
-"    Copyright Óscar Pereira, 2020-2022
+"    Copyright Óscar Pereira, 2020-2023
 "
 "************************************************************************
 

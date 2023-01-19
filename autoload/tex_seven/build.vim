@@ -1,7 +1,6 @@
 " LaTeX filetype plugin
 " Languages:    LaTeX
 " Maintainer:   Óscar Pereira
-" Version:      1.0
 " License:      GPL
 
 "************************************************************************
@@ -21,7 +20,7 @@
 "    You should have received a copy of the GNU General Public License
 "    along with this program. If not, see <http://www.gnu.org/licenses/>.
 "
-"    Copyright Óscar Pereira, 2020-2022
+"    Copyright Óscar Pereira, 2020-2023
 "
 "************************************************************************
 
