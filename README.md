@@ -1,3 +1,3 @@
 # TeX-7: a Vim plugin for LaTeX writing #
 
-See <https://randomwalk.eu/software/TeX-7/>.
+See <https://gd7.eu/software/TeX-7/>.
